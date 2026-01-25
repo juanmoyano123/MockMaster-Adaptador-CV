@@ -1,0 +1,94 @@
+{
+  "competitor": "Kickresume",
+  "url": "https://www.kickresume.com",
+  "category": "Premium Resume Builder with AI",
+  "positioning": "Your success story begins with a resume",
+  "targetUser": "Professionals wanting premium, polished resumes",
+  "uxPatterns": {
+    "coreFlow": {
+      "description": "Choose template -> AI assists writing -> Export",
+      "steps": [
+        "Browse templates or examples",
+        "Select template",
+        "Enter job title for AI suggestions",
+        "Fill sections with AI assistance",
+        "Customize and preview",
+        "Export PDF"
+      ],
+      "timeToValue": "8-12 minutes to first resume"
+    },
+    "onboarding": {
+      "type": "Progressive disclosure",
+      "steps": ["Signup", "Choose path (build/examples)", "Start creating"],
+      "hasWizard": false,
+      "hasTutorial": true
+    },
+    "keyFeatures": [
+      "AI Resume Writer",
+      "40+ premium templates",
+      "Real resume examples from major companies",
+      "Cover letter builder",
+      "ATS checker",
+      "Mobile app"
+    ]
+  },
+  "uiPatterns": {
+    "colorPalette": {
+      "primary": "#000000",
+      "secondary": "#FFFFFF",
+      "accent": "Colorful gradients (green, blue, red)",
+      "text": "#1F2937",
+      "background": "#FFFFFF"
+    },
+    "typography": {
+      "fontFamily": "Clean professional sans-serif",
+      "headingWeight": "700",
+      "bodyWeight": "400",
+      "bodySize": "16px"
+    },
+    "buttonStyle": {
+      "borderRadius": "8px",
+      "height": "44px",
+      "primaryStyle": "Solid black or gradient",
+      "secondaryStyle": "Outlined"
+    },
+    "visualStyle": "Modern, minimalist with playful colored icons"
+  },
+  "trustSignals": {
+    "userCount": "8,000,000 job seekers worldwide",
+    "googleRating": "4.7/5",
+    "appStoreRating": "4.6/5",
+    "realExamples": "535 customer resumes from major companies",
+    "certifications": ["CPRW", "PARWCC"]
+  },
+  "pricing": {
+    "free": {
+      "features": ["Basic templates", "Limited AI"]
+    },
+    "premium": {
+      "price": "$19/month or $5/month (annual)",
+      "features": ["All templates", "Unlimited AI", "All exports"]
+    }
+  },
+  "strengths": [
+    "Premium template quality",
+    "AI writer reduces writer's block",
+    "Real examples from major companies",
+    "Strong mobile app presence",
+    "Professional certifications displayed"
+  ],
+  "weaknesses": [
+    "AI writer is generic, not job-specific",
+    "No ATS scoring or optimization",
+    "Premium pricing for best features",
+    "Templates may be over-designed for ATS"
+  ],
+  "keyInsightsForMockMaster": [
+    "AI assistance for content is expected feature",
+    "Real examples from recognizable companies build trust",
+    "Professional certifications add credibility",
+    "Say goodbye to writer's block messaging resonates",
+    "Opportunity: Job-SPECIFIC AI writing, not generic suggestions"
+  ],
+  "analysisDate": "2026-01-25"
+}

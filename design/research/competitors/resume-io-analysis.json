@@ -1,0 +1,98 @@
+{
+  "competitor": "Resume.io",
+  "url": "https://resume.io",
+  "category": "Resume Builder",
+  "positioning": "Only 2% of resumes win. Yours will be one of them.",
+  "targetUser": "Job seekers wanting professional templates quickly",
+  "uxPatterns": {
+    "coreFlow": {
+      "description": "Template selection -> Fill content -> Export",
+      "steps": [
+        "Choose template from 40+ options",
+        "Fill in personal information",
+        "Add experience and skills",
+        "Preview and customize",
+        "Download PDF"
+      ],
+      "timeToValue": "5-10 minutes to first resume"
+    },
+    "onboarding": {
+      "type": "Magic link authentication",
+      "steps": ["Enter email", "Click magic link", "Start building"],
+      "hasWizard": true,
+      "hasTutorial": false
+    },
+    "keyFeatures": [
+      "40+ professional templates",
+      "AI-assisted writing",
+      "ATS-friendly formats",
+      "Cover letter builder",
+      "Job board integration",
+      "Interview prep tools"
+    ]
+  },
+  "uiPatterns": {
+    "colorPalette": {
+      "primary": "#1E3A5F",
+      "secondary": "#FFFFFF",
+      "accent": "#2563EB",
+      "text": "#1F2937",
+      "background": "#FFFFFF"
+    },
+    "typography": {
+      "fontFamily": "System fonts (clean sans-serif)",
+      "headingWeight": "700",
+      "bodyWeight": "400",
+      "bodySize": "16px"
+    },
+    "buttonStyle": {
+      "borderRadius": "8px",
+      "height": "48px",
+      "primaryStyle": "Solid blue CTA",
+      "secondaryStyle": "White/outlined"
+    },
+    "visualStyle": "Modern yet corporate, professional",
+    "specialElements": [
+      "Template gallery with user counts",
+      "Animated hero with typing effect",
+      "Dual CTA (Create/Upload)"
+    ]
+  },
+  "trustSignals": {
+    "reviewCount": "37,389 reviews",
+    "trustpilotReviews": "54,960",
+    "rating": "4.4/5",
+    "specificClaims": "39% more likely to land the job",
+    "socialProof": "Company logos where candidates hired"
+  },
+  "pricing": {
+    "free": {
+      "features": ["Basic templates", "Limited exports"]
+    },
+    "premium": {
+      "price": "$24.95/month or $44.95/3 months",
+      "features": ["All templates", "Unlimited downloads", "Cover letters"]
+    }
+  },
+  "strengths": [
+    "Strong social proof (millions of users)",
+    "High-quality professional templates",
+    "Magic link auth reduces friction",
+    "Clear feature organization",
+    "Mobile-friendly design"
+  ],
+  "weaknesses": [
+    "Template-focused, not job-specific",
+    "No ATS matching or scoring",
+    "Generic content, not tailored",
+    "Export limitations on free tier"
+  ],
+  "keyInsightsForMockMaster": [
+    "Social proof drives conversion (display user counts)",
+    "Magic link auth reduces friction significantly",
+    "Template categorization helps users choose",
+    "Win language resonates (only 2% win)",
+    "Opportunity: Beautiful templates WITH job-specific optimization"
+  ],
+  "analysisDate": "2026-01-25"
+}

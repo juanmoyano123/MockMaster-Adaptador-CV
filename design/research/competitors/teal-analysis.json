@@ -1,0 +1,93 @@
+{
+  "competitor": "Teal",
+  "url": "https://www.tealhq.com",
+  "category": "Comprehensive Job Search Platform",
+  "positioning": "Free Online Resume Builder That Lands Interviews 6x Faster",
+  "targetUser": "Active job seekers managing multiple applications",
+  "uxPatterns": {
+    "coreFlow": {
+      "description": "Build base resume -> Duplicate -> Customize per job",
+      "steps": [
+        "Create or import base resume",
+        "Save jobs with Chrome extension",
+        "Duplicate resume for each job",
+        "Toggle sections on/off manually",
+        "Check match score",
+        "Export"
+      ],
+      "timeToValue": "10-15 minutes to first customization"
+    },
+    "onboarding": {
+      "type": "Feature tour",
+      "steps": ["Signup", "Import LinkedIn/PDF", "Explore dashboard"],
+      "hasWizard": true,
+      "hasTutorial": true
+    },
+    "keyFeatures": [
+      "AI resume builder",
+      "Job description match tool",
+      "Kanban job tracker",
+      "Chrome extension (40+ job boards)",
+      "AI content generation",
+      "Interview prep",
+      "Application autofill"
+    ]
+  },
+  "uiPatterns": {
+    "colorPalette": {
+      "primary": "#0D9488",
+      "secondary": "#1E293B",
+      "accent": "#14B8A6",
+      "text": "#0F172A",
+      "background": "#FFFFFF"
+    },
+    "typography": {
+      "fontFamily": "Modern sans-serif",
+      "headingWeight": "600",
+      "bodyWeight": "400",
+      "bodySize": "16px"
+    },
+    "buttonStyle": {
+      "borderRadius": "8px",
+      "height": "44px",
+      "primaryStyle": "Solid teal",
+      "secondaryStyle": "Ghost"
+    },
+    "visualStyle": "Modern SaaS, clean, organized",
+    "specialElements": [
+      "Kanban boards for job tracking",
+      "Toggle switches for resume sections",
+      "Match score badges"
+    ]
+  },
+  "pricing": {
+    "free": {
+      "features": ["Unlimited resumes", "Job tracker", "Basic AI"]
+    },
+    "pro": {
+      "price": "$9/week or $29/month",
+      "features": ["Unlimited AI", "All exports", "Priority support"]
+    }
+  },
+  "strengths": [
+    "All-in-one platform (resume + tracker + AI)",
+    "Visual job tracking with Kanban boards",
+    "Chrome extension works across 40+ boards",
+    "Strong AI integration",
+    "Good user reviews for interface"
+  ],
+  "weaknesses": [
+    "Learning curve reported by users",
+    "Manual toggle workflow is tedious",
+    "Not truly automatic optimization",
+    "Templates limiting for creative roles",
+    "Feature breadth can overwhelm"
+  ],
+  "keyInsightsForMockMaster": [
+    "Job tracking is strong retention feature",
+    "Kanban visualization resonates with tech users",
+    "Users want automation, not manual toggles",
+    "Opportunity: True one-click adaptation vs manual customization"
+  ],
+  "analysisDate": "2026-01-25"
+}

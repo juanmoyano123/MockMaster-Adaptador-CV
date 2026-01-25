@@ -1,0 +1,90 @@
+{
+  "competitor": "Jobscan",
+  "url": "https://www.jobscan.co",
+  "category": "ATS Analysis Tool",
+  "positioning": "Optimize Your Resume and Boost Interview Chances",
+  "targetUser": "Job seekers concerned about ATS filtering",
+  "uxPatterns": {
+    "coreFlow": {
+      "description": "Upload resume + Paste JD = Match Score",
+      "steps": [
+        "Upload or paste resume",
+        "Paste job description",
+        "View match score and breakdown",
+        "Manual optimization suggestions"
+      ],
+      "timeToValue": "3-5 minutes to first analysis"
+    },
+    "onboarding": {
+      "type": "Minimal",
+      "steps": ["Signup", "Upload resume", "Paste JD"],
+      "hasWizard": false,
+      "hasTutorial": false
+    },
+    "keyFeatures": [
+      "ATS match score",
+      "Keyword analysis",
+      "Hard/soft skills breakdown",
+      "Formatting suggestions",
+      "Chrome extension",
+      "Job tracker"
+    ]
+  },
+  "uiPatterns": {
+    "colorPalette": {
+      "primary": "#2563EB",
+      "secondary": "#FFFFFF",
+      "accent": "#10B981",
+      "text": "#1F2937",
+      "background": "#F9FAFB"
+    },
+    "typography": {
+      "fontFamily": "Sans-serif system fonts",
+      "headingWeight": "700",
+      "bodyWeight": "400",
+      "bodySize": "16px"
+    },
+    "buttonStyle": {
+      "borderRadius": "8px",
+      "height": "48px",
+      "primaryStyle": "Solid blue with white text",
+      "secondaryStyle": "Outlined"
+    },
+    "visualStyle": "Corporate, trustworthy, professional"
+  },
+  "pricing": {
+    "free": {
+      "scansPerMonth": 5,
+      "features": ["Basic scan", "Limited analysis"]
+    },
+    "monthly": {
+      "price": "$49.95/month",
+      "features": ["Unlimited scans", "One-click optimize", "All templates"]
+    },
+    "quarterly": {
+      "price": "$29.98/month",
+      "features": ["Same as monthly"]
+    }
+  },
+  "strengths": [
+    "Clear, focused value proposition",
+    "Detailed ATS breakdown by category",
+    "Chrome extension for job saving",
+    "Strong brand recognition in market",
+    "Comprehensive keyword analysis"
+  ],
+  "weaknesses": [
+    "Only analyzes, doesn't generate optimized resume",
+    "Parser accuracy issues (misses names, LinkedIn)",
+    "High price point ($49.95/mo)",
+    "Manual optimization still required",
+    "10-minute manual sessions defeat quick promise"
+  ],
+  "keyInsightsForMockMaster": [
+    "Match score visualization is highly valued",
+    "Category breakdown builds trust",
+    "Users frustrated by analysis-without-action",
+    "Opportunity: Deliver FINISHED PRODUCT, not just insights"
+  ],
+  "analysisDate": "2026-01-25"
+}

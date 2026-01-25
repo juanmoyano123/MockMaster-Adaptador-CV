@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MockMaster - Progress Dashboard</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: #0F0F0F;
+            color: #E5E7EB;
+            line-height: 1.6;
+            padding: 24px;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+        }
+
+        /* Header */
+        .header {
+            background: #1A1A1A;
+            border: 1px solid #2A2A2A;
+            border-radius: 12px;
+            padding: 32px;
+            margin-bottom: 24px;
+        }
+
+        .project-title {
+            font-size: 32px;
+            font-weight: 700;
+            color: #FFFFFF;
+            margin-bottom: 8px;
+        }
+
+        .last-updated {
+            font-size: 14px;
+            color: #9CA3AF;
+            margin-bottom: 24px;
+        }
+
+        .progress-summary {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin-top: 24px;
+        }
+
+        .stat-card {
+            background: #252525;
+            border: 1px solid #2A2A2A;
+            border-radius: 8px;
+            padding: 16px;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            font-weight: 500;
+            color: #9CA3AF;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 8px;
+        }
+
+        .stat-value {
+            font-size: 28px;
+            font-weight: 700;
+            color: #FFFFFF;
+        }
+
+        .stat-percentage {
+            font-size: 14px;
+            color: #6B7280;
+            margin-left: 8px;
+        }
+
+        /* Progress Bar */
+        .progress-bar-container {
+            margin-top: 24px;
+            background: #252525;
+            border-radius: 8px;
+            height: 12px;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, #10B981 0%, #059669 100%);
+            transition: width 0.3s ease;
+        }
+
+        /* Cycles */
+        .cycles-container {
+            margin-top: 24px;
+        }
+
+        .cycle {
+            background: #1A1A1A;
+            border: 1px solid #2A2A2A;
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 24px;
+        }
+
+        .cycle-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+
+        .cycle-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: #FFFFFF;
+        }
+
+        .cycle-progress {
+            font-size: 14px;
+            color: #9CA3AF;
+            background: #252525;
+            padding: 4px 12px;
+            border-radius: 6px;
+        }
+
+        /* Kanban Board */
+        .kanban-board {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+        }
+
+        .kanban-column {
+            background: #252525;
+            border: 1px solid #2A2A2A;
+            border-radius: 8px;
+            padding: 16px;
+            min-height: 200px;
+        }
+
+        .column-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 16px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid #2A2A2A;
+        }
+
+        .column-title {
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .column-count {
+            font-size: 12px;
+            color: #6B7280;
+        }
+
+        .backlog .column-title { color: #6B7280; }
+        .in-progress .column-title { color: #F59E0B; }
+        .done .column-title { color: #10B981; }
+
+        /* Cards */
+        .feature-card {
+            background: #1A1A1A;
+            border: 1px solid #2A2A2A;
+            border-radius: 6px;
+            padding: 12px;
+            margin-bottom: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .feature-card:hover {
+            border-color: #3B82F6;
+            transform: translateY(-2px);
+        }
+
+        .feature-id {
+            font-size: 11px;
+            font-weight: 600;
+            color: #6B7280;
+            margin-bottom: 4px;
+        }
+
+        .feature-name {
+            font-size: 14px;
+            font-weight: 600;
+            color: #FFFFFF;
+            margin-bottom: 4px;
+        }
+
+        .feature-description {
+            font-size: 12px;
+            color: #9CA3AF;
+            line-height: 1.4;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 32px 16px;
+            color: #6B7280;
+            font-size: 14px;
+        }
+
+        /* Footer */
+        .footer {
+            margin-top: 24px;
+            text-align: center;
+            color: #6B7280;
+            font-size: 14px;
+        }
+
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .kanban-board {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1 class="project-title">MockMaster - Adaptador Inteligente de CV</h1>
+            <div class="last-updated">Última actualización: <span id="lastUpdated">-</span></div>
+
+            <div class="progress-summary">
+                <div class="stat-card">
+                    <div class="stat-label">Total Features</div>
+                    <div class="stat-value"><span id="totalFeatures">0</span></div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Completadas</div>
+                    <div class="stat-value" style="color: #10B981;">
+                        <span id="doneFeatures">0</span>
+                        <span class="stat-percentage">(<span id="donePercentage">0</span>%)</span>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">En Progreso</div>
+                    <div class="stat-value" style="color: #F59E0B;">
+                        <span id="inProgressFeatures">0</span>
+                        <span class="stat-percentage">(<span id="inProgressPercentage">0</span>%)</span>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Pendientes</div>
+                    <div class="stat-value" style="color: #6B7280;">
+                        <span id="backlogFeatures">0</span>
+                        <span class="stat-percentage">(<span id="backlogPercentage">0</span>%)</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="progress-bar-container">
+                <div class="progress-bar" id="progressBar" style="width: 0%"></div>
+            </div>
+        </div>
+
+        <!-- Cycles -->
+        <div class="cycles-container" id="cyclesContainer"></div>
+
+        <!-- Footer -->
+        <div class="footer">
+            Dashboard generado automáticamente desde PROGRESS.md •
+            <a href="PROGRESS.md" style="color: #3B82F6; text-decoration: none;">Ver PROGRESS.md</a>
+        </div>
+    </div>
+
+    <script>
+        async function loadProgressData() {
+            try {
+                const response = await fetch('PROGRESS.md');
+                const text = await response.text();
+                parseAndRenderProgress(text);
+            } catch (error) {
+                console.error('Error loading PROGRESS.md:', error);
+                document.getElementById('cyclesContainer').innerHTML =
+                    '<div class="empty-state">Error cargando PROGRESS.md</div>';
+            }
+        }
+
+        function parseAndRenderProgress(markdown) {
+            const lines = markdown.split('\n');
+            const cycles = [];
+            let currentCycle = null;
+            let currentSection = null;
+            let projectName = '';
+            let lastUpdated = '';
+
+            for (let line of lines) {
+                line = line.trim();
+
+                // Extract project name
+                if (line.startsWith('# Proyecto:')) {
+                    projectName = line.replace('# Proyecto:', '').trim();
+                }
+
+                // Extract last updated
+                if (line.startsWith('Última actualización:')) {
+                    lastUpdated = line.replace('Última actualización:', '').trim();
+                }
+
+                // Detect cycle
+                if (line.startsWith('## Ciclo')) {
+                    if (currentCycle) cycles.push(currentCycle);
+                    currentCycle = {
+                        name: line.replace('##', '').trim(),
+                        done: [],
+                        in_progress: [],
+                        backlog: []
+                    };
+                    currentSection = null;
+                }
+
+                // Detect section
+                if (line === '### DONE') currentSection = 'done';
+                else if (line === '### IN_PROGRESS') currentSection = 'in_progress';
+                else if (line === '### BACKLOG') currentSection = 'backlog';
+
+                // Extract features
+                if (line.startsWith('- F-') && currentCycle && currentSection) {
+                    const parts = line.substring(2).split('|').map(p => p.trim());
+                    if (parts.length >= 3) {
+                        const feature = {
+                            id: parts[0],
+                            name: parts[1],
+                            description: parts[2]
+                        };
+                        currentCycle[currentSection].push(feature);
+                    }
+                }
+            }
+
+            if (currentCycle) cycles.push(currentCycle);
+
+            // Update stats
+            const totalFeatures = cycles.reduce((sum, cycle) =>
+                sum + cycle.done.length + cycle.in_progress.length + cycle.backlog.length, 0);
+            const doneFeatures = cycles.reduce((sum, cycle) => sum + cycle.done.length, 0);
+            const inProgressFeatures = cycles.reduce((sum, cycle) => sum + cycle.in_progress.length, 0);
+            const backlogFeatures = cycles.reduce((sum, cycle) => sum + cycle.backlog.length, 0);
+
+            const donePercentage = totalFeatures > 0 ? Math.round((doneFeatures / totalFeatures) * 100) : 0;
+            const inProgressPercentage = totalFeatures > 0 ? Math.round((inProgressFeatures / totalFeatures) * 100) : 0;
+            const backlogPercentage = totalFeatures > 0 ? Math.round((backlogFeatures / totalFeatures) * 100) : 0;
+
+            document.getElementById('lastUpdated').textContent = lastUpdated;
+            document.getElementById('totalFeatures').textContent = totalFeatures;
+            document.getElementById('doneFeatures').textContent = doneFeatures;
+            document.getElementById('inProgressFeatures').textContent = inProgressFeatures;
+            document.getElementById('backlogFeatures').textContent = backlogFeatures;
+            document.getElementById('donePercentage').textContent = donePercentage;
+            document.getElementById('inProgressPercentage').textContent = inProgressPercentage;
+            document.getElementById('backlogPercentage').textContent = backlogPercentage;
+            document.getElementById('progressBar').style.width = donePercentage + '%';
+
+            // Render cycles
+            renderCycles(cycles);
+        }
+
+        function renderCycles(cycles) {
+            const container = document.getElementById('cyclesContainer');
+            container.innerHTML = '';
+
+            cycles.forEach(cycle => {
+                const totalInCycle = cycle.done.length + cycle.in_progress.length + cycle.backlog.length;
+                const doneInCycle = cycle.done.length;
+                const progressText = totalInCycle > 0
+                    ? `${doneInCycle}/${totalInCycle} (${Math.round((doneInCycle/totalInCycle)*100)}%)`
+                    : '0/0 (0%)';
+
+                const cycleDiv = document.createElement('div');
+                cycleDiv.className = 'cycle';
+                cycleDiv.innerHTML = `
+                    <div class="cycle-header">
+                        <h2 class="cycle-title">${cycle.name}</h2>
+                        <div class="cycle-progress">${progressText}</div>
+                    </div>
+                    <div class="kanban-board">
+                        <div class="kanban-column backlog">
+                            <div class="column-header">
+                                <div class="column-title">Backlog</div>
+                                <div class="column-count">${cycle.backlog.length}</div>
+                            </div>
+                            ${renderFeatures(cycle.backlog)}
+                        </div>
+                        <div class="kanban-column in-progress">
+                            <div class="column-header">
+                                <div class="column-title">In Progress</div>
+                                <div class="column-count">${cycle.in_progress.length}</div>
+                            </div>
+                            ${renderFeatures(cycle.in_progress)}
+                        </div>
+                        <div class="kanban-column done">
+                            <div class="column-header">
+                                <div class="column-title">Done</div>
+                                <div class="column-count">${cycle.done.length}</div>
+                            </div>
+                            ${renderFeatures(cycle.done)}
+                        </div>
+                    </div>
+                `;
+                container.appendChild(cycleDiv);
+            });
+        }
+
+        function renderFeatures(features) {
+            if (features.length === 0) {
+                return '<div class="empty-state">No hay features</div>';
+            }
+
+            return features.map(feature => `
+                <div class="feature-card">
+                    <div class="feature-id">${feature.id}</div>
+                    <div class="feature-name">${feature.name}</div>
+                    <div class="feature-description">${feature.description}</div>
+                </div>
+            `).join('');
+        }
+
+        // Load on page load
+        loadProgressData();
+    </script>
+</body>
+</html>

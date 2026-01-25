@@ -1,0 +1,101 @@
+{
+  "competitor": "Enhancv",
+  "url": "https://www.enhancv.com",
+  "category": "Modern Design-Forward Builder",
+  "positioning": "Land more interviews with Enhancv's Resume Builder",
+  "targetUser": "Professionals wanting modern, visually distinct resumes",
+  "uxPatterns": {
+    "coreFlow": {
+      "description": "Template -> AI recommendations -> One-click tailoring",
+      "steps": [
+        "Choose from industry-specific templates",
+        "Import or create resume",
+        "Get AI content suggestions",
+        "One-click tailoring for job",
+        "Preview and export"
+      ],
+      "timeToValue": "6-10 minutes to first resume"
+    },
+    "onboarding": {
+      "type": "Guided with AI",
+      "steps": ["Signup", "Choose template", "AI assists content"],
+      "hasWizard": true,
+      "hasTutorial": true
+    },
+    "keyFeatures": [
+      "AI content suggestions",
+      "One-click tailoring",
+      "Resume vs JD matching",
+      "Modern templates by industry",
+      "ATS compatibility check",
+      "Real examples by role"
+    ]
+  },
+  "uiPatterns": {
+    "colorPalette": {
+      "primary": "#249A71",
+      "primaryLight": "#57CDA4",
+      "secondary": "#5B7CDB",
+      "accent": "#FF687D",
+      "accentYellow": "#FFE0B9",
+      "accentPurple": "#A396E2",
+      "text": "#1F2937",
+      "background": "#FFFFFF"
+    },
+    "typography": {
+      "fontFamily": "Modern sans-serif",
+      "headingWeight": "600",
+      "bodyWeight": "400",
+      "bodySize": "16px",
+      "lineHeight": "1.6"
+    },
+    "buttonStyle": {
+      "borderRadius": "8px",
+      "height": "48px",
+      "primaryStyle": "Solid green gradient",
+      "secondaryStyle": "Ghost with border"
+    },
+    "visualStyle": "Playful yet professional, vibrant colors",
+    "specialElements": [
+      "Soft blur gradients",
+      "Organic shapes",
+      "3D depth elements",
+      "Asymmetric layouts"
+    ]
+  },
+  "trustSignals": {
+    "resumeCount": "15M+ resumes created",
+    "rating": "4.5/5 from 5,068 reviews",
+    "certification": "PARWCC",
+    "recentMetric": "28,452 users landed interviews last month",
+    "founderAttribution": "Volen Vulkov"
+  },
+  "pricing": {
+    "free": {
+      "features": ["1 resume", "Basic templates"]
+    },
+    "pro": {
+      "price": "$24.99/month or $9.99/month (annual)",
+      "features": ["Unlimited resumes", "All templates", "AI features"]
+    }
+  },
+  "strengths": [
+    "Modern, vibrant design language",
+    "Strong AI integration",
+    "One-click tailoring concept",
+    "Specific outcome metrics (interviews landed)",
+    "Asymmetric layouts feel fresh"
+  ],
+  "weaknesses": [
+    "Visual complexity may distract",
+    "Playful style may not suit all industries",
+    "Template uniqueness may conflict with ATS"
+  ],
+  "keyInsightsForMockMaster": [
+    "Vibrant colors can differentiate from corporate competitors",
+    "Specific outcome metrics (interviews landed) are powerful",
+    "One-click tailoring is desirable messaging",
+    "Opportunity: Modern design + ATS optimization (currently either/or)"
+  ],
+  "analysisDate": "2026-01-25"
+}

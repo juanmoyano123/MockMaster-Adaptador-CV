@@ -1,0 +1,104 @@
+{
+  "competitor": "Novoresume",
+  "url": "https://novoresume.com",
+  "category": "Clean European-Style Builder",
+  "positioning": "Build [resume] in as little as 5 minutes",
+  "targetUser": "International job seekers, speed-focused users",
+  "uxPatterns": {
+    "coreFlow": {
+      "description": "Quick start -> Template -> Export",
+      "steps": [
+        "Watch 2-minute video demo",
+        "Sign up",
+        "Choose template",
+        "Fill sections",
+        "Export PDF"
+      ],
+      "timeToValue": "5-8 minutes to first resume"
+    },
+    "onboarding": {
+      "type": "Video-guided",
+      "steps": ["Watch demo", "Signup", "Quick start"],
+      "hasWizard": false,
+      "hasTutorial": true
+    },
+    "keyFeatures": [
+      "Quick resume creation",
+      "Clean templates",
+      "Job Search Masterclass content",
+      "Cover letter builder",
+      "Mobile-responsive editor",
+      "International focus"
+    ]
+  },
+  "uiPatterns": {
+    "colorPalette": {
+      "primary": "#00C8AA",
+      "secondary": "#2CACD5",
+      "tertiary": "#313B47",
+      "accentYellow": "#FBD04C",
+      "accentPurple": "#584A9D",
+      "accentCoral": "#F27575",
+      "text": "#1F2937",
+      "background": "#FFFFFF"
+    },
+    "typography": {
+      "fontFamily": "Euclid Circular B",
+      "headingScale": {
+        "h1": "5.2rem",
+        "h2": "4.4rem",
+        "body": "2rem"
+      },
+      "headingWeight": "700",
+      "bodyWeight": "400"
+    },
+    "buttonStyle": {
+      "borderRadius": "5rem (very rounded)",
+      "height": "4.4rem",
+      "primaryStyle": "Teal gradient",
+      "secondaryStyle": "Outlined"
+    },
+    "visualStyle": "Clean minimalism, gradient backgrounds, curved shapes",
+    "layout": {
+      "baseUnit": "4rem",
+      "breakpoints": ["1650px", "1000px", "600px"],
+      "approach": "Mobile-first responsive"
+    }
+  },
+  "trustSignals": {
+    "pressFeatures": ["Forbes", "Business Insider"],
+    "trustpilot": "Integrated rating display",
+    "companyMentions": ["BBC", "Google", "Apple", "Tesla", "Airbnb"],
+    "contentOffering": "Job Search Masterclass, eBooks"
+  },
+  "pricing": {
+    "free": {
+      "features": ["1 resume", "Basic templates"]
+    },
+    "premium": {
+      "price": "$19.99/month or $9.99/month (annual)",
+      "features": ["All templates", "Cover letters", "Priority support"]
+    }
+  },
+  "strengths": [
+    "Speed-focused value prop (5 minutes)",
+    "Clean, professional design",
+    "Strong mobile experience",
+    "Educational content (Masterclass)",
+    "International appeal"
+  ],
+  "weaknesses": [
+    "Generic template filling",
+    "No job-specific optimization",
+    "Limited AI features",
+    "European focus may limit US appeal"
+  ],
+  "keyInsightsForMockMaster": [
+    "Speed messaging resonates (60 seconds > 5 minutes)",
+    "Video demonstrations build trust",
+    "Clean teal-based palettes feel professional yet modern",
+    "Educational content adds value beyond core product",
+    "Opportunity: Faster + smarter = 60 seconds to job-specific resume"
+  ],
+  "analysisDate": "2026-01-25"
+}

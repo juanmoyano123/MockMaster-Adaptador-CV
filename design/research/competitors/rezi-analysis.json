@@ -1,0 +1,101 @@
+{
+  "competitor": "Rezi.ai",
+  "url": "https://www.rezi.ai",
+  "category": "AI-First Resume Generation",
+  "positioning": "Free AI Resume Builder. Getting you ready for 2026.",
+  "targetUser": "AI-savvy job seekers wanting automated creation",
+  "uxPatterns": {
+    "coreFlow": {
+      "description": "Upload existing -> AI enhances -> Export",
+      "steps": [
+        "Upload or create resume",
+        "AI analyzes and suggests improvements",
+        "View Rezi Score",
+        "Toggle elements to see score change",
+        "Export optimized resume"
+      ],
+      "timeToValue": "5-8 minutes to first optimization"
+    },
+    "onboarding": {
+      "type": "AI-guided",
+      "steps": ["Signup", "Upload/paste resume", "AI takes over"],
+      "hasWizard": true,
+      "hasTutorial": false
+    },
+    "keyFeatures": [
+      "AI resume enhancement",
+      "Rezi Score optimization gauge",
+      "Real-time matching feedback",
+      "Drag-drop resume import",
+      "ATS-friendly templates",
+      "Video testimonials"
+    ]
+  },
+  "uiPatterns": {
+    "colorPalette": {
+      "primary": "#4D70EB",
+      "gradient": "Blue -> Red -> Purple (animated)",
+      "secondary": "#F2F4F7",
+      "highlight": "#D2FFF8",
+      "text": "#1F2937",
+      "background": "#FFFFFF"
+    },
+    "typography": {
+      "fontFamily": "Open Sans, Merriweather, Inter",
+      "headingWeight": "700",
+      "bodyWeight": "400",
+      "bodySize": "16px"
+    },
+    "buttonStyle": {
+      "borderRadius": "8px",
+      "height": "48px",
+      "primaryStyle": "Animated gradient CTA",
+      "secondaryStyle": "Ghost"
+    },
+    "visualStyle": "Modern SaaS, animated elements, engaging",
+    "specialElements": [
+      "Animated gradient CTAs",
+      "Real-time score gauge",
+      "Drag-drop upload zone with states",
+      "Interactive toggles",
+      "Loading spinner animations"
+    ]
+  },
+  "trustSignals": {
+    "userCount": "4,005,400 total users",
+    "pressQuote": "Forbes: best resume builder in 2025",
+    "trustpilot": "4.5/5 (129 reviews)",
+    "security": "SOC 2 compliance",
+    "testimonials": "20+ video case studies"
+  },
+  "pricing": {
+    "free": {
+      "features": ["Basic AI", "Limited exports", "1 resume"]
+    },
+    "pro": {
+      "price": "$29/month or $3/month (lifetime deal available)",
+      "features": ["Unlimited AI", "All templates", "Priority support"]
+    }
+  },
+  "strengths": [
+    "AI-first positioning resonates with tech users",
+    "Real-time score feedback is engaging",
+    "Animated, modern interface",
+    "SOC 2 compliance builds enterprise trust",
+    "Video testimonials are compelling"
+  ],
+  "weaknesses": [
+    "AI can feel like black box",
+    "Less control for power users",
+    "Newer brand, less recognition",
+    "Score gamification may not equal results"
+  ],
+  "keyInsightsForMockMaster": [
+    "AI-first positioning is competitive advantage",
+    "Real-time score feedback is engaging",
+    "Animated CTAs grab attention",
+    "SOC 2 compliance matters for enterprise",
+    "Opportunity: AI-first + transparency (show what changed)"
+  ],
+  "analysisDate": "2026-01-25"
+}
