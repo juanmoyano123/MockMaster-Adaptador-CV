@@ -120,11 +120,37 @@ export interface ChangesSummary {
   experiences_reordered: boolean;
 }
 
+/**
+ * Detailed breakdown of ATS score components
+ * Feature: F-005
+ */
+export interface ATSScoreBreakdown {
+  // Component scores (0-100 each)
+  total_score: number;           // Weighted average of all components
+  keyword_score: number;         // How many job keywords appear in resume
+  skills_score: number;          // Required skills match rate
+  experience_score: number;      // Relevance of experience (AI-scored)
+  format_score: number;          // Always 100 (our templates are ATS-friendly)
+
+  // Keyword details
+  keywords_matched: number;      // e.g., 17
+  keywords_total: number;        // e.g., 20
+  missing_keywords: string[];    // Top 10 missing keywords
+
+  // Skills details
+  skills_matched: string[];      // ["Python", "AWS", "Docker"]
+  skills_missing: string[];      // ["Kubernetes", "Terraform"]
+
+  // Actionable suggestions
+  suggestions: string[];         // Max 5 suggestions for improvement
+}
+
 export interface AdaptedResume {
   original_resume_hash: string;
   job_analysis_hash: string;
   adapted_content: AdaptedContent;
   ats_score: number;
+  ats_breakdown?: ATSScoreBreakdown;    // NEW: Detailed breakdown (optional for migration)
   changes_summary: ChangesSummary;
   adapted_at: string;
 }

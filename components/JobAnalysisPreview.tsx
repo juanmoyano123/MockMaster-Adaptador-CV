@@ -154,10 +154,9 @@ export default function JobAnalysisPreview({
       <div className="flex flex-col sm:flex-row gap-3 mt-8">
         <button
           onClick={onProceedToAdaptation}
-          className="flex-1 px-6 py-4 bg-gradient-to-r from-primary-600 to-secondary-600
-                   hover:from-primary-700 hover:to-secondary-700 text-white font-medium
-                   rounded-lg shadow-sm hover:shadow-md transition-all duration-200
-                   flex items-center justify-center gap-2"
+          className="flex-1 px-6 py-4 bg-primary-600 hover:bg-primary-700
+                   text-white font-semibold rounded-lg shadow-sm hover:shadow-md
+                   transition-all duration-200 flex items-center justify-center gap-2"
         >
           <svg
             className="w-5 h-5"

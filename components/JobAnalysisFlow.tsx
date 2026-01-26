@@ -137,9 +137,8 @@ export default function JobAnalysisFlow() {
   };
 
   const handleProceedToAdaptation = () => {
-    // TODO: Navigate to F-004 (Resume Adaptation) when implemented
-    showSuccessToast('Resume adaptation feature coming soon!');
-    // router.push('/adapt-resume');
+    // Navigate to F-004 (Resume Adaptation)
+    router.push('/adapt-resume');
   };
 
   return (

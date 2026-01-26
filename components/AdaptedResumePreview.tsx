@@ -48,7 +48,7 @@ export default function AdaptedResumePreview({
   original,
   jobAnalysisCompanyName = 'Company',
 }: AdaptedResumePreviewProps) {
-  const { adapted_content, ats_score, changes_summary } = resume;
+  const { adapted_content, ats_score, ats_breakdown, changes_summary } = resume;
 
   // PDF Template Selection State (F-006)
   const [selectedTemplate, setSelectedTemplate] = useState<TemplateType>('modern');
@@ -324,7 +324,7 @@ export default function AdaptedResumePreview({
         <div className="flex flex-col md:flex-row items-center justify-between gap-6">
           {/* ATS Score */}
           <div className="flex-shrink-0">
-            <ATSScoreDisplay score={ats_score} />
+            <ATSScoreDisplay score={ats_score} breakdown={ats_breakdown} />
           </div>
 
           {/* Changes Summary */}

@@ -99,6 +99,32 @@ export default function ResumeAdaptationFlow() {
         );
       }
 
+      // NEW (F-005): Calculate detailed ATS breakdown
+      setProgress('Calculating ATS score breakdown...');
+      try {
+        const breakdownResponse = await fetch('/api/calculate-ats-breakdown', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            adapted_content: data.adapted_content,
+            job_analysis: jobAnalysis,
+          }),
+        });
+
+        if (breakdownResponse.ok) {
+          const breakdownData = await breakdownResponse.json();
+          data.ats_breakdown = breakdownData.breakdown;
+          console.log('ATS breakdown calculated:', breakdownData.breakdown);
+        } else {
+          console.warn('Failed to calculate ATS breakdown, continuing without it');
+        }
+      } catch (breakdownError) {
+        console.error('Error calculating ATS breakdown:', breakdownError);
+        // Non-critical error - continue without breakdown
+      }
+
       setProgress('Done!');
 
       // Save to localStorage
