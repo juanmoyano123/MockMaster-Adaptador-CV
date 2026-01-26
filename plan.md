@@ -26,11 +26,12 @@ Tech professionals (software engineers, designers, product managers) actively jo
 
 "We help tech professionals land more interviews by transforming their master resume into job-specific, ATS-optimized versions in 60 seconds - no manual editing required."
 
-**Success Metrics (North Star Metric):**
+**Success Metrics (North Star Metric - MVP No Auth):**
 
-- **North Star:** Resume Adaptations Completed per User per Month - Target: 8+
-- **Input Metric 1:** Time from signup to first adaptation - Target: < 5 minutes
+- **North Star:** PDF Downloads per Week - Target: 100+ downloads/week
+- **Input Metric 1:** Time from landing to first download - Target: < 3 minutes
 - **Input Metric 2:** ATS score improvement (before vs after) - Target: +25 points average
+- **Input Metric 3:** Session persistence (users returning same day) - Target: 30%+
 - **Guardrail Metric:** AI hallucination rate (invented information) - Maximum threshold: < 2%
 
 ---
@@ -346,19 +347,22 @@ Tech professionals (software engineers, designers, product managers) actively jo
 
 | ID | Feature Name | Priority | RICE Score | Reach | Impact | Confidence | Effort | Dependencies | User Story Summary |
 |----|--------------|----------|------------|-------|--------|------------|--------|--------------|-------------------|
-| F-001 | User Authentication & Account | P0 | **240** | 10 | 3 | 80% | 1w | - | As a user I want to create an account to save my resumes |
-| F-002 | Master Resume Upload & Parsing | P0 | **216** | 10 | 3 | 90% | 1.25w | F-001 | As a user I want to upload my resume to use it for adaptations |
-| F-003 | Job Description Analysis | P0 | **192** | 10 | 3 | 80% | 1.25w | F-001 | As a user I want to paste a job description to get keyword analysis |
-| F-004 | AI Resume Adaptation Engine | P0 | **288** | 10 | 3 | 80% | 1.5w | F-002, F-003 | As a user I want AI to adapt my resume to match the job |
-| F-005 | ATS Compatibility Score | P0 | **160** | 10 | 2 | 80% | 1w | F-003, F-004 | As a user I want to see how well my resume matches the job |
-| F-006 | PDF Export with Templates | P0 | **180** | 10 | 3 | 90% | 1.5w | F-004 | As a user I want to download my adapted resume as PDF |
-| F-007 | Application History Tracker | P0 | **96** | 8 | 2 | 80% | 1.25w | F-001, F-004 | As a user I want to track which resume I sent where |
-| F-008 | Onboarding Wizard | P0 | **128** | 10 | 2 | 80% | 1w | F-001, F-002 | As a new user I want guided steps to generate my first resume |
-| F-009 | Stripe Subscription Integration | P0 | **72** | 6 | 2 | 100% | 1w | F-001 | As a user I want to upgrade to Pro for unlimited adaptations |
-| F-010 | Usage Limits & Rate Limiting | P0 | **48** | 6 | 1 | 100% | 0.75w | F-001, F-009 | As a system I need to enforce free tier limits |
-| F-011 | Dashboard & Resume Management | P1 | **64** | 8 | 1 | 80% | 1w | F-001, F-004 | As a user I want to see all my resumes in one place |
-| F-012 | Edit Adapted Resume Before Export | P1 | **54** | 6 | 1.5 | 80% | 1.125w | F-004 | As a user I want to tweak AI suggestions before downloading |
-| F-013 | Multiple Template Selection | P1 | **48** | 6 | 1 | 100% | 0.75w | F-006 | As a user I want to choose from different resume designs |
+| **MVP - NO AUTH (Weeks 1-4)** | | | | | | | | | |
+| F-002 | Resume Upload & Parsing (localStorage) | P0 | **270** | 10 | 3 | 90% | 1w | - | As a user I want to upload my resume (stored in browser localStorage) |
+| F-003 | Job Description Analysis | P0 | **240** | 10 | 3 | 80% | 1w | - | As a user I want to paste a job description to get keyword analysis |
+| F-004 | AI Resume Adaptation Engine | P0 | **320** | 10 | 3 | 80% | 1.5w | F-002, F-003 | As a user I want AI to adapt my resume to match the job |
+| F-005 | ATS Compatibility Score | P0 | **200** | 10 | 2 | 80% | 1w | F-003, F-004 | As a user I want to see how well my resume matches the job |
+| F-006 | PDF Export with Templates | P0 | **225** | 10 | 3 | 90% | 1w | F-004 | As a user I want to download my adapted resume as PDF |
+| F-012 | Edit Adapted Resume Before Export | P0 | **72** | 6 | 1.5 | 80% | 0.75w | F-004 | As a user I want to tweak AI suggestions before downloading |
+| **V2 - WITH AUTH (Post-MVP)** | | | | | | | | | |
+| F-001 | User Authentication & Account | P1 | **240** | 10 | 3 | 80% | 1w | - | As a user I want to create an account to save my resumes in the cloud |
+| F-007 | Application History Tracker | P1 | **96** | 8 | 2 | 80% | 1.25w | F-001 | As a user I want to track which resume I sent where |
+| F-008 | Onboarding Wizard | P1 | **128** | 10 | 2 | 80% | 1w | F-001 | As a new user I want guided steps to generate my first resume |
+| F-009 | Stripe Subscription Integration | P1 | **72** | 6 | 2 | 100% | 1w | F-001 | As a user I want to upgrade to Pro for unlimited adaptations |
+| F-010 | Usage Limits & Rate Limiting | P1 | **48** | 6 | 1 | 100% | 0.75w | F-001, F-009 | As a system I need to enforce free tier limits per user |
+| F-011 | Dashboard & Resume Management | P1 | **64** | 8 | 1 | 80% | 1w | F-001 | As a user I want to see all my resumes in one place |
+| **V3 - ENHANCEMENTS** | | | | | | | | | |
+| F-013 | Multiple Template Selection | P2 | **48** | 6 | 1 | 100% | 0.75w | F-006 | As a user I want to choose from different resume designs |
 | F-014 | Job Description URL Extraction | P2 | **24** | 4 | 1 | 80% | 1.25w | F-003 | As a user I want to paste a URL instead of copying text |
 
 ---
@@ -2213,44 +2217,58 @@ These MUST complete on time. Other features (Tracker, Onboarding) can be simplif
 
 ## ROADMAP
 
-### MVP (Weeks 1-6) - Included Features
+### MVP - No Auth, localStorage (Weeks 1-4)
 
-| ID | Feature | Priority | Included |
-|----|---------|----------|----------|
-| F-001 | User Authentication | P0 | Yes |
-| F-002 | Resume Upload & Parsing | P0 | Yes |
-| F-003 | Job Description Analysis | P0 | Yes |
-| F-004 | AI Resume Adaptation | P0 | Yes |
-| F-005 | ATS Compatibility Score | P0 | Yes |
-| F-006 | PDF Export (3 templates) | P0 | Yes |
-| F-007 | Application Tracker | P0 | Yes |
-| F-008 | Onboarding Wizard | P0 | Yes |
-| F-009 | Stripe Subscriptions | P0 | Yes |
-| F-010 | Usage Limits | P0 | Yes |
+**Philosophy:** Validate core AI value proposition before investing in infrastructure.
 
----
+| ID | Feature | Priority | Effort | Notes |
+|----|---------|----------|--------|-------|
+| F-002 | Resume Upload & Parsing (localStorage) | P0 | 1w | Stored in browser, no backend |
+| F-003 | Job Description Analysis | P0 | 1w | Claude API analysis |
+| F-004 | AI Resume Adaptation Engine | P0 | 1.5w | **Core product** |
+| F-005 | ATS Compatibility Score | P0 | 1w | Validation metric |
+| F-006 | PDF Export (3 templates) | P0 | 1w | Clean, Modern, Compact |
+| F-012 | Edit Before Export | P0 | 0.75w | User control over AI output |
 
-### V1.1 (Weeks 7-10) - Post-Launch Improvements
-
-| ID | Feature | RICE Score | Why V1.1 |
-|----|---------|------------|----------|
-| F-011 | Dashboard Improvements | 64 | Polish based on user feedback |
-| F-012 | Edit Before Export | 54 | Users may want to tweak AI output |
-| F-013 | Additional Templates | 48 | More template variety requested |
-| - | Performance Optimizations | - | Based on production metrics |
-| - | Bug Fixes | - | From launch feedback |
+**Total:** 6 features, 3-4 weeks
+**Stack:** Next.js + localStorage + Claude API + Puppeteer
+**Cost:** $5-10/month (Claude API only)
+**Rate Limiting:** 5 adaptations/day per IP (Upstash Redis)
 
 ---
 
-### V2.0 (Months 3-6) - Growth Features
+### V2 - Authentication & Monetization (Weeks 5-7)
 
-| Feature | Why Now | Impact |
-|---------|---------|--------|
-| Cover Letter Generation | Natural upsell, high user demand | Increase ARPU |
-| Bulk Generation (10 jobs) | Power user feature, Pro tier | Retention |
-| LinkedIn Profile Import | Reduce onboarding friction | Activation |
-| Chrome Extension | Auto-apply convenience | Differentiation |
-| B2B Team Features | Unlock career coach market | Revenue expansion |
+**Trigger:** 100+ active users/week OR positive validation metrics
+
+| ID | Feature | Priority | Effort | Dependencies |
+|----|---------|----------|--------|--------------|
+| F-001 | User Authentication (Supabase + Google OAuth) | P1 | 1w | - |
+| F-007 | Application History Tracker | P1 | 1.25w | F-001 |
+| F-008 | Onboarding Wizard | P1 | 1w | F-001 |
+| F-009 | Stripe Subscription Integration | P1 | 1w | F-001 |
+| F-010 | Usage Limits per User | P1 | 0.75w | F-001, F-009 |
+| F-011 | Dashboard & Resume Management | P1 | 1w | F-001 |
+
+**Total:** 6 features, 3 weeks
+**Migration Time:** 3-5 days (modify lib/storage.ts only)
+**New Stack:** + Supabase (Auth + PostgreSQL + Storage) + Stripe
+**Cost:** $25-50/month
+
+---
+
+### V3 - Enhancements (Months 3+)
+
+**Post-monetization growth features**
+
+| Feature | RICE | Why V3 | Impact |
+|---------|------|--------|--------|
+| F-013: 5+ Template Selection | 48 | User demand for variety | Differentiation |
+| F-014: Job URL Extraction | 24 | Convenience feature | UX improvement |
+| Cover Letter Generation | TBD | Natural upsell | Increase ARPU |
+| Bulk Generation (10 jobs) | TBD | Power user feature | Retention |
+| LinkedIn Import | TBD | Onboarding friction | Activation |
+| Chrome Extension | TBD | Auto-apply workflow | Differentiation |
 
 ---
 
@@ -2272,42 +2290,296 @@ These MUST complete on time. Other features (Tracker, Onboarding) can be simplif
 
 ---
 
+## MIGRATION PLAN: MVP TO V2 (localStorage → Supabase)
+
+### When to Trigger Migration
+
+**Quantitative Criteria:**
+- 100+ active users per week (measured via anonymous analytics)
+- 500+ PDF downloads per month
+- 30%+ same-day return rate (localStorage persistence check)
+
+**Qualitative Criteria:**
+- Positive user feedback (Reddit, ProductHunt comments)
+- User requests for "save my work" or "access from phone"
+- Confidence that core AI value prop is validated
+
+**Don't Migrate if:**
+- <50 users/week after 4 weeks → Pivot or kill
+- High bounce rate (>70%) → Fix core UX first
+- Negative feedback on AI quality → Fix prompts first
+
+### Migration Timeline (3-5 days)
+
+**Day 1: Infrastructure Setup**
+```bash
+# Create Supabase project
+npx supabase init
+npx supabase start
+
+# Deploy database schema (see Appendix B: V2 Schema)
+psql -f schema.sql
+
+# Configure Auth providers in Supabase dashboard
+- Enable Google OAuth
+- Set redirect URLs
+- Copy API keys to .env.local
+```
+
+**Day 2: Code Migration (Abstraction Layer)**
+
+Update `lib/storage.ts` to support both localStorage (fallback) and Supabase (primary):
+
+```typescript
+// lib/storage.ts (BEFORE - MVP)
+class ResumeStorage {
+  saveResume(resume) {
+    localStorage.setItem('mockmaster_resume', JSON.stringify(resume));
+  }
+}
+
+// lib/storage.ts (AFTER - V2 Dual Mode)
+class ResumeStorage {
+  async saveResume(resume) {
+    const user = await this.getUser();
+
+    if (user) {
+      // Logged in: Save to Supabase
+      await supabase.from('resumes').upsert({
+        user_id: user.id,
+        ...resume
+      });
+    } else {
+      // Anonymous: Fallback to localStorage
+      localStorage.setItem('mockmaster_resume', JSON.stringify(resume));
+    }
+  }
+
+  async getResume() {
+    const user = await this.getUser();
+
+    if (user) {
+      // Try Supabase first
+      const { data } = await supabase
+        .from('resumes')
+        .select('*')
+        .eq('user_id', user.id)
+        .single();
+
+      return data || this.getLocalResume();  // Fallback to localStorage
+    }
+
+    return this.getLocalResume();
+  }
+
+  private getLocalResume() {
+    const data = localStorage.getItem('mockmaster_resume');
+    return data ? JSON.parse(data) : null;
+  }
+}
+```
+
+**Key Insight:** Only `lib/storage.ts` changes. Rest of codebase stays identical.
+
+**Day 3: Add Auth UI**
+
+```typescript
+// components/AuthModal.tsx
+export function AuthModal() {
+  return (
+    <div className="modal">
+      <h2>Sign up to save your work</h2>
+      <Button onClick={signInWithGoogle}>
+        Sign in with Google
+      </Button>
+      <p>Your resume is currently stored in your browser only.</p>
+      <p>Sign up to access it from any device.</p>
+    </div>
+  );
+}
+
+// Show modal strategically:
+// 1. After first successful adaptation
+// 2. If user tries to download 2nd adaptation (localStorage has data)
+// 3. Never block core flow - always skippable
+```
+
+**Day 4: Data Migration for Existing Users**
+
+```typescript
+// On first signup, migrate localStorage → Supabase
+async function migrateLocalDataToCloud(user) {
+  const localResume = localStorage.getItem('mockmaster_resume');
+  const localAdaptations = localStorage.getItem('mockmaster_adaptations');
+
+  if (localResume) {
+    await supabase.from('resumes').insert({
+      user_id: user.id,
+      ...JSON.parse(localResume),
+      migrated_from_local: true
+    });
+
+    // Don't delete localStorage yet (keep as backup)
+  }
+
+  if (localAdaptations) {
+    const adaptations = JSON.parse(localAdaptations);
+    await supabase.from('adapted_resumes').insert(
+      adaptations.map(a => ({ ...a, user_id: user.id }))
+    );
+  }
+
+  // Show success message
+  toast.success('Your existing resume has been saved to your account!');
+}
+```
+
+**Day 5: Testing & Deploy**
+
+**Test Cases:**
+- [ ] Anonymous user can still use app (localStorage path)
+- [ ] New signup creates account and saves to Supabase
+- [ ] Existing user with localStorage data: migration works
+- [ ] User can logout and data persists in Supabase
+- [ ] User can login from different browser and see data
+
+**Deploy:**
+```bash
+# Environment variables
+NEXT_PUBLIC_SUPABASE_URL=https://xyz.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJhbGc...
+SUPABASE_SERVICE_ROLE_KEY=eyJhbGc...
+
+# Deploy to Vercel
+git push origin main  # Vercel auto-deploys
+```
+
+**Monitoring:**
+- Track signup conversion rate (target: 10%+ of active users)
+- Track localStorage → Supabase migration success rate
+- Monitor Supabase API errors
+- Track auth-related user support requests
+
+### Code Changes Summary
+
+**Files Modified:** (Minimal changes)
+- ✅ `lib/storage.ts` - Add Supabase dual-mode
+- ✅ `components/AuthModal.tsx` - NEW
+- ✅ `app/layout.tsx` - Add Supabase AuthProvider
+- ✅ `.env.local` - Add Supabase keys
+
+**Files NOT Changed:** (Core logic stays identical)
+- ✅ All API routes (`app/api/*`)
+- ✅ All resume components
+- ✅ PDF generation logic
+- ✅ Claude API integration
+
+**Total Lines Changed:** ~200-300 lines (mostly new auth UI)
+
+### Rollback Plan
+
+If migration fails or causes issues:
+
+```typescript
+// Emergency rollback: Disable auth, revert to localStorage only
+const USE_SUPABASE = false;  // Feature flag
+
+if (USE_SUPABASE && user) {
+  // Supabase path
+} else {
+  // localStorage path (original MVP behavior)
+}
+```
+
+### Expected Impact
+
+**Before V2 (MVP):**
+- Anonymous users
+- No revenue
+- Simple stack (Next.js + localStorage)
+
+**After V2 (With Auth):**
+- 10-20% users create accounts (industry benchmark)
+- Revenue from subscriptions (5%+ of users → $19/mo)
+- Ability to track retention properly
+- Application tracker and dashboard available
+
+**Risk:** Minimal. Auth is optional, anonymous path still works.
+
+---
+
 ## FINAL NOTES
 
 ### Assumptions
 
-1. **Users will paste job descriptions rather than upload files**
+1. **MVP users accept localStorage-only storage (no cloud sync)**
+   - Risk: Users frustrated when switching devices or clearing cache
+   - Validation: Track bounce rate, user complaints
+   - Mitigation: Clear messaging "Data saved in your browser only" + V2 offers cloud sync
+   - **Decision Rationale:** Validating AI quality is more important than persistence initially
+
+2. **5 adaptations per day per IP is sufficient rate limit**
+   - Risk: False positives (office/cafe shared IPs), or insufficient to prevent abuse
+   - Validation: Monitor rate limit hits, abuse patterns
+   - Mitigation: Adjust limit based on data (could go 10/day or add CAPTCHA)
+   - **Decision Rationale:** Most users apply to <5 jobs per day; protects against API abuse
+
+3. **Users will paste job descriptions rather than upload files**
    - Risk: Some users may want URL scraping
    - Validation: Track % requesting URL feature
-   - Mitigation: Add URL extraction in V1.1 if >20% request it
+   - Mitigation: Add URL extraction in V3 if >20% request it
 
-2. **Claude API quality is sufficient for production**
+4. **Claude API quality is sufficient for production**
    - Risk: Hallucination or low-quality output
    - Validation: Test with 250+ resume/job combinations before launch
    - Mitigation: Add human review tier or switch to "AI-assisted" model
+   - **Critical:** This is the #1 risk. MVP is worthless if AI output is poor.
 
-3. **Tech professionals are the right initial market**
+5. **Tech professionals are the right initial market**
    - Risk: Market may be too competitive
-   - Validation: Track CAC and conversion rates
+   - Validation: Track bounce rate, time-to-download, return rate
    - Mitigation: Pivot to adjacent markets (finance, marketing) if needed
+
+6. **No monetization in MVP is acceptable for validation**
+   - Risk: Delayed revenue, can't measure willingness to pay
+   - Validation: Track "would you pay?" in exit surveys
+   - Mitigation: V2 with Stripe takes only 3-5 days to add
+   - **Decision Rationale:** Product-market fit > premature monetization
 
 ---
 
 ### Risks
 
+**CRITICAL (MVP-Specific):**
+
+1. **API Abuse without user authentication**
+   - Impact: Malicious actor spams endpoint → $100s-1000s in Claude API costs
+   - Probability: 30% (Medium - public endpoints are targets)
+   - Mitigation:
+     - IP-based rate limiting with Upstash Redis (5 gen/day per IP)
+     - Monitor Claude API usage daily
+     - Set billing alerts at $50/day
+     - CAPTCHA fallback if abuse detected
+   - Owner: Developer (Day 1 implementation)
+   - **Contingency:** If abused, immediately add CAPTCHA or temporarily disable public access
+
 **HIGH IMPACT:**
 
-1. **AI Quality Perception**
-   - Impact: If users perceive AI as "not good enough," they won't pay or recommend
+2. **AI Quality Perception**
+   - Impact: If users perceive AI as "not good enough," they won't recommend
    - Probability: 25%
    - Mitigation: Transparent before/after comparisons, guarantee no hallucination
    - Owner: Developer (prompt engineering)
+   - **MVP Note:** No revenue in MVP, so this is pure reputation risk
 
-2. **Customer Acquisition Cost**
-   - Impact: If CAC > LTV, business model fails
-   - Probability: 30%
-   - Mitigation: Focus on organic channels first (content, community, SEO)
-   - Owner: Growth (post-launch)
+3. **Users lose data (localStorage cleared)**
+   - Impact: Frustration, bad reviews, churn
+   - Probability: 15% (users accidentally clear cache)
+   - Mitigation:
+     - Prominent warning "Data saved locally only"
+     - Offer "Download Resume Backup" button
+     - V2 migration message when localStorage detected
+   - Owner: Designer (UX messaging)
 
 **MEDIUM IMPACT:**
 
@@ -2370,33 +2642,115 @@ These MUST complete on time. Other features (Tracker, Onboarding) can be simplif
 
 ## APPENDIX A: FEATURE DEPENDENCY GRAPH
 
+**MVP (No Auth) - Core Flow:**
 ```
-F-001 (Auth)
+F-002 (Resume Upload - localStorage)
     |
-    +---> F-002 (Resume Upload)
-    |         |
-    |         +---> F-004 (AI Adaptation) <--- F-003 (Job Analysis)
-    |         |         |
-    |         |         +---> F-005 (ATS Score)
-    |         |         |
-    |         |         +---> F-006 (PDF Export)
-    |         |         |
-    |         |         +---> F-007 (App Tracker)
-    |         |
-    |         +---> F-008 (Onboarding)
-    |
-    +---> F-009 (Stripe)
+    +---> F-004 (AI Adaptation) <--- F-003 (Job Analysis)
               |
-              +---> F-010 (Usage Limits)
+              +---> F-005 (ATS Score)
+              |
+              +---> F-006 (PDF Export)
+                      |
+                      +---> F-012 (Edit Before Export)
+```
+
+**V2 (With Auth) - Persistence & Monetization:**
+```
+F-001 (Auth - Supabase)
+    |
+    +---> F-007 (Application Tracker)
+    +---> F-008 (Onboarding Wizard)
+    +---> F-009 (Stripe Subscriptions)
+    |       |
+    |       +---> F-010 (Usage Limits per User)
+    +---> F-011 (Dashboard & Resume Management)
+```
+
+**V3 (Enhancements):**
+```
+F-006 (PDF Export) ---> F-013 (Multiple Templates)
+F-003 (Job Analysis) ---> F-014 (URL Extraction)
 ```
 
 ---
 
-## APPENDIX B: DATABASE SCHEMA (COMPLETE)
+## APPENDIX B: STORAGE SCHEMA
+
+### MVP: localStorage Schema (Browser-side)
+
+```typescript
+// localStorage keys used in MVP
+interface MockMasterStorage {
+  // User's master resume (persists across sessions)
+  mockmaster_resume: {
+    parsed_content: ResumeContent;  // Structured JSON
+    original_text: string;          // Raw text for re-parsing
+    file_name: string;              // Original filename
+    uploaded_at: string;            // ISO timestamp
+  };
+
+  // Last 5 adaptations (for re-download capability)
+  mockmaster_adaptations: Array<{
+    id: string;                     // UUID v4
+    job_title: string;
+    company_name: string;
+    job_description: string;
+    adapted_content: ResumeContent;
+    ats_score: number;              // 0-100
+    created_at: string;             // ISO timestamp
+  }>;  // Max 5 items, FIFO when full
+
+  // User preferences
+  mockmaster_preferences: {
+    preferred_template: 'clean' | 'modern' | 'compact';
+    show_tutorial: boolean;
+  };
+}
+
+// Helper: Save resume to localStorage
+localStorage.setItem('mockmaster_resume', JSON.stringify(resume));
+
+// Helper: Get resume from localStorage
+const resume = JSON.parse(localStorage.getItem('mockmaster_resume') || 'null');
+
+// Helper: Add adaptation (keeping last 5)
+const adaptations = JSON.parse(localStorage.getItem('mockmaster_adaptations') || '[]');
+adaptations.unshift(newAdaptation);
+localStorage.setItem('mockmaster_adaptations', JSON.stringify(adaptations.slice(0, 5)));
+```
+
+**Storage Limits:**
+- localStorage max: ~5-10 MB (browser dependent)
+- Resume JSON: ~50-100 KB
+- 5 adaptations: ~500 KB total
+- **Well within limits**
+
+**Data Persistence:**
+- ✅ Survives page refresh
+- ✅ Survives browser close/reopen
+- ❌ Lost if user clears browser data
+- ❌ Lost if user switches browsers
+- ❌ Not synced across devices
+
+**Migration to V2 (Supabase):**
+When user signs up in V2, copy localStorage data to Supabase:
+```typescript
+// On first signup, migrate existing localStorage data
+if (localStorage.getItem('mockmaster_resume')) {
+  await supabase.from('resumes').insert({
+    user_id: user.id,
+    ...JSON.parse(localStorage.getItem('mockmaster_resume'))
+  });
+}
+```
+
+---
+
+### V2: Supabase Schema (Cloud Database)
 
 ```sql
--- Enable UUID extension
-CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+-- Enable UUID extension (Supabase)
 
 -- Profiles (extends Supabase Auth users)
 CREATE TABLE profiles (

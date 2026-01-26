@@ -317,8 +317,8 @@
                     lastUpdated = line.replace('Última actualización:', '').trim();
                 }
 
-                // Detect cycle
-                if (line.startsWith('## Ciclo')) {
+                // Detect cycle (support both old format and new format with emojis)
+                if (line.startsWith('## Ciclo') || line.startsWith('## 🚀') || line.startsWith('## 🔐') || line.startsWith('## ✨')) {
                     if (currentCycle) cycles.push(currentCycle);
                     currentCycle = {
                         name: line.replace('##', '').trim(),

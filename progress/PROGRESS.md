@@ -1,78 +1,111 @@
 # Proyecto: MockMaster - Adaptador Inteligente de CV
 
+**Arquitectura MVP:** localStorage (Sin Auth, Sin DB)
+
 Última actualización: 2026-01-25
 
-## Ciclo 1: MVP Foundation (Weeks 1-2)
+---
+
+## 🚀 MVP - No Auth (Weeks 1-4)
+
+**Objetivo:** Validar core AI value proposition antes de invertir en infraestructura
 
 ### DONE
 
 ### IN_PROGRESS
 
 ### BACKLOG
-- F-001 | User Authentication & Account | Google OAuth + email signup with Supabase
-- F-002 | Master Resume Upload & Parsing | PDF/DOCX parsing with preview and edit
-
-## Ciclo 2: Core AI Engine (Weeks 3-4)
-
-### DONE
-
-### IN_PROGRESS
-
-### BACKLOG
-- F-003 | Job Description Analysis | Extract keywords, skills, seniority level
-- F-004 | AI Resume Adaptation Engine | Claude API reformulates resume for job
-- F-005 | ATS Compatibility Score | Calculate and display match percentage
-
-## Ciclo 3: Output & Polish (Weeks 5-6)
-
-### DONE
-
-### IN_PROGRESS
-
-### BACKLOG
-- F-006 | PDF Export with Templates | 3 ATS-friendly templates (Clean, Modern, Compact)
-- F-007 | Application History Tracker | Track which resume sent where
-- F-008 | Onboarding Wizard | 3-step guided flow for first adaptation
-- F-009 | Stripe Subscription Integration | Pro plan checkout and billing portal
-- F-010 | Usage Limits & Rate Limiting | Free tier 3/month, Pro unlimited
-
-## Ciclo 4: Post-MVP Improvements (V1.1)
-
-### DONE
-
-### IN_PROGRESS
-
-### BACKLOG
-- F-011 | Dashboard & Resume Management | Improved dashboard with all resumes
-- F-012 | Edit Adapted Resume Before Export | Tweak AI suggestions before download
-- F-013 | Multiple Template Selection | 5+ template options instead of 3
+- F-002 | Resume Upload & Parsing (localStorage) | Upload PDF/DOCX, save in browser, no backend
+- F-003 | Job Description Analysis | Extract keywords with Claude API
+- F-004 | AI Resume Adaptation Engine | **CORE** Claude reformulates resume for job
+- F-005 | ATS Compatibility Score | Calculate match percentage 0-100
+- F-006 | PDF Export with Templates | 3 ATS-friendly templates (Clean/Modern/Compact)
+- F-012 | Edit Before Export | Tweak AI output before download
 
 ---
 
-## Métricas de Progreso
+## 🔐 V2 - Authentication & Persistence (Post-MVP)
 
-**Total Features:** 13
+**Trigger:** 100+ active users/week OR positive validation metrics
+
+### DONE
+
+### IN_PROGRESS
+
+### BACKLOG
+- F-001 | User Authentication (Supabase) | Google OAuth + email, migrate from localStorage
+- F-007 | Application History Tracker | Track which resume sent where (requires DB)
+- F-008 | Onboarding Wizard | 3-step guided flow for new users
+- F-009 | Stripe Subscription Integration | Pro plan $19/month unlimited adaptations
+- F-010 | Usage Limits per User | Enforce free tier 3/month, Pro unlimited
+- F-011 | Dashboard & Resume Management | View all resumes and adaptations
+
+---
+
+## ✨ V3 - Enhancements (Month 3+)
+
+**Objetivo:** Growth features post-monetization
+
+### DONE
+
+### IN_PROGRESS
+
+### BACKLOG
+- F-013 | Multiple Template Selection | 5+ template options instead of 3
+- F-014 | Job Description URL Extraction | Paste URL instead of text
+
+---
+
+## 📊 Métricas de Progreso
+
+**Total Features:** 14
+**MVP Features:** 6 (down from original 10)
+**V2 Features:** 6
+**V3 Features:** 2
+
 **Completadas:** 0 (0%)
 **En Progreso:** 0 (0%)
-**Pendientes:** 13 (100%)
+**Pendientes:** 14 (100%)
 
-**Por Ciclo:**
-- Ciclo 1 MVP Foundation: 0/2 (0%)
-- Ciclo 2 Core AI Engine: 0/3 (0%)
-- Ciclo 3 Output & Polish: 0/5 (0%)
-- Ciclo 4 Post-MVP: 0/3 (0%)
+**Por Fase:**
+- 🚀 MVP (No Auth): 0/6 (0%)
+- 🔐 V2 (With Auth): 0/6 (0%)
+- ✨ V3 (Enhancements): 0/2 (0%)
 
 **Estimación de Tiempo:**
-- Ciclo 1: 2.25 weeks
-- Ciclo 2: 3.75 weeks
-- Ciclo 3: 4.5 weeks
-- Ciclo 4: 2.875 weeks
-- **Total:** ~13.4 weeks
+- MVP: 3-4 weeks (50% faster than original plan)
+- V2 Migration: 3-5 days (only lib/storage.ts changes)
+- V3: TBD based on user feedback
 
 ---
 
-## Próximos Pasos
+## 💰 Stack & Costos
 
-1. Ejecutar: `/build-feature F-001` para comenzar con User Authentication
-2. Completar Ciclo 1 (Auth + Resume Upload)
-3. Proceder con Ciclo 2 (AI Engine)
+**MVP:**
+- Stack: Next.js + localStorage + Claude API + Puppeteer
+- Costo: $5-10/mes (solo Claude API)
+- Deploy: Vercel (free tier)
+
+**V2:**
+- Stack: + Supabase (Auth + PostgreSQL + Storage) + Stripe
+- Costo: $25-50/mes
+- Deploy: Vercel + Supabase Cloud
+
+---
+
+## 🎯 Próximos Pasos
+
+**Iniciar MVP:**
+1. `/build-feature F-002` - Resume Upload (localStorage)
+2. `/build-feature F-003` - Job Description Analysis
+3. `/build-feature F-004` - AI Adaptation Engine (CORE)
+
+**Criterio de Éxito MVP:**
+- 100+ descargas/semana
+- 30%+ usuarios regresan mismo día
+- Feedback positivo sobre AI quality
+
+**Cuando Migrar a V2:**
+- Si MVP tiene tracción (100+ usuarios/semana)
+- Usuarios piden "guardar mi trabajo"
+- Listo para monetizar
