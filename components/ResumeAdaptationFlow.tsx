@@ -134,13 +134,7 @@ export default function ResumeAdaptationFlow() {
     }
   };
 
-  // PDF download is now handled in AdaptedResumePreview component (F-006)
-
-  // Handle edit before download (future feature F-012)
-  const handleEditFirst = () => {
-    alert('Manual editing feature coming soon! (F-012)');
-    // Future: router.push('/edit-resume');
-  };
+  // PDF download and edit mode are now handled in AdaptedResumePreview component (F-006, F-012)
 
   // Don't render until mounted (prevents hydration mismatch)
   if (!isMounted) {
@@ -225,13 +219,7 @@ export default function ResumeAdaptationFlow() {
         />
 
         {/* Action Buttons */}
-        <div className="flex flex-col sm:flex-row gap-4 justify-center">
-          <button
-            onClick={handleEditFirst}
-            className="bg-gray-600 text-white px-8 py-3 rounded-lg hover:bg-gray-700 transition-colors font-semibold text-lg"
-          >
-            Edit Before Download (Coming Soon)
-          </button>
+        <div className="flex justify-center">
           <button
             onClick={handleStartOver}
             className="bg-red-600 text-white px-8 py-3 rounded-lg hover:bg-red-700 transition-colors font-semibold text-lg"
