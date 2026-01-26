@@ -14,13 +14,14 @@
 - F-002 | Resume Upload & Parsing (localStorage) | ✅ COMPLETE - Text paste, Claude AI structuring, localStorage persistence
 - F-003 | Job Description Analysis | ✅ COMPLETE - Claude AI extracts skills, responsibilities, seniority, industry
 - F-004 | AI Resume Adaptation Engine | ✅ COMPLETE - **CORE FEATURE** Adapts resume with keywords, reorders experiences, reformulates bullets
+- F-005 | ATS Compatibility Score with Breakdown | ✅ COMPLETE - Detailed scoring (keyword/skills/experience/format), missing keywords, suggestions
 - F-006 | PDF Export with Templates | ✅ COMPLETE - 3 ATS-friendly templates (Clean/Modern/Compact), Puppeteer-based, <500KB, <5s generation
 - F-012 | Edit Adapted Resume Before Export | ✅ COMPLETE - Inline editing with auto-save, reset to AI version, edits included in PDF
 
 ### IN_PROGRESS
 
 ### BACKLOG
-- F-005 | ATS Compatibility Score | Calculate match percentage 0-100 (partially in F-004)
+(None - MVP Complete!)
 
 ---
 
@@ -63,12 +64,12 @@
 **V2 Features:** 6
 **V3 Features:** 2
 
-**Completadas:** 5 (35.7%)
+**Completadas:** 6 (42.9%)
 **En Progreso:** 0 (0%)
-**Pendientes:** 9 (64.3%)
+**Pendientes:** 8 (57.1%)
 
 **Por Fase:**
-- 🚀 MVP (No Auth): 5/6 (83.3%) - ¡CASI COMPLETO! 🔥
+- 🚀 MVP (No Auth): 6/6 (100%) - ✅ **MVP COMPLETO!** 🎉🎉🎉
 - 🔐 V2 (With Auth): 0/6 (0%)
 - ✨ V3 (Enhancements): 0/2 (0%)
 
@@ -95,13 +96,18 @@
 
 ## 🎯 Próximos Pasos
 
-**Continuar MVP:**
+**✅ MVP COMPLETO! Todas las features core implementadas:**
 1. ✅ ~~F-002 - Resume Upload (localStorage)~~ COMPLETE
 2. ✅ ~~F-003 - Job Description Analysis~~ COMPLETE
 3. ✅ ~~F-004 - AI Adaptation Engine (CORE)~~ COMPLETE
-4. ✅ ~~F-006 - PDF Export~~ COMPLETE (Pending: Vercel chrome-aws-lambda config)
-5. ✅ ~~F-012 - Edit Before Export~~ COMPLETE
-6. `/build-feature F-005` - ATS Score Details (ÚLTIMA FEATURE MVP - Opcional, ya tenemos básico)
+4. ✅ ~~F-005 - ATS Score with Breakdown~~ COMPLETE
+5. ✅ ~~F-006 - PDF Export~~ COMPLETE (Pending: Vercel chrome-aws-lambda config)
+6. ✅ ~~F-012 - Edit Before Export~~ COMPLETE
+
+**🚀 Próximos Pasos Post-MVP:**
+- Deploy to staging → Test → Deploy to production
+- Collect user feedback and metrics
+- Decide: Launch publicly OR migrate to V2 (Auth + DB)
 
 **Criterio de Éxito MVP:**
 - 100+ descargas/semana
