@@ -15,12 +15,12 @@
 - F-003 | Job Description Analysis | ✅ COMPLETE - Claude AI extracts skills, responsibilities, seniority, industry
 - F-004 | AI Resume Adaptation Engine | ✅ COMPLETE - **CORE FEATURE** Adapts resume with keywords, reorders experiences, reformulates bullets
 - F-006 | PDF Export with Templates | ✅ COMPLETE - 3 ATS-friendly templates (Clean/Modern/Compact), Puppeteer-based, <500KB, <5s generation
+- F-012 | Edit Adapted Resume Before Export | ✅ COMPLETE - Inline editing with auto-save, reset to AI version, edits included in PDF
 
 ### IN_PROGRESS
 
 ### BACKLOG
 - F-005 | ATS Compatibility Score | Calculate match percentage 0-100 (partially in F-004)
-- F-012 | Edit Before Export | Tweak AI output before download
 
 ---
 
@@ -63,12 +63,12 @@
 **V2 Features:** 6
 **V3 Features:** 2
 
-**Completadas:** 4 (28.6%)
+**Completadas:** 5 (35.7%)
 **En Progreso:** 0 (0%)
-**Pendientes:** 10 (71.4%)
+**Pendientes:** 9 (64.3%)
 
 **Por Fase:**
-- 🚀 MVP (No Auth): 4/6 (66.7%) - ¡DOS TERCIOS COMPLETOS! 🎉
+- 🚀 MVP (No Auth): 5/6 (83.3%) - ¡CASI COMPLETO! 🔥
 - 🔐 V2 (With Auth): 0/6 (0%)
 - ✨ V3 (Enhancements): 0/2 (0%)
 
@@ -100,8 +100,8 @@
 2. ✅ ~~F-003 - Job Description Analysis~~ COMPLETE
 3. ✅ ~~F-004 - AI Adaptation Engine (CORE)~~ COMPLETE
 4. ✅ ~~F-006 - PDF Export~~ COMPLETE (Pending: Vercel chrome-aws-lambda config)
-5. `/build-feature F-012` - Edit Before Export (NEXT - Alta prioridad UX)
-6. `/build-feature F-005` - ATS Score Details (opcional, ya tenemos básico)
+5. ✅ ~~F-012 - Edit Before Export~~ COMPLETE
+6. `/build-feature F-005` - ATS Score Details (ÚLTIMA FEATURE MVP - Opcional, ya tenemos básico)
 
 **Criterio de Éxito MVP:**
 - 100+ descargas/semana
