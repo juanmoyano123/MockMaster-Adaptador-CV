@@ -96,3 +96,85 @@ export interface JobAnalysisAPIError {
   error: string;
   code: JobAnalysisErrorCode;
 }
+
+/**
+ * Type definitions for AI Resume Adaptation
+ * Feature: F-004
+ */
+
+export interface AdaptedExperienceItem extends ExperienceItem {
+  relevance_score: number; // 0-100, calculated by AI
+}
+
+export interface AdaptedContent {
+  contact: ContactInfo;
+  summary: string;
+  experience: AdaptedExperienceItem[];
+  education: EducationItem[];
+  skills: string[];
+}
+
+export interface ChangesSummary {
+  skills_highlighted: number;
+  bullets_reformulated: number;
+  experiences_reordered: boolean;
+}
+
+export interface AdaptedResume {
+  original_resume_hash: string;
+  job_analysis_hash: string;
+  adapted_content: AdaptedContent;
+  ats_score: number;
+  changes_summary: ChangesSummary;
+  adapted_at: string;
+}
+
+export type AdaptationErrorCode =
+  | 'MISSING_RESUME'
+  | 'MISSING_JOB_ANALYSIS'
+  | 'INVALID_INPUT'
+  | 'CLAUDE_API_ERROR'
+  | 'JSON_PARSE_ERROR'
+  | 'VALIDATION_FAILED'
+  | 'INTERNAL_ERROR';
+
+export interface AdaptationAPIError {
+  error: string;
+  code: AdaptationErrorCode;
+}
+
+export interface ValidationError {
+  valid: boolean;
+  errors: string[];
+}
+
+/**
+ * Type definitions for PDF Export with Templates
+ * Feature: F-006
+ */
+
+export type TemplateType = 'clean' | 'modern' | 'compact';
+
+export interface PDFGenerationRequest {
+  adapted_content: AdaptedContent;
+  template: TemplateType;
+  company_name: string;
+}
+
+export type PDFErrorCode =
+  | 'INVALID_INPUT'
+  | 'CONTENT_TOO_LONG'
+  | 'PDF_GENERATION_ERROR'
+  | 'TIMEOUT_ERROR'
+  | 'INTERNAL_ERROR';
+
+export interface PDFAPIError {
+  error: string;
+  code: PDFErrorCode;
+  details?: string;
+}
+
+export interface TemplatePreferences {
+  preferred_template: TemplateType;
+  show_tutorial?: boolean;
+}

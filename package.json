@@ -14,9 +14,11 @@
   "description": "",
   "dependencies": {
     "@anthropic-ai/sdk": "^0.71.2",
+    "@types/puppeteer": "^5.4.7",
     "mammoth": "^1.11.0",
     "next": "^16.1.4",
     "pdf-parse": "^2.4.5",
+    "puppeteer": "^24.36.0",
     "react": "^19.2.3",
     "react-dom": "^19.2.3"
   },
