@@ -166,6 +166,40 @@ export default function ResumeUploadFlow() {
                 Last updated: {new Date(resumeData.uploaded_at).toLocaleDateString()}
               </div>
             </div>
+
+            {/* Next Step: Analyze Job */}
+            <div className="mt-8 max-w-4xl mx-auto">
+              <div className="bg-gradient-to-r from-primary-50 to-secondary-50 border border-primary-200 rounded-xl p-6">
+                <h3 className="text-lg font-semibold text-neutral-900 mb-2">
+                  Ready for the next step?
+                </h3>
+                <p className="text-neutral-700 mb-4">
+                  Now that your resume is uploaded, paste a job description to get AI-powered analysis
+                  of requirements and skills.
+                </p>
+                <a
+                  href="/analyze-job"
+                  className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-primary-600 to-secondary-600
+                           hover:from-primary-700 hover:to-secondary-700 text-white font-medium rounded-lg
+                           shadow-sm hover:shadow-md transition-all duration-200"
+                >
+                  <svg
+                    className="w-5 h-5"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"
+                    />
+                  </svg>
+                  Analyze Job Description
+                </a>
+              </div>
+            </div>
           </div>
         ) : (
           <ResumeUpload onParsed={handleParsed} />

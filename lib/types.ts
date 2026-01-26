@@ -63,3 +63,36 @@ export interface APIError {
   error: string;
   code: ParsingErrorCode;
 }
+
+/**
+ * Type definitions for Job Description Analysis
+ * Feature: F-003
+ */
+
+export interface JobAnalysis {
+  raw_text: string;
+  text_hash: string;
+  analysis: {
+    job_title: string;
+    company_name: string;
+    required_skills: string[];
+    preferred_skills: string[];
+    responsibilities: string[];
+    seniority_level: string;
+    industry: string;
+  };
+  analyzed_at: string;
+}
+
+export type JobAnalysisErrorCode =
+  | 'INVALID_INPUT'
+  | 'TEXT_TOO_SHORT'
+  | 'TEXT_TOO_LONG'
+  | 'CLAUDE_API_ERROR'
+  | 'JSON_PARSE_ERROR'
+  | 'INTERNAL_ERROR';
+
+export interface JobAnalysisAPIError {
+  error: string;
+  code: JobAnalysisErrorCode;
+}

@@ -24,6 +24,26 @@ Upload your master resume (PDF or DOCX) or paste text, and MockMaster will intel
 - Education (school, degree, year)
 - Skills
 
+### ✅ F-003: Job Description Analysis (MVP)
+
+Paste any job description and get AI-powered analysis of requirements, skills, and responsibilities.
+
+**Capabilities:**
+- 📋 **Job Description Input**: Large textarea with character counting (50-20,000 chars)
+- 🤖 **AI Analysis**: Claude AI extracts structured data from job postings
+- 🎯 **Smart Extraction**: Identifies required skills, preferred skills, responsibilities, seniority level, and industry
+- ⚡ **Fast Caching**: SHA-256 hashing prevents redundant API calls for duplicate jobs
+- 💾 **Local Storage**: Analysis cached in browser for instant re-access
+- 📱 **Mobile Optimized**: Responsive design works on all devices
+
+**Extracted Information:**
+- Job Title & Company Name
+- Required Skills (must-have) - displayed as teal badges
+- Preferred Skills (nice-to-have) - displayed as blue badges
+- Key Responsibilities
+- Seniority Level (e.g., "Senior (5-8 years)")
+- Industry/Domain (e.g., "FinTech", "Social Media")
+
 ## Getting Started
 
 ### Prerequisites
@@ -91,6 +111,29 @@ Your resume persists across sessions until you:
 - Click "Delete Resume"
 - Clear browser data
 
+### 4. Analyze Job Description
+
+After saving your resume:
+- Click **"Analyze Job Description"** button on the home page
+- Or navigate to `/analyze-job`
+- Paste the full job posting from LinkedIn, Indeed, or company website
+- Click **"Analyze Job Description"**
+- Wait 10-15 seconds for AI analysis
+
+### 5. Review Job Analysis
+
+View the extracted information:
+- **Job title and company** at the top
+- **Required skills** (teal badges) - must-have qualifications
+- **Preferred skills** (blue badges) - nice-to-have qualifications
+- **Key responsibilities** - what you'll be doing
+- **Seniority level and industry** - role context
+
+### 6. Next Steps
+
+- Click **"Proceed to Resume Adaptation"** (F-004, coming soon)
+- Or **"Analyze Different Job"** to start over with a new job posting
+
 ## Technology Stack
 
 - **Frontend**: Next.js 15, React 19, TypeScript, Tailwind CSS
@@ -103,24 +146,33 @@ Your resume persists across sessions until you:
 ```
 /app
   /api
-    /parse-pdf       # Server-side PDF text extraction
-    /parse-docx      # Server-side DOCX text extraction
-    /parse-resume    # Claude AI resume structuring
+    /parse-pdf        # Server-side PDF text extraction
+    /parse-docx       # Server-side DOCX text extraction
+    /parse-resume     # Claude AI resume structuring
+    /analyze-job      # Claude AI job description analysis (F-003)
+  /analyze-job
+    page.tsx          # Job analysis page (F-003)
   layout.tsx
   page.tsx
   globals.css
 /components
-  ResumeUploadFlow.tsx    # Main orchestrator
-  ResumeUpload.tsx        # File upload UI
-  PasteTextForm.tsx       # Text paste UI
-  ResumePreview.tsx       # Editable preview
+  ResumeUploadFlow.tsx     # Main orchestrator (F-002)
+  ResumeUpload.tsx         # File upload UI
+  PasteTextForm.tsx        # Text paste UI
+  ResumePreview.tsx        # Editable preview
+  JobAnalysisFlow.tsx      # Job analysis orchestrator (F-003)
+  JobDescriptionInput.tsx  # Job description textarea (F-003)
+  JobAnalysisPreview.tsx   # Analysis results display (F-003)
 /lib
-  types.ts                # TypeScript interfaces
-  storage.ts              # localStorage abstraction
-  resume-parser.ts        # File parsing logic
+  types.ts                 # TypeScript interfaces
+  storage.ts               # Resume localStorage (F-002)
+  job-storage.ts           # Job analysis localStorage (F-003)
+  resume-parser.ts         # File parsing logic
 /utils
-  file-validation.ts      # File type/size validation
-/__tests__                # Unit tests
+  file-validation.ts       # File type/size validation
+  text-hash.ts             # SHA-256 hashing for caching (F-003)
+/__tests__                 # Unit tests
+/documentacion             # Feature documentation
 ```
 
 ## API Endpoints
@@ -142,6 +194,28 @@ Structures raw resume text using Claude AI.
 
 **Request**: `{ text: string }`
 **Response**: `{ parsed_content: ParsedContent }`
+
+### POST /api/analyze-job
+Analyzes job descriptions using Claude AI to extract structured information.
+
+**Request**: `{ text: string }` (50-20,000 characters)
+**Response**:
+```json
+{
+  "text_hash": "sha256_hash",
+  "analysis": {
+    "job_title": "Senior Full Stack Developer",
+    "company_name": "Meta",
+    "required_skills": ["React", "Node.js", "5+ years"],
+    "preferred_skills": ["TypeScript", "GraphQL"],
+    "responsibilities": ["Build apps", "Lead decisions"],
+    "seniority_level": "Senior (5-8 years)",
+    "industry": "Social Media/Technology"
+  },
+  "analyzed_at": "2026-01-25T10:00:00.000Z"
+}
+```
+**Performance**: 3-4 seconds average response time
 
 ## Configuration
 
@@ -199,8 +273,9 @@ npm test
 
 ## Roadmap
 
-- [ ] **F-003**: Job description input
-- [ ] **F-004**: AI-powered resume adaptation
+- [x] **F-002**: Resume upload & parsing ✅ COMPLETE
+- [x] **F-003**: Job description analysis ✅ COMPLETE
+- [ ] **F-004**: AI-powered resume adaptation (In Progress)
 - [ ] **F-005**: Side-by-side comparison view
 - [ ] **F-006**: Export adapted resume to PDF/DOCX
 - [ ] **F-007**: Multiple resume versions
