@@ -11,11 +11,11 @@
 **Objetivo:** Validar core AI value proposition antes de invertir en infraestructura
 
 ### DONE
+- F-002 | Resume Upload & Parsing (localStorage) | ✅ COMPLETE - Text paste, Claude AI structuring, localStorage persistence
 
 ### IN_PROGRESS
 
 ### BACKLOG
-- F-002 | Resume Upload & Parsing (localStorage) | Upload PDF/DOCX, save in browser, no backend
 - F-003 | Job Description Analysis | Extract keywords with Claude API
 - F-004 | AI Resume Adaptation Engine | **CORE** Claude reformulates resume for job
 - F-005 | ATS Compatibility Score | Calculate match percentage 0-100
@@ -63,12 +63,12 @@
 **V2 Features:** 6
 **V3 Features:** 2
 
-**Completadas:** 0 (0%)
+**Completadas:** 1 (7.1%)
 **En Progreso:** 0 (0%)
-**Pendientes:** 14 (100%)
+**Pendientes:** 13 (92.9%)
 
 **Por Fase:**
-- 🚀 MVP (No Auth): 0/6 (0%)
+- 🚀 MVP (No Auth): 1/6 (16.7%)
 - 🔐 V2 (With Auth): 0/6 (0%)
 - ✨ V3 (Enhancements): 0/2 (0%)
 
@@ -95,9 +95,9 @@
 
 ## 🎯 Próximos Pasos
 
-**Iniciar MVP:**
-1. `/build-feature F-002` - Resume Upload (localStorage)
-2. `/build-feature F-003` - Job Description Analysis
+**Continuar MVP:**
+1. ✅ ~~F-002 - Resume Upload (localStorage)~~ COMPLETE
+2. `/build-feature F-003` - Job Description Analysis (NEXT)
 3. `/build-feature F-004` - AI Adaptation Engine (CORE)
 
 **Criterio de Éxito MVP:**
