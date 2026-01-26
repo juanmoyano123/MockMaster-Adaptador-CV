@@ -12,13 +12,13 @@
 
 ### DONE
 - F-002 | Resume Upload & Parsing (localStorage) | ✅ COMPLETE - Text paste, Claude AI structuring, localStorage persistence
+- F-003 | Job Description Analysis | ✅ COMPLETE - Claude AI extracts skills, responsibilities, seniority, industry
+- F-004 | AI Resume Adaptation Engine | ✅ COMPLETE - **CORE FEATURE** Adapts resume with keywords, reorders experiences, reformulates bullets
 
 ### IN_PROGRESS
 
 ### BACKLOG
-- F-003 | Job Description Analysis | Extract keywords with Claude API
-- F-004 | AI Resume Adaptation Engine | **CORE** Claude reformulates resume for job
-- F-005 | ATS Compatibility Score | Calculate match percentage 0-100
+- F-005 | ATS Compatibility Score | Calculate match percentage 0-100 (partially in F-004)
 - F-006 | PDF Export with Templates | 3 ATS-friendly templates (Clean/Modern/Compact)
 - F-012 | Edit Before Export | Tweak AI output before download
 
@@ -63,12 +63,12 @@
 **V2 Features:** 6
 **V3 Features:** 2
 
-**Completadas:** 1 (7.1%)
+**Completadas:** 3 (21.4%)
 **En Progreso:** 0 (0%)
-**Pendientes:** 13 (92.9%)
+**Pendientes:** 11 (78.6%)
 
 **Por Fase:**
-- 🚀 MVP (No Auth): 1/6 (16.7%)
+- 🚀 MVP (No Auth): 3/6 (50%) - ¡MITAD COMPLETA!
 - 🔐 V2 (With Auth): 0/6 (0%)
 - ✨ V3 (Enhancements): 0/2 (0%)
 
@@ -97,8 +97,11 @@
 
 **Continuar MVP:**
 1. ✅ ~~F-002 - Resume Upload (localStorage)~~ COMPLETE
-2. `/build-feature F-003` - Job Description Analysis (NEXT)
-3. `/build-feature F-004` - AI Adaptation Engine (CORE)
+2. ✅ ~~F-003 - Job Description Analysis~~ COMPLETE
+3. ✅ ~~F-004 - AI Adaptation Engine (CORE)~~ COMPLETE
+4. `/build-feature F-006` - PDF Export (NEXT - Crítico para MVP funcional)
+5. `/build-feature F-012` - Edit Before Export
+6. `/build-feature F-005` - ATS Score Details (opcional, ya tenemos básico)
 
 **Criterio de Éxito MVP:**
 - 100+ descargas/semana
