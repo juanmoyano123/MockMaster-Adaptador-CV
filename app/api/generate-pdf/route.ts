@@ -4,10 +4,12 @@
  *
  * POST /api/generate-pdf
  * Converts adapted resume content to PDF using Puppeteer
+ * Uses @sparticuz/chromium for Vercel serverless compatibility
  */
 
 import { NextResponse } from 'next/server';
 import puppeteer from 'puppeteer';
+import chromium from '@sparticuz/chromium';
 import { generatePDFFilename, validatePDFRequest } from '@/lib/pdf-utils';
 import { renderTemplateToHTML } from '@/lib/pdf-templates-html';
 import { PDFGenerationRequest } from '@/lib/types';
@@ -44,14 +46,20 @@ export async function POST(request: Request) {
     );
 
     const pdfGenerationPromise = (async () => {
+      // Use @sparticuz/chromium for Vercel, regular puppeteer for local dev
+      const isProduction = process.env.NODE_ENV === 'production';
+
       const browser = await puppeteer.launch({
-        headless: true,
-        args: [
+        args: isProduction ? chromium.args : [
           '--no-sandbox',
           '--disable-setuid-sandbox',
           '--disable-dev-shm-usage',
           '--disable-gpu',
         ],
+        executablePath: isProduction
+          ? await chromium.executablePath()
+          : puppeteer.executablePath(),
+        headless: true,
       });
 
       try {
