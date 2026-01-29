@@ -16,6 +16,8 @@ import {
   AdaptationAPIError,
 } from '@/lib/types';
 import { validateNoHallucination, simpleHash } from '@/lib/validation';
+import { createClient } from '@/lib/supabase/server';
+import { PLANS } from '@/lib/subscription-config';
 
 // Initialize Anthropic client
 const anthropic = new Anthropic({
@@ -33,6 +35,48 @@ export async function POST(request: NextRequest) {
       resume?: ResumeData;
       jobAnalysis?: JobAnalysis;
     };
+
+    // Check subscription limits (F-009)
+    const supabase = await createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+
+    if (user) {
+      // Get subscription
+      const { data: subscription } = await supabase
+        .from('user_subscriptions')
+        .select('tier')
+        .eq('user_id', user.id)
+        .single();
+
+      const tier = (subscription?.tier || 'free') as 'free' | 'pro';
+      const plan = PLANS[tier];
+
+      // Check usage if not unlimited
+      if (plan.limits.adaptations_per_month !== -1) {
+        const now = new Date();
+        const periodStart = new Date(now.getFullYear(), now.getMonth(), 1);
+        const periodKey = periodStart.toISOString().split('T')[0];
+
+        const { data: usage } = await supabase
+          .from('subscription_usage')
+          .select('adaptations_count')
+          .eq('user_id', user.id)
+          .eq('period_start', periodKey)
+          .single();
+
+        const usedCount = usage?.adaptations_count || 0;
+
+        if (usedCount >= plan.limits.adaptations_per_month) {
+          return NextResponse.json<AdaptationAPIError>(
+            {
+              error: `Has alcanzado el limite de ${plan.limits.adaptations_per_month} adaptaciones este mes. Actualiza a Pro para adaptaciones ilimitadas.`,
+              code: 'VALIDATION_FAILED',
+            },
+            { status: 403 }
+          );
+        }
+      }
+    }
 
     // Validation: Check required inputs
     if (!resume || !resume.parsed_content) {
@@ -119,6 +163,35 @@ export async function POST(request: NextRequest) {
         },
         { status: 500 }
       );
+    }
+
+    // Increment usage counter after successful adaptation (F-009)
+    if (user) {
+      const now = new Date();
+      const periodStart = new Date(now.getFullYear(), now.getMonth(), 1);
+      const periodKey = periodStart.toISOString().split('T')[0];
+
+      // Try to get existing usage
+      const { data: existingUsage } = await supabase
+        .from('subscription_usage')
+        .select('adaptations_count')
+        .eq('user_id', user.id)
+        .eq('period_start', periodKey)
+        .single();
+
+      if (existingUsage) {
+        await supabase
+          .from('subscription_usage')
+          .update({ adaptations_count: existingUsage.adaptations_count + 1 })
+          .eq('user_id', user.id)
+          .eq('period_start', periodKey);
+      } else {
+        await supabase.from('subscription_usage').insert({
+          user_id: user.id,
+          period_start: periodKey,
+          adaptations_count: 1,
+        });
+      }
     }
 
     // Success - return adapted resume

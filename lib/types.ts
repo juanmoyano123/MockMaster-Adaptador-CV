@@ -226,3 +226,61 @@ export interface JobLibraryStats {
   total_tags: number;
   most_recent: string | null;      // ISO 8601 timestamp
 }
+
+/**
+ * Type definitions for Subscription System
+ * Feature: F-009
+ */
+
+export type SubscriptionTier = 'free' | 'pro';
+
+export type SubscriptionStatus =
+  | 'active'
+  | 'inactive'
+  | 'trialing'
+  | 'past_due'
+  | 'cancelled';
+
+export interface UserSubscription {
+  id: string;
+  user_id: string;
+  tier: SubscriptionTier;
+  status: SubscriptionStatus;
+  mp_subscription_id: string | null;
+  mp_customer_id: string | null;
+  current_period_start: string | null;
+  current_period_end: string | null;
+  trial_ends_at: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface SubscriptionUsage {
+  user_id: string;
+  period_start: string;
+  adaptations_count: number;
+}
+
+export interface SubscriptionPlan {
+  id: string;
+  name: string;
+  price: number;
+  currency: string;
+  features: string[];
+  limits: {
+    adaptations_per_month: number; // -1 = unlimited
+  };
+}
+
+export type SubscriptionErrorCode =
+  | 'UNAUTHORIZED'
+  | 'SUBSCRIPTION_REQUIRED'
+  | 'LIMIT_EXCEEDED'
+  | 'PAYMENT_FAILED'
+  | 'WEBHOOK_ERROR'
+  | 'INTERNAL_ERROR';
+
+export interface SubscriptionAPIError {
+  error: string;
+  code: SubscriptionErrorCode;
+}

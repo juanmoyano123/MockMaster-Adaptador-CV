@@ -35,11 +35,11 @@
 - F-007 | Job Description Library | ✅ COMPLETE - Save analyzed job descriptions, search/filter by tags, quick "Adaptar CV" action, localStorage persistence
 
 ### IN_PROGRESS
+- F-009 | MercadoPago Subscription Integration | ⏳ IN PROGRESS - Pro plan $19/month, 2-day trial, 5 free adaptations/month
 
 ### BACKLOG
 - F-008 | Onboarding Wizard | 3-step guided flow for new users
-- F-009 | Stripe Subscription Integration | Pro plan $19/month unlimited adaptations
-- F-010 | Usage Limits per User | Enforce free tier 3/month, Pro unlimited
+- F-010 | Usage Limits per User | ✅ Merged into F-009
 
 ---
 
