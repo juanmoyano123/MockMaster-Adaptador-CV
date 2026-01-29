@@ -37,8 +37,8 @@ export default function JobAnalysisFlow() {
   useEffect(() => {
     // Verify resume exists
     if (!resumeStorage.hasResume()) {
-      showErrorToast('Please upload your resume first');
-      router.push('/');
+      showErrorToast('Primero debes subir tu CV');
+      router.push('/upload');
       return;
     }
 

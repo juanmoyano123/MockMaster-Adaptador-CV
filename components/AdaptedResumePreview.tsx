@@ -29,6 +29,8 @@ interface AdaptedResumePreviewProps {
   resume: AdaptedResume;
   original: ResumeData;
   jobAnalysisCompanyName?: string;
+  jobAnalysisJobTitle?: string;
+  jobAnalysisSeniority?: string;
 }
 
 // Debounce helper function
@@ -47,6 +49,8 @@ export default function AdaptedResumePreview({
   resume,
   original,
   jobAnalysisCompanyName = 'Company',
+  jobAnalysisJobTitle,
+  jobAnalysisSeniority,
 }: AdaptedResumePreviewProps) {
   const { adapted_content, ats_score, ats_breakdown, changes_summary } = resume;
 
@@ -149,6 +153,31 @@ export default function AdaptedResumePreview({
 
   return (
     <div className="space-y-8">
+      {/* Job Indicator Banner */}
+      {jobAnalysisJobTitle && (
+        <div className="bg-gradient-to-r from-primary-50 to-blue-50 rounded-lg border border-primary-200 p-4">
+          <div className="flex items-center gap-3">
+            <div className="flex-shrink-0 w-10 h-10 bg-primary-100 rounded-full flex items-center justify-center">
+              <svg className="w-5 h-5 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+              </svg>
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-sm text-gray-600">CV adaptado para:</p>
+              <h2 className="text-lg font-semibold text-gray-900 truncate">
+                {jobAnalysisJobTitle}
+                {jobAnalysisCompanyName && jobAnalysisCompanyName !== 'Company' && (
+                  <span className="text-gray-500 font-normal"> en {jobAnalysisCompanyName}</span>
+                )}
+              </h2>
+              {jobAnalysisSeniority && (
+                <p className="text-sm text-gray-500">Nivel: {jobAnalysisSeniority}</p>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Edit Mode Controls (F-012) */}
       {isMounted && (
         <div className="bg-gradient-to-r from-purple-50 to-pink-50 rounded-lg border border-purple-200 p-6">
@@ -320,41 +349,42 @@ export default function AdaptedResumePreview({
       />
 
       {/* Header: ATS Score + Changes Summary */}
-      <div className="bg-white rounded-lg shadow-md p-6">
-        <div className="flex flex-col md:flex-row items-center justify-between gap-6">
-          {/* ATS Score */}
-          <div className="flex-shrink-0">
-            <ATSScoreDisplay score={ats_score} breakdown={ats_breakdown} />
+      <div className="bg-white rounded-lg shadow-md p-6 overflow-hidden">
+        {/* Score Circle and Summary Row */}
+        <div className="flex flex-col lg:flex-row items-start gap-6">
+          {/* ATS Score Circle */}
+          <div className="flex-shrink-0 flex justify-center w-full lg:w-auto">
+            <ATSScoreDisplay score={ats_score} breakdown={ats_breakdown} size={120} />
           </div>
 
           {/* Changes Summary */}
-          <div className="flex-1">
+          <div className="flex-1 min-w-0 w-full">
             <h3 className="text-lg font-semibold mb-4 text-gray-800">
-              Changes Made
+              Cambios Realizados
             </h3>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div className="bg-blue-50 p-4 rounded-lg">
-                <p className="text-3xl font-bold text-blue-600">
+            <div className="grid grid-cols-3 gap-3">
+              <div className="bg-blue-50 p-3 rounded-lg text-center">
+                <p className="text-2xl font-bold text-blue-600">
                   {changes_summary.skills_highlighted}
                 </p>
-                <p className="text-sm text-gray-600 mt-1">
-                  Skills Highlighted
+                <p className="text-xs text-gray-600 mt-1">
+                  Skills Destacados
                 </p>
               </div>
-              <div className="bg-green-50 p-4 rounded-lg">
-                <p className="text-3xl font-bold text-green-600">
+              <div className="bg-green-50 p-3 rounded-lg text-center">
+                <p className="text-2xl font-bold text-green-600">
                   {changes_summary.bullets_reformulated}
                 </p>
-                <p className="text-sm text-gray-600 mt-1">
-                  Bullets Reformulated
+                <p className="text-xs text-gray-600 mt-1">
+                  Bullets Reformulados
                 </p>
               </div>
-              <div className="bg-purple-50 p-4 rounded-lg">
-                <p className="text-3xl font-bold text-purple-600">
-                  {changes_summary.experiences_reordered ? 'Yes' : 'No'}
+              <div className="bg-purple-50 p-3 rounded-lg text-center">
+                <p className="text-2xl font-bold text-purple-600">
+                  {changes_summary.experiences_reordered ? 'Si' : 'No'}
                 </p>
-                <p className="text-sm text-gray-600 mt-1">
-                  Experiences Reordered
+                <p className="text-xs text-gray-600 mt-1">
+                  Exp. Reordenada
                 </p>
               </div>
             </div>

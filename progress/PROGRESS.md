@@ -2,7 +2,7 @@
 
 **Arquitectura MVP:** localStorage (Sin Auth, Sin DB)
 
-Última actualización: 2026-01-26
+Última actualización: 2026-01-29
 
 ---
 
@@ -30,16 +30,16 @@
 **Trigger:** 100+ active users/week OR positive validation metrics
 
 ### DONE
+- F-001 | User Authentication (Supabase) | ✅ COMPLETE - Email/password + Google OAuth, session management, protected routes, AuthContext
+- F-011 | App Shell + Dashboard + User Profile | ✅ COMPLETE - Sidebar navigation, Header with UserMenu, Profile page, Settings/Billing placeholders, Mobile responsive
+- F-007 | Job Description Library | ✅ COMPLETE - Save analyzed job descriptions, search/filter by tags, quick "Adaptar CV" action, localStorage persistence
 
 ### IN_PROGRESS
 
 ### BACKLOG
-- F-001 | User Authentication (Supabase) | Google OAuth + email, migrate from localStorage
-- F-007 | Application History Tracker | Track which resume sent where (requires DB)
 - F-008 | Onboarding Wizard | 3-step guided flow for new users
 - F-009 | Stripe Subscription Integration | Pro plan $19/month unlimited adaptations
 - F-010 | Usage Limits per User | Enforce free tier 3/month, Pro unlimited
-- F-011 | Dashboard & Resume Management | View all resumes and adaptations
 
 ---
 
@@ -59,18 +59,18 @@
 
 ## 📊 Métricas de Progreso
 
-**Total Features:** 14
+**Total Features:** 13
 **MVP Features:** 6 (down from original 10)
-**V2 Features:** 6
+**V2 Features:** 5
 **V3 Features:** 2
 
-**Completadas:** 6 (42.9%)
+**Completadas:** 9 (69.2%)
 **En Progreso:** 0 (0%)
-**Pendientes:** 8 (57.1%)
+**Pendientes:** 4 (30.8%)
 
 **Por Fase:**
-- 🚀 MVP (No Auth): 6/6 (100%) - ✅ **MVP COMPLETO!** 🎉🎉🎉
-- 🔐 V2 (With Auth): 0/6 (0%)
+- 🚀 MVP (No Auth): 6/6 (100%) - ✅ **MVP COMPLETO!**
+- 🔐 V2 (With Auth): 3/5 (60%) - F-001 Auth + F-011 App Shell + F-007 Job Library done!
 - ✨ V3 (Enhancements): 0/2 (0%)
 
 **Estimación de Tiempo:**
@@ -87,10 +87,11 @@
 - Costo: $5-10/mes (solo Claude API)
 - Deploy: Vercel (free tier)
 
-**V2:**
-- Stack: + Supabase (Auth + PostgreSQL + Storage) + Stripe
-- Costo: $25-50/mes
+**V2 (Current):**
+- Stack: + Supabase (Auth implemented, DB pending)
+- Costo: $10-25/mes (Claude API + Supabase free tier)
 - Deploy: Vercel + Supabase Cloud
+- Auth: Email/password + Google OAuth ready
 
 ---
 
@@ -104,10 +105,22 @@
 5. ✅ ~~F-006 - PDF Export~~ COMPLETE (Pending: Vercel chrome-aws-lambda config)
 6. ✅ ~~F-012 - Edit Before Export~~ COMPLETE
 
-**🚀 Próximos Pasos Post-MVP:**
-- Deploy to staging → Test → Deploy to production
-- Collect user feedback and metrics
-- Decide: Launch publicly OR migrate to V2 (Auth + DB)
+**🚀 V2 Progress:**
+- ✅ F-001 - User Authentication (Supabase) COMPLETE
+- ✅ Landing Page + Auth UI Screens COMPLETE
+- ✅ F-011 - App Shell + Dashboard + User Profile COMPLETE
+  - Sidebar navigation (Dashboard, Mi CV, Analizar, Ofertas, Adaptar, Perfil, Billing, Config)
+  - Header with UserMenu dropdown (avatar, name, logout)
+  - Profile page with password change
+  - Settings/Billing placeholder pages
+  - Mobile responsive with bottom nav
+- ✅ F-007 - Job Description Library COMPLETE
+  - Save analyzed job descriptions with name and tags
+  - Search and filter by tags
+  - Quick "Adaptar CV" button to jump to adaptation
+  - View/delete saved jobs
+  - localStorage persistence (up to 50 jobs)
+- Next: F-008 Onboarding Wizard OR F-009 Stripe Integration
 
 **Criterio de Éxito MVP:**
 - 100+ descargas/semana

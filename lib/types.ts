@@ -204,3 +204,25 @@ export interface TemplatePreferences {
   preferred_template: TemplateType;
   show_tutorial?: boolean;
 }
+
+/**
+ * Type definitions for Job Description Library
+ * Feature: F-007
+ */
+
+export interface SavedJobDescription {
+  id: string;                      // UUID
+  name: string;                    // User-defined name (e.g., "Comercial B2B", "Account Manager SaaS")
+  tags: string[];                  // Tags for categorization (e.g., ["ventas", "tech", "remoto"])
+  raw_text: string;                // Original job description text
+  text_hash: string;               // Hash for deduplication
+  analysis: JobAnalysis['analysis']; // Parsed analysis data
+  created_at: string;              // ISO 8601 timestamp
+  last_used_at: string;            // ISO 8601 timestamp (updated when used for adaptation)
+}
+
+export interface JobLibraryStats {
+  total_saved: number;
+  total_tags: number;
+  most_recent: string | null;      // ISO 8601 timestamp
+}

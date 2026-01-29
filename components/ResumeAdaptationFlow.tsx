@@ -152,11 +152,11 @@ export default function ResumeAdaptationFlow() {
   const handleStartOver = () => {
     if (
       confirm(
-        'This will delete all your data (resume, job analysis, and adapted resume). Are you sure?'
+        'Esto eliminara todos tus datos (CV, analisis de oferta y CV adaptado). Estas seguro?'
       )
     ) {
       adaptedResumeStorage.clearAll();
-      router.push('/');
+      router.push('/upload');
     }
   };
 
@@ -183,17 +183,16 @@ export default function ResumeAdaptationFlow() {
       <div className="max-w-4xl mx-auto px-4 py-12">
         <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-6">
           <h2 className="text-xl font-semibold text-yellow-800 mb-2">
-            Resume Required
+            CV Requerido
           </h2>
           <p className="text-yellow-700 mb-4">
-            You need to upload your resume before adapting it. Please upload
-            your resume first.
+            Necesitas subir tu CV antes de adaptarlo. Por favor sube tu CV primero.
           </p>
           <button
-            onClick={() => router.push('/')}
+            onClick={() => router.push('/upload')}
             className="bg-yellow-600 text-white px-6 py-2 rounded-lg hover:bg-yellow-700 transition-colors"
           >
-            Upload Resume
+            Subir CV
           </button>
         </div>
       </div>
@@ -206,17 +205,17 @@ export default function ResumeAdaptationFlow() {
       <div className="max-w-4xl mx-auto px-4 py-12">
         <div className="bg-blue-50 border border-blue-200 rounded-lg p-6">
           <h2 className="text-xl font-semibold text-blue-800 mb-2">
-            Job Analysis Required
+            Analisis de Oferta Requerido
           </h2>
           <p className="text-blue-700 mb-4">
-            You need to analyze a job description before adapting your resume.
-            Please analyze a job description first.
+            Necesitas analizar una oferta de trabajo antes de adaptar tu CV.
+            Por favor analiza una oferta primero.
           </p>
           <button
             onClick={() => router.push('/analyze-job')}
             className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors"
           >
-            Analyze Job Description
+            Analizar Oferta
           </button>
         </div>
       </div>
@@ -226,14 +225,14 @@ export default function ResumeAdaptationFlow() {
   // Show adapted resume if available
   if (adaptedResume && originalResume) {
     return (
-      <div className="max-w-6xl mx-auto px-4 py-12 space-y-8">
+      <div className="max-w-5xl mx-auto px-4 py-8 space-y-6 overflow-hidden">
         {/* Header */}
         <div className="text-center">
-          <h1 className="text-4xl font-bold text-gray-900 mb-2">
-            Your Adapted Resume
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">
+            Tu CV Adaptado
           </h1>
           <p className="text-gray-600">
-            AI-optimized to match the job requirements
+            Optimizado por IA para la oferta de trabajo
           </p>
         </div>
 
@@ -242,15 +241,17 @@ export default function ResumeAdaptationFlow() {
           resume={adaptedResume}
           original={originalResume}
           jobAnalysisCompanyName={jobAnalysisData?.analysis.company_name}
+          jobAnalysisJobTitle={jobAnalysisData?.analysis.job_title}
+          jobAnalysisSeniority={jobAnalysisData?.analysis.seniority_level}
         />
 
         {/* Action Buttons */}
         <div className="flex justify-center">
           <button
             onClick={handleStartOver}
-            className="bg-red-600 text-white px-8 py-3 rounded-lg hover:bg-red-700 transition-colors font-semibold text-lg"
+            className="bg-red-600 text-white px-6 py-2.5 rounded-lg hover:bg-red-700 transition-colors font-medium"
           >
-            Start Over
+            Empezar de Nuevo
           </button>
         </div>
 
@@ -260,7 +261,7 @@ export default function ResumeAdaptationFlow() {
             onClick={() => {
               if (
                 confirm(
-                  'This will replace your current adaptation. Continue?'
+                  'Esto reemplazara tu adaptacion actual. Continuar?'
                 )
               ) {
                 handleAdaptResume();
@@ -269,7 +270,7 @@ export default function ResumeAdaptationFlow() {
             disabled={isAdapting}
             className="text-blue-600 hover:text-blue-700 underline disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            Re-adapt Resume
+            Re-adaptar CV
           </button>
         </div>
       </div>
@@ -278,15 +279,15 @@ export default function ResumeAdaptationFlow() {
 
   // Show adaptation CTA
   return (
-    <div className="max-w-4xl mx-auto px-4 py-12">
+    <div className="max-w-4xl mx-auto px-4 py-8">
       {/* Header */}
-      <div className="text-center mb-12">
-        <h1 className="text-4xl font-bold text-gray-900 mb-4">
-          Adapt Your Resume
+      <div className="text-center mb-8">
+        <h1 className="text-3xl font-bold text-gray-900 mb-3">
+          Adaptar tu CV
         </h1>
-        <p className="text-lg text-gray-600">
-          Our AI will intelligently adapt your resume to match the job
-          requirements in under 30 seconds.
+        <p className="text-gray-600">
+          Nuestra IA adaptara tu CV para que coincida con los requisitos
+          del puesto en menos de 30 segundos.
         </p>
       </div>
 
