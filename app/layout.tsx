@@ -1,11 +1,19 @@
 import type { Metadata } from "next";
-import { Inter } from 'next/font/google';
+import { Inter, Source_Serif_4 } from 'next/font/google';
 import "./globals.css";
+import { AuthProvider } from '@/contexts/AuthContext';
 
 const inter = Inter({
   subsets: ['latin'],
   display: 'swap',
   variable: '--font-inter',
+});
+
+const sourceSerif = Source_Serif_4({
+  subsets: ['latin'],
+  display: 'swap',
+  variable: '--font-serif',
+  weight: ['400', '600', '700'],
 });
 
 export const metadata: Metadata = {
@@ -19,9 +27,11 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={inter.variable}>
+    <html lang="en" className={`${inter.variable} ${sourceSerif.variable}`}>
       <body className="antialiased font-sans">
-        {children}
+        <AuthProvider>
+          {children}
+        </AuthProvider>
       </body>
     </html>
   );

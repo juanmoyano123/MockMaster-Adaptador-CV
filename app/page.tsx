@@ -1,5 +1,5 @@
-import ResumeUploadFlow from '@/components/ResumeUploadFlow';
+import LandingPage from '@/components/landing/LandingPage';
 
 export default function Home() {
-  return <ResumeUploadFlow />;
+  return <LandingPage />;
 }

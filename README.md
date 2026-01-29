@@ -4,6 +4,26 @@ Transform your resume to match any job description in 60 seconds.
 
 ## Features
 
+### ✅ F-001: User Authentication (Supabase)
+
+Secure user authentication with email/password and Google OAuth support.
+
+**Capabilities:**
+- 🔐 **Email/Password Auth**: Sign up and login with email credentials
+- 🌐 **Google OAuth**: One-click signup/login with Google account
+- 📧 **Email Verification**: Confirm email addresses for security
+- 🔑 **Password Reset**: Request password reset via email
+- 💾 **Session Management**: Persistent sessions across page refreshes
+- 🛡️ **Protected Routes**: Automatic redirection for unauthenticated users
+- 👤 **User Context**: Auth state available throughout the app
+
+**Security Features:**
+- Passwords hashed with bcrypt by Supabase
+- Session tokens in httpOnly secure cookies
+- CSRF and XSS protection
+- Minimum password length (8 characters)
+- Rate limiting (60 requests/hour per IP)
+
 ### ✅ F-002: Resume Upload & Parsing (MVP)
 
 Upload your master resume (PDF or DOCX) or paste text, and MockMaster will intelligently structure it using Claude AI.
@@ -141,6 +161,7 @@ Industry research shows 78% of users want to review and edit AI-generated conten
 
 - Node.js 18+ and npm
 - Anthropic API key (get one at [console.anthropic.com](https://console.anthropic.com/))
+- Supabase account and project (get one at [supabase.com](https://supabase.com/))
 
 ### Installation
 
@@ -154,7 +175,25 @@ npm install
 
 # Configure environment variables
 cp .env.local.example .env.local
-# Edit .env.local and add your ANTHROPIC_API_KEY
+# Edit .env.local and add your API keys:
+# - ANTHROPIC_API_KEY (from console.anthropic.com)
+# - NEXT_PUBLIC_SUPABASE_URL (from your Supabase project settings)
+# - NEXT_PUBLIC_SUPABASE_ANON_KEY (from your Supabase project API settings)
+```
+
+### Supabase Setup
+
+1. Create a project at [supabase.com](https://supabase.com/)
+2. Go to Settings > API to get your URL and anon key
+3. Configure authentication:
+   - Enable Email auth in Authentication > Providers
+   - (Optional) Configure Google OAuth with your Google Cloud credentials
+   - Add redirect URLs: `http://localhost:3000/auth/callback` (dev) and your production URL
+4. Add credentials to `.env.local`:
+   ```bash
+   NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
+   NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
+   ```
 ```
 
 ### Development
