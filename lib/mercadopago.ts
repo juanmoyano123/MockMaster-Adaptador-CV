@@ -6,14 +6,18 @@
  */
 
 import { MercadoPagoConfig, PreApproval } from 'mercadopago';
-import { TRIAL_DAYS, PLANS } from './subscription-config';
+import { PLANS } from './subscription-config';
 
-// Initialize MercadoPago client
-const client = new MercadoPagoConfig({
-  accessToken: process.env.MP_ACCESS_TOKEN!,
-});
-
-const preapproval = new PreApproval(client);
+// Lazy-load MercadoPago client to ensure env vars are available
+function getPreApproval() {
+  const accessToken = process.env.MP_ACCESS_TOKEN;
+  if (!accessToken) {
+    throw new Error('MP_ACCESS_TOKEN no está configurado');
+  }
+  console.log('Initializing MercadoPago with token:', accessToken.substring(0, 20) + '...');
+  const client = new MercadoPagoConfig({ accessToken });
+  return new PreApproval(client);
+}
 
 /**
  * Create a new subscription with trial period
@@ -22,38 +26,43 @@ export async function createSubscription(
   userId: string,
   email: string
 ): Promise<{ init_point: string; subscription_id: string }> {
-  // Using 'as any' because MercadoPago SDK types don't include free_trial
-  // but the API does support it
-  const result = await preapproval.create({
-    body: {
+  try {
+    const body = {
       reason: 'MockMaster Pro - Suscripcion Mensual',
       auto_recurring: {
         frequency: 1,
-        frequency_type: 'months',
+        frequency_type: 'months' as const,
         transaction_amount: PLANS.pro.price,
-        currency_id: PLANS.pro.currency === 'USD' ? 'USD' : 'ARS',
+        currency_id: 'ARS' as const,
       },
       back_url: `${process.env.NEXT_PUBLIC_APP_URL}/billing?success=true`,
       payer_email: email,
       external_reference: userId,
-      // @ts-expect-error - free_trial is supported by API but not in SDK types
-      free_trial: {
-        frequency: TRIAL_DAYS,
-        frequency_type: 'days',
-      },
-    },
-  });
+      status: 'pending' as const,
+    };
 
-  return {
-    init_point: result.init_point!,
-    subscription_id: result.id!,
-  };
+    console.log('Creating subscription with body:', JSON.stringify(body, null, 2));
+
+    const preapproval = getPreApproval();
+    const result = await preapproval.create({ body });
+
+    console.log('MercadoPago result:', JSON.stringify(result, null, 2));
+
+    return {
+      init_point: result.init_point!,
+      subscription_id: result.id!,
+    };
+  } catch (error) {
+    console.error('MercadoPago create error:', error);
+    throw error;
+  }
 }
 
 /**
  * Cancel an existing subscription
  */
 export async function cancelSubscription(subscriptionId: string): Promise<void> {
+  const preapproval = getPreApproval();
   await preapproval.update({
     id: subscriptionId,
     body: {
@@ -66,6 +75,7 @@ export async function cancelSubscription(subscriptionId: string): Promise<void> 
  * Pause a subscription
  */
 export async function pauseSubscription(subscriptionId: string): Promise<void> {
+  const preapproval = getPreApproval();
   await preapproval.update({
     id: subscriptionId,
     body: {
@@ -78,6 +88,7 @@ export async function pauseSubscription(subscriptionId: string): Promise<void> {
  * Get subscription details from MercadoPago
  */
 export async function getSubscription(subscriptionId: string) {
+  const preapproval = getPreApproval();
   const result = await preapproval.get({ id: subscriptionId });
   return result;
 }

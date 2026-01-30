@@ -40,9 +40,12 @@ export async function POST(request: NextRequest) {
     }
 
     // Create subscription in MercadoPago
+    // In test mode, use test buyer email instead of real user email
+    const payerEmail = process.env.MP_TEST_BUYER_EMAIL || user.email!;
+
     const { init_point, subscription_id } = await createSubscription(
       user.id,
-      user.email!
+      payerEmail
     );
 
     // Store pending subscription ID
@@ -59,10 +62,22 @@ export async function POST(request: NextRequest) {
       checkout_url: init_point,
       subscription_id,
     });
-  } catch (error) {
-    console.error('Create subscription error:', error);
+  } catch (error: unknown) {
+    console.error('Create subscription error:', JSON.stringify(error, null, 2));
+    console.error('Error type:', typeof error);
+    console.error('Error constructor:', error?.constructor?.name);
+
+    let errorMessage = 'Error desconocido';
+    if (error instanceof Error) {
+      errorMessage = error.message;
+    } else if (typeof error === 'object' && error !== null) {
+      // MercadoPago errors might be objects with message or cause
+      const errObj = error as Record<string, unknown>;
+      errorMessage = String(errObj.message || errObj.cause || errObj.error || JSON.stringify(error));
+    }
+
     return NextResponse.json(
-      { error: 'Error al crear suscripcion', code: 'INTERNAL_ERROR' },
+      { error: `Error al crear suscripcion: ${errorMessage}`, code: 'INTERNAL_ERROR' },
       { status: 500 }
     );
   }

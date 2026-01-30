@@ -26,8 +26,8 @@ export const PLANS: Record<SubscriptionTier, SubscriptionPlan> = {
   pro: {
     id: 'pro',
     name: 'Plan Pro',
-    price: 19,
-    currency: 'USD',
+    price: 9990,
+    currency: 'ARS',
     features: [
       'Adaptaciones ilimitadas',
       'Análisis de ofertas ilimitado',

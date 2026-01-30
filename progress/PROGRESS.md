@@ -33,9 +33,9 @@
 - F-001 | User Authentication (Supabase) | ✅ COMPLETE - Email/password + Google OAuth, session management, protected routes, AuthContext
 - F-011 | App Shell + Dashboard + User Profile | ✅ COMPLETE - Sidebar navigation, Header with UserMenu, Profile page, Settings/Billing placeholders, Mobile responsive
 - F-007 | Job Description Library | ✅ COMPLETE - Save analyzed job descriptions, search/filter by tags, quick "Adaptar CV" action, localStorage persistence
+- F-009 | MercadoPago Subscription Integration | ✅ COMPLETE - Checkout flow, webhooks, billing UI, usage tracking, Supabase tables (user_subscriptions, subscription_usage)
 
 ### IN_PROGRESS
-- F-009 | MercadoPago Subscription Integration | ⏳ IN PROGRESS - Pro plan $19/month, 2-day trial, 5 free adaptations/month
 
 ### BACKLOG
 - F-008 | Onboarding Wizard | 3-step guided flow for new users
@@ -64,13 +64,13 @@
 **V2 Features:** 5
 **V3 Features:** 2
 
-**Completadas:** 9 (69.2%)
+**Completadas:** 10 (76.9%)
 **En Progreso:** 0 (0%)
-**Pendientes:** 4 (30.8%)
+**Pendientes:** 3 (23.1%)
 
 **Por Fase:**
 - 🚀 MVP (No Auth): 6/6 (100%) - ✅ **MVP COMPLETO!**
-- 🔐 V2 (With Auth): 3/5 (60%) - F-001 Auth + F-011 App Shell + F-007 Job Library done!
+- 🔐 V2 (With Auth): 4/5 (80%) - F-001 Auth + F-011 App Shell + F-007 Job Library + F-009 MercadoPago done!
 - ✨ V3 (Enhancements): 0/2 (0%)
 
 **Estimación de Tiempo:**
@@ -120,7 +120,14 @@
   - Quick "Adaptar CV" button to jump to adaptation
   - View/delete saved jobs
   - localStorage persistence (up to 50 jobs)
-- Next: F-008 Onboarding Wizard OR F-009 Stripe Integration
+- ✅ F-009 - MercadoPago Subscription Integration COMPLETE
+  - Checkout flow with MercadoPago PreApproval API
+  - Webhook handler for subscription events
+  - Billing page with plan details and usage
+  - Supabase tables: user_subscriptions, subscription_usage
+  - Free tier (5 adaptations/month) + Pro tier ($9990 ARS/month unlimited)
+  - Test mode with test users verified working
+- Next: F-008 Onboarding Wizard
 
 **Criterio de Éxito MVP:**
 - 100+ descargas/semana
