@@ -27,35 +27,35 @@ interface TemplateOption {
 const TEMPLATE_OPTIONS: TemplateOption[] = [
   {
     id: 'clean',
-    name: 'Clean',
-    description: 'Traditional, professional, ATS-friendly',
+    name: 'Clasico',
+    description: 'Tradicional, profesional, compatible con ATS',
     features: [
-      'Classic serif font (Georgia)',
-      'Pure black text',
-      'Maximum ATS compatibility',
-      'Professional appearance',
+      'Fuente serif clasica (Georgia)',
+      'Texto negro puro',
+      'Maxima compatibilidad ATS',
+      'Apariencia profesional',
     ],
   },
   {
     id: 'modern',
-    name: 'Modern',
-    description: 'Contemporary design with subtle color',
+    name: 'Moderno',
+    description: 'Diseno contemporaneo con color sutil',
     features: [
-      'Clean sans-serif font (Helvetica)',
-      'Navy blue accents',
-      'Polished, modern look',
-      'Balanced readability',
+      'Fuente sans-serif limpia (Helvetica)',
+      'Acentos azul marino',
+      'Aspecto moderno y pulido',
+      'Legibilidad equilibrada',
     ],
   },
   {
     id: 'compact',
-    name: 'Compact',
-    description: 'Maximum content in minimal space',
+    name: 'Compacto',
+    description: 'Maximo contenido en minimo espacio',
     features: [
-      'Condensed font (Arial Narrow)',
-      'Tight spacing',
-      'Ideal for senior professionals',
-      'Fits more content per page',
+      'Fuente condensada (Arial Narrow)',
+      'Espaciado ajustado',
+      'Ideal para profesionales senior',
+      'Mas contenido por pagina',
     ],
   },
 ];
@@ -81,10 +81,10 @@ export default function TemplateSelectorModal({
           <div className="flex items-center justify-between">
             <div>
               <h2 className="text-2xl font-bold text-gray-900">
-                Choose Your Template
+                Elige tu Plantilla
               </h2>
               <p className="text-sm text-gray-600 mt-1">
-                Select a professional template for your resume PDF
+                Selecciona una plantilla profesional para tu CV en PDF
               </p>
             </div>
             <button
@@ -160,7 +160,7 @@ export default function TemplateSelectorModal({
                         />
                       </svg>
                       <p className="text-xs font-medium">
-                        {template.name} Template Preview
+                        Vista previa: {template.name}
                       </p>
                     </div>
                   </div>
@@ -216,7 +216,7 @@ export default function TemplateSelectorModal({
                           clipRule="evenodd"
                         />
                       </svg>
-                      Selected
+                      Seleccionado
                     </span>
                   </div>
                 )}
@@ -229,20 +229,20 @@ export default function TemplateSelectorModal({
         <div className="sticky bottom-0 bg-gray-50 border-t border-gray-200 p-6 rounded-b-xl">
           <div className="flex justify-between items-center">
             <p className="text-sm text-gray-600">
-              Your selection will be saved for future downloads
+              Tu seleccion se guardara para futuras descargas
             </p>
             <div className="flex gap-3">
               <button
                 onClick={onClose}
                 className="px-6 py-2.5 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 font-medium transition-colors"
               >
-                Cancel
+                Cancelar
               </button>
               <button
                 onClick={handleApply}
                 className="px-6 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium transition-colors"
               >
-                Apply Template
+                Aplicar Plantilla
               </button>
             </div>
           </div>

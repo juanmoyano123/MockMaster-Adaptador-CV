@@ -201,7 +201,7 @@ export default function AdaptedResumePreview({
                         clipRule="evenodd"
                       />
                     </svg>
-                    Editing Mode
+                    Modo Edicion
                   </>
                 ) : (
                   <>
@@ -218,7 +218,7 @@ export default function AdaptedResumePreview({
                         d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
                       />
                     </svg>
-                    Edit Resume
+                    Editar CV
                   </>
                 )}
               </button>
@@ -248,7 +248,7 @@ export default function AdaptedResumePreview({
                           d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
                         ></path>
                       </svg>
-                      <span className="text-gray-600">Saving...</span>
+                      <span className="text-gray-600">Guardando...</span>
                     </>
                   ) : (
                     <>
@@ -263,7 +263,7 @@ export default function AdaptedResumePreview({
                           clipRule="evenodd"
                         />
                       </svg>
-                      <span className="text-green-600 font-medium">Saved</span>
+                      <span className="text-green-600 font-medium">Guardado</span>
                     </>
                   )}
                 </div>
@@ -289,7 +289,7 @@ export default function AdaptedResumePreview({
                     d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
                   />
                 </svg>
-                Reset to AI Version
+                Restaurar version IA
               </button>
             )}
           </div>
@@ -302,13 +302,13 @@ export default function AdaptedResumePreview({
           <div className="flex flex-col md:flex-row items-center justify-between gap-4">
             <div>
               <h3 className="text-lg font-semibold text-gray-900 mb-1">
-                Ready to Download?
+                ¿Listo para Descargar?
               </h3>
               <p className="text-sm text-gray-600">
-                Current template: <span className="font-semibold capitalize">{selectedTemplate}</span>
+                Plantilla actual: <span className="font-semibold capitalize">{selectedTemplate}</span>
                 {hasEdits && (
                   <span className="ml-2 text-green-600 font-medium">
-                    (using your edited version)
+                    (usando tu version editada)
                   </span>
                 )}
               </p>
@@ -318,7 +318,7 @@ export default function AdaptedResumePreview({
                 onClick={() => setIsTemplateModalOpen(true)}
                 className="px-5 py-2.5 border-2 border-blue-600 text-blue-600 rounded-lg hover:bg-blue-50 font-medium transition-colors"
               >
-                Choose Template
+                Elegir Plantilla
               </button>
               <DownloadPDFButton
                 adaptedContent={contentForPDF}
@@ -416,10 +416,10 @@ export default function AdaptedResumePreview({
         {/* Professional Summary (Editable in F-012) */}
         <div>
           <h2 className="text-xl font-bold text-gray-800 mb-3 flex items-center gap-2">
-            Professional Summary
+            Resumen Profesional
             {currentContent.summary !== original.parsed_content.summary && (
               <span className="text-xs bg-green-100 text-green-700 px-2 py-1 rounded-full">
-                Updated
+                Actualizado
               </span>
             )}
           </h2>
@@ -434,10 +434,10 @@ export default function AdaptedResumePreview({
         {/* Work Experience (Editable in F-012) */}
         <div>
           <h2 className="text-xl font-bold text-gray-800 mb-4 flex items-center gap-2">
-            Work Experience
+            Experiencia Laboral
             {changes_summary.experiences_reordered && (
               <span className="text-xs bg-purple-100 text-purple-700 px-2 py-1 rounded-full">
-                Reordered by Relevance
+                Reordenado por Relevancia
               </span>
             )}
           </h2>
@@ -451,7 +451,7 @@ export default function AdaptedResumePreview({
 
         {/* Education (Read-only) */}
         <div>
-          <h2 className="text-xl font-bold text-gray-800 mb-3">Education</h2>
+          <h2 className="text-xl font-bold text-gray-800 mb-3">Educacion</h2>
           <div className="space-y-3">
             {currentContent.education.map((edu, idx) => (
               <div key={idx}>
@@ -466,10 +466,10 @@ export default function AdaptedResumePreview({
         {/* Skills (Editable in F-012) */}
         <div>
           <h2 className="text-xl font-bold text-gray-800 mb-3 flex items-center gap-2">
-            Skills
+            Habilidades
             {changes_summary.skills_highlighted > 0 && (
               <span className="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded-full">
-                Reordered
+                Reordenado
               </span>
             )}
           </h2>
@@ -485,17 +485,17 @@ export default function AdaptedResumePreview({
       {/* Adaptation Info */}
       <div className="text-center text-sm text-gray-500">
         <p>
-          Resume adapted on{' '}
-          {new Date(resume.adapted_at).toLocaleString('en-US', {
+          CV adaptado el{' '}
+          {new Date(resume.adapted_at).toLocaleString('es-AR', {
             dateStyle: 'medium',
             timeStyle: 'short',
           })}
         </p>
         {hasEdits && (
           <p className="text-green-600 font-medium mt-1">
-            Last edited{' '}
+            Ultima edicion{' '}
             {adaptedResumeStorage.getEdited()?.last_edited &&
-              new Date(adaptedResumeStorage.getEdited()!.last_edited).toLocaleString('en-US', {
+              new Date(adaptedResumeStorage.getEdited()!.last_edited).toLocaleString('es-AR', {
                 dateStyle: 'medium',
                 timeStyle: 'short',
               })}

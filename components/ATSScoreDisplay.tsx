@@ -71,9 +71,9 @@ export default function ATSScoreDisplay({
 
   // Determine label based on score
   const getLabel = (score: number): string => {
-    if (score >= 70) return 'Strong Match';
-    if (score >= 50) return 'Good Match';
-    return 'Needs Work';
+    if (score >= 70) return 'Excelente Match';
+    if (score >= 50) return 'Buen Match';
+    return 'Necesita Mejoras';
   };
 
   return (
@@ -123,9 +123,9 @@ export default function ATSScoreDisplay({
             {getLabel(score)}
           </p>
           <p className="text-xs text-gray-500 mt-1">
-            {score >= 70 && 'Excellent keyword match'}
-            {score >= 50 && score < 70 && 'Consider adding more keywords'}
-            {score < 50 && 'Significant keyword gaps'}
+            {score >= 70 && 'Excelente coincidencia de keywords'}
+            {score >= 50 && score < 70 && 'Considera agregar mas keywords'}
+            {score < 50 && 'Brechas significativas de keywords'}
           </p>
         </div>
       </div>
@@ -148,7 +148,7 @@ export default function ATSScoreDisplay({
                       clipRule="evenodd"
                     />
                   </svg>
-                  Hide Details
+                  Ocultar Detalles
                 </>
               ) : (
                 <>
@@ -159,7 +159,7 @@ export default function ATSScoreDisplay({
                       clipRule="evenodd"
                     />
                   </svg>
-                  See Details
+                  Ver Detalles
                 </>
               )}
             </button>

@@ -40,7 +40,7 @@ export default function EditableExperienceItem({
         <p className="text-sm text-gray-500">{experience.dates}</p>
         <div className="mt-1 flex items-center gap-2">
           <span className="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded-full">
-            Relevance: {experience.relevance_score}%
+            Relevancia: {experience.relevance_score}%
           </span>
         </div>
       </div>
@@ -86,7 +86,7 @@ export default function EditableExperienceItem({
               d="M12 6v6m0 0v6m0-6h6m-6 0H6"
             />
           </svg>
-          Add bullet point
+          Agregar punto
         </button>
       )}
     </div>

@@ -69,11 +69,11 @@ export default function ResetConfirmationDialog({
               id="reset-dialog-title"
               className="text-xl font-bold text-gray-900 mb-2"
             >
-              Reset to AI Version?
+              ¿Restaurar version IA?
             </h3>
             <p className="text-gray-700 leading-relaxed">
-              This will discard all your edits and restore the original
-              AI-generated resume. <strong>This action cannot be undone.</strong>
+              Esto descartara todas tus ediciones y restaurara el CV
+              generado por IA. <strong>Esta accion no se puede deshacer.</strong>
             </p>
           </div>
         </div>
@@ -85,13 +85,13 @@ export default function ResetConfirmationDialog({
             className="px-5 py-2.5 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-gray-400"
             autoFocus
           >
-            Cancel
+            Cancelar
           </button>
           <button
             onClick={onConfirm}
             className="px-5 py-2.5 bg-red-600 text-white rounded-lg hover:bg-red-700 font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-red-500"
           >
-            Reset to AI Version
+            Restaurar version IA
           </button>
         </div>
       </div>
