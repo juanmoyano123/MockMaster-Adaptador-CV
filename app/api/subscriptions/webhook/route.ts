@@ -7,7 +7,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
-import { getSubscription, mapMPStatus } from '@/lib/mercadopago';
+import { getSubscription, mapMPStatus, verifyWebhookSignature } from '@/lib/mercadopago';
 
 // Create admin client inside handler to avoid build-time errors
 function getSupabaseAdmin() {
@@ -21,7 +21,21 @@ export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
 
-    console.log('Webhook received:', JSON.stringify(body, null, 2));
+    if (process.env.NODE_ENV !== 'production') {
+      console.log('Webhook received:', JSON.stringify(body, null, 2));
+    }
+
+    // Verificar firma del webhook (solo si MP_WEBHOOK_SECRET esta configurado)
+    const signature = request.headers.get('x-signature');
+    const requestId = request.headers.get('x-request-id');
+
+    if (process.env.MP_WEBHOOK_SECRET) {
+      const isValid = verifyWebhookSignature(JSON.stringify(body), signature, requestId);
+      if (!isValid) {
+        console.error('Firma de webhook invalida');
+        return NextResponse.json({ error: 'Invalid signature' }, { status: 401 });
+      }
+    }
 
     // MercadoPago sends different event types
     const { action, data, type } = body;
@@ -39,7 +53,9 @@ export async function POST(request: NextRequest) {
 
     // Get full subscription details from MercadoPago
     const mpSubscription = await getSubscription(subscriptionId);
-    console.log('MP Subscription:', JSON.stringify(mpSubscription, null, 2));
+    if (process.env.NODE_ENV !== 'production') {
+      console.log('MP Subscription:', JSON.stringify(mpSubscription, null, 2));
+    }
 
     // Get user ID from external_reference
     const userId = mpSubscription.external_reference;
@@ -86,7 +102,9 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    console.log(`Subscription updated for user ${userId}: ${tier} (${status})`);
+    if (process.env.NODE_ENV !== 'production') {
+      console.log(`Subscription updated for user ${userId}: ${tier} (${status})`);
+    }
 
     return NextResponse.json({ received: true, userId, tier, status });
   } catch (error) {

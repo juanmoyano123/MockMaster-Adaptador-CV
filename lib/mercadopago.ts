@@ -14,7 +14,6 @@ function getPreApproval() {
   if (!accessToken) {
     throw new Error('MP_ACCESS_TOKEN no está configurado');
   }
-  console.log('Initializing MercadoPago with token:', accessToken.substring(0, 20) + '...');
   const client = new MercadoPagoConfig({ accessToken });
   return new PreApproval(client);
 }
@@ -41,12 +40,16 @@ export async function createSubscription(
       status: 'pending' as const,
     };
 
-    console.log('Creating subscription with body:', JSON.stringify(body, null, 2));
+    if (process.env.NODE_ENV !== 'production') {
+      console.log('Creating subscription with body:', JSON.stringify(body, null, 2));
+    }
 
     const preapproval = getPreApproval();
     const result = await preapproval.create({ body });
 
-    console.log('MercadoPago result:', JSON.stringify(result, null, 2));
+    if (process.env.NODE_ENV !== 'production') {
+      console.log('MercadoPago result:', JSON.stringify(result, null, 2));
+    }
 
     return {
       init_point: result.init_point!,

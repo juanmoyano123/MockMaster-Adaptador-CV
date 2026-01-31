@@ -40,8 +40,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Create subscription in MercadoPago
-    // In test mode, use test buyer email instead of real user email
-    const payerEmail = process.env.MP_TEST_BUYER_EMAIL || user.email!;
+    const payerEmail = user.email!;
 
     const { init_point, subscription_id } = await createSubscription(
       user.id,
@@ -63,9 +62,11 @@ export async function POST(request: NextRequest) {
       subscription_id,
     });
   } catch (error: unknown) {
-    console.error('Create subscription error:', JSON.stringify(error, null, 2));
-    console.error('Error type:', typeof error);
-    console.error('Error constructor:', error?.constructor?.name);
+    if (process.env.NODE_ENV !== 'production') {
+      console.error('Create subscription error:', JSON.stringify(error, null, 2));
+      console.error('Error type:', typeof error);
+      console.error('Error constructor:', error?.constructor?.name);
+    }
 
     let errorMessage = 'Error desconocido';
     if (error instanceof Error) {
