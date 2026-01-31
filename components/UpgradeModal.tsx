@@ -47,7 +47,7 @@ export default function UpgradeModal({ isOpen, onClose }: UpgradeModalProps) {
   const proPlan = PLANS.pro;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 md:p-8">
       {/* Backdrop */}
       <div
         className="absolute inset-0 bg-black/50"
@@ -55,7 +55,7 @@ export default function UpgradeModal({ isOpen, onClose }: UpgradeModalProps) {
       />
 
       {/* Modal */}
-      <div className="relative bg-white rounded-2xl shadow-xl max-w-md w-full mx-4 overflow-hidden">
+      <div className="relative bg-white rounded-2xl shadow-xl max-w-md w-full overflow-hidden">
         {/* Header */}
         <div className="bg-gradient-to-r from-purple-600 to-indigo-600 px-6 py-8 text-white text-center">
           <div className="w-16 h-16 bg-white/20 rounded-full mx-auto mb-4 flex items-center justify-center">
@@ -178,7 +178,8 @@ export default function UpgradeModal({ isOpen, onClose }: UpgradeModalProps) {
         {/* Close button */}
         <button
           onClick={onClose}
-          className="absolute top-4 right-4 text-white/80 hover:text-white"
+          className="absolute top-3 right-3 bg-white/20 hover:bg-white/30 rounded-full p-1.5 text-white transition-colors"
+          aria-label="Cerrar"
         >
           <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path
