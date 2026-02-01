@@ -3,70 +3,74 @@
  * Feature: F-009
  *
  * Handles subscription creation, cancellation, and status checks
+ * using MercadoPago's PreApproval API (Subscriptions without associated plan)
  */
 
 import { MercadoPagoConfig, PreApproval } from 'mercadopago';
 import { PLANS } from './subscription-config';
+import { SubscriptionStatus } from './types';
 
-// Lazy-load MercadoPago client to ensure env vars are available
-function getPreApproval() {
+/**
+ * Get MercadoPago PreApproval client (lazy initialization)
+ */
+function getPreApproval(): PreApproval {
   const accessToken = process.env.MP_ACCESS_TOKEN;
   if (!accessToken) {
-    throw new Error('MP_ACCESS_TOKEN no está configurado');
+    throw new Error('MP_ACCESS_TOKEN no esta configurado');
   }
   const client = new MercadoPagoConfig({ accessToken });
   return new PreApproval(client);
 }
 
 /**
- * Create a new subscription with trial period
+ * Create a new subscription
+ * Returns the checkout URL where the user will complete the payment
  */
 export async function createSubscription(
   userId: string,
   email: string
 ): Promise<{ init_point: string; subscription_id: string }> {
-  try {
-    const body = {
-      reason: 'MockMaster Pro - Suscripcion Mensual',
-      auto_recurring: {
-        frequency: 1,
-        frequency_type: 'months' as const,
-        transaction_amount: PLANS.pro.price,
-        currency_id: 'ARS' as const,
-      },
-      back_url: `${process.env.NEXT_PUBLIC_APP_URL}/billing?success=true`,
-      payer_email: email,
-      external_reference: userId,
-      status: 'pending' as const,
-    };
+  const preApproval = getPreApproval();
 
-    if (process.env.NODE_ENV !== 'production') {
-      console.log('Creating subscription with body:', JSON.stringify(body, null, 2));
-    }
+  // Check if we're in test mode (TEST credentials)
+  const isTestMode = process.env.MP_ACCESS_TOKEN?.startsWith('TEST-');
 
-    const preapproval = getPreApproval();
-    const result = await preapproval.create({ body });
+  // In test mode, use the test buyer email; in production, use real user email
+  const testBuyerEmail = 'test_user_5362886612546862681@testuser.com';
+  const payerEmail = isTestMode ? testBuyerEmail : email;
 
-    if (process.env.NODE_ENV !== 'production') {
-      console.log('MercadoPago result:', JSON.stringify(result, null, 2));
-    }
+  const body = {
+    reason: 'MockMaster Pro - Suscripcion Mensual',
+    external_reference: userId,
+    payer_email: payerEmail,
+    auto_recurring: {
+      frequency: 1,
+      frequency_type: 'months' as const,
+      transaction_amount: PLANS.pro.price,
+      currency_id: 'ARS' as const,
+    },
+    back_url: `${process.env.NEXT_PUBLIC_APP_URL}/billing?success=true`,
+    status: 'pending' as const,
+  };
 
-    return {
-      init_point: result.init_point!,
-      subscription_id: result.id!,
-    };
-  } catch (error) {
-    console.error('MercadoPago create error:', error);
-    throw error;
+  const result = await preApproval.create({ body });
+
+  if (!result.init_point || !result.id) {
+    throw new Error('MercadoPago no retorno init_point o id');
   }
+
+  return {
+    init_point: result.init_point,
+    subscription_id: result.id,
+  };
 }
 
 /**
  * Cancel an existing subscription
  */
 export async function cancelSubscription(subscriptionId: string): Promise<void> {
-  const preapproval = getPreApproval();
-  await preapproval.update({
+  const preApproval = getPreApproval();
+  await preApproval.update({
     id: subscriptionId,
     body: {
       status: 'cancelled',
@@ -78,8 +82,8 @@ export async function cancelSubscription(subscriptionId: string): Promise<void> 
  * Pause a subscription
  */
 export async function pauseSubscription(subscriptionId: string): Promise<void> {
-  const preapproval = getPreApproval();
-  await preapproval.update({
+  const preApproval = getPreApproval();
+  await preApproval.update({
     id: subscriptionId,
     body: {
       status: 'paused',
@@ -91,22 +95,20 @@ export async function pauseSubscription(subscriptionId: string): Promise<void> {
  * Get subscription details from MercadoPago
  */
 export async function getSubscription(subscriptionId: string) {
-  const preapproval = getPreApproval();
-  const result = await preapproval.get({ id: subscriptionId });
-  return result;
+  const preApproval = getPreApproval();
+  return preApproval.get({ id: subscriptionId });
 }
 
 /**
  * Verify webhook signature
+ * MercadoPago uses x-signature header with ts and v1 components
  */
 export function verifyWebhookSignature(
-  payload: string,
-  signature: string | null,
-  requestId: string | null
+  dataId: string,
+  xRequestId: string | null,
+  xSignature: string | null
 ): boolean {
-  // MercadoPago uses x-signature header with ts and v1 components
-  // Format: ts=<timestamp>,v1=<hash>
-  if (!signature || !process.env.MP_WEBHOOK_SECRET) {
+  if (!xSignature || !process.env.MP_WEBHOOK_SECRET) {
     console.warn('Missing signature or webhook secret');
     return false;
   }
@@ -114,20 +116,21 @@ export function verifyWebhookSignature(
   try {
     const crypto = require('crypto');
 
-    // Parse signature components
-    const parts = signature.split(',');
-    const ts = parts.find(p => p.startsWith('ts='))?.split('=')[1];
-    const v1 = parts.find(p => p.startsWith('v1='))?.split('=')[1];
+    // Parse signature components: ts=xxx,v1=xxx
+    const parts = xSignature.split(',');
+    const ts = parts.find((p: string) => p.startsWith('ts='))?.split('=')[1];
+    const v1 = parts.find((p: string) => p.startsWith('v1='))?.split('=')[1];
 
     if (!ts || !v1) {
       console.warn('Invalid signature format');
       return false;
     }
 
-    // Build the manifest string
-    const manifest = `id:${requestId};request-id:${requestId};ts:${ts};`;
+    // Build manifest string according to MP docs
+    // Format: id:[data.id];request-id:[x-request-id];ts:[ts];
+    const manifest = `id:${dataId};request-id:${xRequestId};ts:${ts};`;
 
-    // Calculate HMAC
+    // Calculate HMAC-SHA256
     const hmac = crypto
       .createHmac('sha256', process.env.MP_WEBHOOK_SECRET)
       .update(manifest)
@@ -141,16 +144,15 @@ export function verifyWebhookSignature(
 }
 
 /**
- * Map MercadoPago status to our subscription status
+ * Map MercadoPago subscription status to our internal status
  */
-export function mapMPStatus(
-  mpStatus: string
-): 'active' | 'inactive' | 'trialing' | 'past_due' | 'cancelled' {
+export function mapMPStatus(mpStatus: string): SubscriptionStatus {
   switch (mpStatus) {
     case 'authorized':
     case 'active':
       return 'active';
     case 'pending':
+      return 'inactive';
     case 'paused':
       return 'inactive';
     case 'cancelled':

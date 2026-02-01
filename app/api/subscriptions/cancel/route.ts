@@ -2,61 +2,73 @@
  * Cancel Subscription API
  * Feature: F-009
  *
- * Cancels an active MercadoPago subscription
+ * POST /api/subscriptions/cancel
+ * Cancels the user's active subscription in MercadoPago
  */
 
-import { NextRequest, NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { cancelSubscription } from '@/lib/mercadopago';
+import { updateUserSubscription } from '@/lib/subscription-storage';
 
-export async function POST(request: NextRequest) {
+export async function POST() {
   try {
     // Get authenticated user
     const supabase = await createClient();
     const {
       data: { user },
-      error: authError,
     } = await supabase.auth.getUser();
 
-    if (authError || !user) {
+    if (!user) {
       return NextResponse.json(
-        { error: 'Unauthorized', code: 'UNAUTHORIZED' },
+        { error: 'No autenticado', code: 'UNAUTHORIZED' },
         { status: 401 }
       );
     }
 
     // Get current subscription
-    const { data: subscription } = await supabase
+    const { data: subscription, error } = await supabase
       .from('user_subscriptions')
       .select('mp_subscription_id, tier, status')
       .eq('user_id', user.id)
       .single();
 
-    if (!subscription?.mp_subscription_id) {
+    if (error || !subscription) {
       return NextResponse.json(
-        { error: 'No hay suscripcion activa', code: 'NO_SUBSCRIPTION' },
-        { status: 400 }
+        { error: 'Suscripcion no encontrada', code: 'NOT_FOUND' },
+        { status: 404 }
       );
     }
 
     if (subscription.tier !== 'pro') {
       return NextResponse.json(
-        { error: 'Solo puedes cancelar suscripciones Pro', code: 'NOT_PRO' },
+        { error: 'No tienes una suscripcion Pro activa', code: 'NOT_PRO' },
+        { status: 400 }
+      );
+    }
+
+    if (subscription.status === 'cancelled') {
+      return NextResponse.json(
+        { error: 'La suscripcion ya esta cancelada', code: 'ALREADY_CANCELLED' },
         { status: 400 }
       );
     }
 
     // Cancel in MercadoPago
-    await cancelSubscription(subscription.mp_subscription_id);
+    if (subscription.mp_subscription_id) {
+      try {
+        await cancelSubscription(subscription.mp_subscription_id);
+      } catch (mpError) {
+        console.error('MercadoPago cancel error:', mpError);
+        // Continue to update local status even if MP fails
+        // The webhook will sync the status later
+      }
+    }
 
-    // Update local status (webhook will also update, but this is faster for UI)
-    await supabase
-      .from('user_subscriptions')
-      .update({
-        status: 'cancelled',
-        updated_at: new Date().toISOString(),
-      })
-      .eq('user_id', user.id);
+    // Update local status
+    await updateUserSubscription({
+      status: 'cancelled',
+    });
 
     return NextResponse.json({
       success: true,
@@ -64,6 +76,7 @@ export async function POST(request: NextRequest) {
     });
   } catch (error) {
     console.error('Cancel subscription error:', error);
+
     return NextResponse.json(
       { error: 'Error al cancelar suscripcion', code: 'INTERNAL_ERROR' },
       { status: 500 }

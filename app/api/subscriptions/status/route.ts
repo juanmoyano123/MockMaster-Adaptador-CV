@@ -2,58 +2,62 @@
  * Subscription Status API
  * Feature: F-009
  *
- * Returns current subscription status and usage for authenticated user
+ * GET /api/subscriptions/status
+ * Returns current subscription status and usage for the authenticated user
  */
 
-import { NextRequest, NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { PLANS } from '@/lib/subscription-config';
+import { getUsageThisMonth } from '@/lib/subscription-storage';
+import { SubscriptionTier } from '@/lib/types';
 
-export async function GET(request: NextRequest) {
+export async function GET() {
   try {
     // Get authenticated user
     const supabase = await createClient();
     const {
       data: { user },
-      error: authError,
     } = await supabase.auth.getUser();
 
-    if (authError || !user) {
+    if (!user) {
       return NextResponse.json(
-        { error: 'Unauthorized', code: 'UNAUTHORIZED' },
+        { error: 'No autenticado', code: 'UNAUTHORIZED' },
         { status: 401 }
       );
     }
 
-    // Get subscription
-    const { data: subscription } = await supabase
+    // Get subscription from Supabase
+    const { data: subscription, error } = await supabase
       .from('user_subscriptions')
       .select('*')
       .eq('user_id', user.id)
       .single();
 
+    if (error) {
+      console.error('Error fetching subscription:', error);
+    }
+
+    // Default to free tier if no subscription found
+    const tier: SubscriptionTier = (subscription?.tier as SubscriptionTier) || 'free';
+    const status = subscription?.status || 'active';
+    const plan = PLANS[tier];
+
     // Get usage for current month
+    const adaptationsUsed = await getUsageThisMonth();
+
+    // Calculate if user can adapt
+    const canAdapt =
+      plan.limits.adaptations_per_month === -1 ||
+      adaptationsUsed < plan.limits.adaptations_per_month;
+
+    // Get period start for display
     const now = new Date();
     const periodStart = new Date(now.getFullYear(), now.getMonth(), 1);
-    const periodKey = periodStart.toISOString().split('T')[0];
-
-    const { data: usage } = await supabase
-      .from('subscription_usage')
-      .select('adaptations_count')
-      .eq('user_id', user.id)
-      .eq('period_start', periodKey)
-      .single();
-
-    const tier = subscription?.tier || 'free';
-    const plan = PLANS[tier as keyof typeof PLANS];
-    const adaptationsUsed = usage?.adaptations_count || 0;
-    const adaptationsLimit = plan.limits.adaptations_per_month;
-    const canAdapt =
-      adaptationsLimit === -1 || adaptationsUsed < adaptationsLimit;
 
     return NextResponse.json({
       tier,
-      status: subscription?.status || 'active',
+      status,
       plan: {
         name: plan.name,
         price: plan.price,
@@ -62,9 +66,9 @@ export async function GET(request: NextRequest) {
       },
       usage: {
         adaptations_used: adaptationsUsed,
-        adaptations_limit: adaptationsLimit,
+        adaptations_limit: plan.limits.adaptations_per_month,
         can_adapt: canAdapt,
-        period_start: periodKey,
+        period_start: periodStart.toISOString(),
       },
       subscription: subscription
         ? {
@@ -74,9 +78,10 @@ export async function GET(request: NextRequest) {
         : null,
     });
   } catch (error) {
-    console.error('Status error:', error);
+    console.error('Status subscription error:', error);
+
     return NextResponse.json(
-      { error: 'Error al obtener estado', code: 'INTERNAL_ERROR' },
+      { error: 'Error al obtener estado de suscripcion', code: 'INTERNAL_ERROR' },
       { status: 500 }
     );
   }

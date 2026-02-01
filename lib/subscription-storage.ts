@@ -5,14 +5,30 @@
  * Handles subscription data persistence with Supabase
  */
 
-import { createClient } from '@/lib/supabase/client';
-import { UserSubscription, SubscriptionUsage, SubscriptionTier } from './types';
+import { createClient } from '@/lib/supabase/server';
+import { createClient as createServiceClient } from '@supabase/supabase-js';
+import { UserSubscription, SubscriptionTier } from './types';
+
+/**
+ * Get Supabase client with service role (for webhooks)
+ * This bypasses RLS policies
+ */
+function getServiceClient() {
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+
+  if (!url || !serviceKey) {
+    throw new Error('Missing Supabase service role credentials');
+  }
+
+  return createServiceClient(url, serviceKey);
+}
 
 /**
  * Get user's subscription from Supabase
  */
 export async function getUserSubscription(): Promise<UserSubscription | null> {
-  const supabase = createClient();
+  const supabase = await createClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
@@ -37,7 +53,7 @@ export async function getUserSubscription(): Promise<UserSubscription | null> {
  * Get adaptations used this month
  */
 export async function getUsageThisMonth(): Promise<number> {
-  const supabase = createClient();
+  const supabase = await createClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
@@ -68,7 +84,7 @@ export async function getUsageThisMonth(): Promise<number> {
  * Increment usage counter for current month
  */
 export async function incrementUsage(): Promise<boolean> {
-  const supabase = createClient();
+  const supabase = await createClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
@@ -118,13 +134,42 @@ export async function incrementUsage(): Promise<boolean> {
 }
 
 /**
- * Update subscription status after MercadoPago webhook
+ * Update subscription in Supabase (for authenticated user)
  */
-export async function updateSubscription(
+export async function updateUserSubscription(
+  updates: Partial<UserSubscription>
+): Promise<boolean> {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) return false;
+
+  const { error } = await supabase
+    .from('user_subscriptions')
+    .update({
+      ...updates,
+      updated_at: new Date().toISOString(),
+    })
+    .eq('user_id', user.id);
+
+  if (error) {
+    console.error('Error updating subscription:', error);
+    return false;
+  }
+
+  return true;
+}
+
+/**
+ * Update subscription by user ID (for webhooks - uses service role)
+ */
+export async function updateSubscriptionByUserId(
   userId: string,
   updates: Partial<UserSubscription>
 ): Promise<boolean> {
-  const supabase = createClient();
+  const supabase = getServiceClient();
 
   const { error } = await supabase
     .from('user_subscriptions')
@@ -143,23 +188,25 @@ export async function updateSubscription(
 }
 
 /**
- * Create initial free subscription for new user
+ * Find subscription by MercadoPago subscription ID (for webhooks)
  */
-export async function createFreeSubscription(userId: string): Promise<boolean> {
-  const supabase = createClient();
+export async function findSubscriptionByMPId(
+  mpSubscriptionId: string
+): Promise<UserSubscription | null> {
+  const supabase = getServiceClient();
 
-  const { error } = await supabase.from('user_subscriptions').insert({
-    user_id: userId,
-    tier: 'free' as SubscriptionTier,
-    status: 'active',
-  });
+  const { data, error } = await supabase
+    .from('user_subscriptions')
+    .select('*')
+    .eq('mp_subscription_id', mpSubscriptionId)
+    .single();
 
   if (error) {
-    console.error('Error creating free subscription:', error);
-    return false;
+    console.error('Error finding subscription:', error);
+    return null;
   }
 
-  return true;
+  return data as UserSubscription;
 }
 
 /**
@@ -169,7 +216,7 @@ export async function getSubscriptionWithUsage(): Promise<{
   subscription: UserSubscription | null;
   usage: number;
 } | null> {
-  const supabase = createClient();
+  const supabase = await createClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();

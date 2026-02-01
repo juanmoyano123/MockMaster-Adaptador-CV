@@ -99,6 +99,9 @@ export default function BillingPage() {
   const isTrialing = data?.status === 'trialing';
   const isCancelled = data?.status === 'cancelled';
 
+  // Debug: remove after testing
+  console.log('Billing Debug:', { isPro, isCancelled, shouldShowUpgrade: !isPro || isCancelled });
+
   return (
     <div className="max-w-3xl mx-auto space-y-6">
       {/* Header */}
@@ -214,8 +217,8 @@ export default function BillingPage() {
         </div>
       </div>
 
-      {/* Upgrade to Pro (only show for free users) */}
-      {!isPro && (
+      {/* Upgrade to Pro (show for free users OR cancelled pro users) */}
+      {(!isPro || isCancelled) && (
         <div className="bg-gradient-to-br from-purple-600 to-indigo-600 rounded-xl shadow-lg overflow-hidden">
           <div className="p-6">
             <div className="flex items-center gap-2 mb-4">
@@ -247,17 +250,19 @@ export default function BillingPage() {
               ))}
             </div>
 
-            {/* Trial info */}
-            <p className="text-sm text-white/80 mb-4">
-              Prueba gratis por {TRIAL_DAYS} dias. Sin compromiso.
-            </p>
+            {/* Trial info - only show for users who haven't subscribed before */}
+            {!isCancelled && (
+              <p className="text-sm text-white/80 mb-4">
+                Prueba gratis por {TRIAL_DAYS} dias. Sin compromiso.
+              </p>
+            )}
 
             {/* CTA */}
             <button
               onClick={() => setShowUpgradeModal(true)}
               className="w-full py-3 bg-white text-purple-600 font-semibold rounded-lg hover:bg-purple-50 transition-colors"
             >
-              Comenzar prueba gratis
+              {isCancelled ? 'Reactivar suscripcion' : 'Comenzar prueba gratis'}
             </button>
           </div>
         </div>
