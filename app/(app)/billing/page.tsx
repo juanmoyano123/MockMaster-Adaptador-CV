@@ -111,15 +111,15 @@ export default function BillingPage() {
       </div>
 
       {/* Current Plan */}
-      <div className={`rounded-xl shadow-sm border overflow-hidden ${isPro ? 'bg-gradient-to-br from-purple-50 to-indigo-50 border-purple-200' : 'bg-white border-slate-200'}`}>
+      <div className={`rounded-xl shadow-sm border overflow-hidden ${isPro ? 'bg-gradient-to-br from-primary-50 to-primary-100 border-primary-200' : 'bg-white border-slate-200'}`}>
         <div className="p-6">
           <div className="flex items-center justify-between mb-6">
             <div className="flex items-center gap-2">
-              <span className={`inline-flex items-center gap-1.5 px-3 py-1 text-sm font-medium rounded-full ${isPro ? 'bg-purple-100 text-purple-700' : 'bg-slate-100 text-slate-700'}`}>
+              <span className={`inline-flex items-center gap-1.5 px-3 py-1 text-sm font-medium rounded-full ${isPro ? 'bg-primary-100 text-primary-700' : 'bg-slate-100 text-slate-700'}`}>
                 Plan Actual
               </span>
               {isPro && (
-                <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-purple-600 text-white text-xs font-semibold rounded-full">
+                <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-primary-600 text-white text-xs font-semibold rounded-full">
                   PRO
                 </span>
               )}
@@ -173,7 +173,7 @@ export default function BillingPage() {
 
           {/* Pro period info */}
           {isPro && data?.subscription?.current_period_end && (
-            <div className="mt-6 pt-6 border-t border-purple-200">
+            <div className="mt-6 pt-6 border-t border-primary-200">
               <p className="text-sm text-slate-600">
                 {isCancelled ? 'Acceso hasta: ' : 'Proxima facturacion: '}
                 <span className="font-medium">
@@ -204,7 +204,7 @@ export default function BillingPage() {
 
           {/* Cancel button for Pro users */}
           {isPro && !isCancelled && (
-            <div className="mt-6 pt-6 border-t border-purple-200">
+            <div className="mt-6 pt-6 border-t border-primary-200">
               <button
                 onClick={handleCancel}
                 disabled={cancelling}
@@ -219,7 +219,7 @@ export default function BillingPage() {
 
       {/* Upgrade to Pro (show for free users OR cancelled pro users) */}
       {(!isPro || isCancelled) && (
-        <div className="bg-gradient-to-br from-purple-600 to-indigo-600 rounded-xl shadow-lg overflow-hidden">
+        <div className="bg-gradient-to-br from-primary-600 to-primary-700 rounded-xl shadow-lg overflow-hidden">
           <div className="p-6">
             <div className="flex items-center gap-2 mb-4">
               <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-white/20 text-white text-sm font-medium rounded-full">
@@ -230,11 +230,11 @@ export default function BillingPage() {
             <div className="flex items-start justify-between mb-6">
               <div>
                 <h2 className="text-2xl font-bold text-white">Plan Pro</h2>
-                <p className="text-purple-100 mt-1">Adaptaciones ilimitadas para profesionales</p>
+                <p className="text-primary-100 mt-1">Adaptaciones ilimitadas para profesionales</p>
               </div>
               <div className="text-right">
                 <p className="text-3xl font-bold text-white">${PLANS.pro.price}</p>
-                <p className="text-sm text-purple-200">/{PLANS.pro.currency}/mes</p>
+                <p className="text-sm text-primary-200">/{PLANS.pro.currency}/mes</p>
               </div>
             </div>
 
@@ -260,7 +260,7 @@ export default function BillingPage() {
             {/* CTA */}
             <button
               onClick={() => setShowUpgradeModal(true)}
-              className="w-full py-3 bg-white text-purple-600 font-semibold rounded-lg hover:bg-purple-50 transition-colors"
+              className="w-full py-3 bg-white text-primary-600 font-semibold rounded-lg hover:bg-primary-50 transition-colors"
             >
               {isCancelled ? 'Reactivar suscripcion' : 'Comenzar prueba gratis'}
             </button>

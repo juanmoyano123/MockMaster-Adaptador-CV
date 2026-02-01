@@ -57,7 +57,7 @@ export default function UpgradeModal({ isOpen, onClose }: UpgradeModalProps) {
       {/* Modal */}
       <div className="relative bg-white rounded-2xl shadow-xl max-w-md w-full overflow-hidden">
         {/* Header */}
-        <div className="bg-gradient-to-r from-purple-600 to-indigo-600 px-6 py-8 text-white text-center">
+        <div className="bg-gradient-to-r from-primary-600 to-primary-700 px-6 py-8 text-white text-center">
           <div className="w-16 h-16 bg-white/20 rounded-full mx-auto mb-4 flex items-center justify-center">
             <svg
               className="w-8 h-8"
@@ -123,7 +123,7 @@ export default function UpgradeModal({ isOpen, onClose }: UpgradeModalProps) {
           <button
             onClick={handleUpgrade}
             disabled={loading}
-            className="w-full bg-gradient-to-r from-purple-600 to-indigo-600 text-white py-3 px-6 rounded-lg font-semibold hover:from-purple-700 hover:to-indigo-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+            className="w-full bg-primary-600 hover:bg-primary-700 text-white py-3 px-6 rounded-lg font-semibold transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
           >
             {loading ? (
               <>
