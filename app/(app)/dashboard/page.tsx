@@ -11,6 +11,8 @@ import { resumeStorage } from '@/lib/storage';
 import { jobAnalysisStorage } from '@/lib/job-storage';
 import { adaptedResumeStorage } from '@/lib/adapted-resume-storage';
 import { useEffect, useState } from 'react';
+import SubscriptionBanner from '@/components/SubscriptionBanner';
+import UpgradeModal from '@/components/UpgradeModal';
 
 interface Stats {
   hasResume: boolean;
@@ -62,6 +64,7 @@ export default function DashboardPage() {
     hasAdaptedResume: false,
   });
   const [mounted, setMounted] = useState(false);
+  const [showUpgradeModal, setShowUpgradeModal] = useState(false);
 
   useEffect(() => {
     setMounted(true);
@@ -109,6 +112,9 @@ export default function DashboardPage() {
           </div>
         </div>
       </div>
+
+      {/* Subscription Banner */}
+      <SubscriptionBanner onUpgradeClick={() => setShowUpgradeModal(true)} />
 
       {/* Progress Tracker */}
       {mounted && (
@@ -233,6 +239,12 @@ export default function DashboardPage() {
           </div>
         </div>
       </div>
+
+      {/* Upgrade Modal */}
+      <UpgradeModal
+        isOpen={showUpgradeModal}
+        onClose={() => setShowUpgradeModal(false)}
+      />
     </div>
   );
 }

@@ -2,7 +2,7 @@
 
 **Arquitectura MVP:** localStorage (Sin Auth, Sin DB)
 
-Última actualización: 2026-01-29
+Última actualización: 2026-02-24
 
 ---
 
@@ -34,12 +34,12 @@
 - F-011 | App Shell + Dashboard + User Profile | ✅ COMPLETE - Sidebar navigation, Header with UserMenu, Profile page, Settings/Billing placeholders, Mobile responsive
 - F-007 | Job Description Library | ✅ COMPLETE - Save analyzed job descriptions, search/filter by tags, quick "Adaptar CV" action, localStorage persistence
 - F-009 | MercadoPago Subscription Integration | ✅ COMPLETE - Checkout flow, webhooks, billing UI, usage tracking, Supabase tables (user_subscriptions, subscription_usage)
+- F-008 | Onboarding Wizard | ✅ COMPLETE - 3-step wizard (Upload CV → Analyze Job → Generate), auto-resume on abandon, celebration modal, clean layout without AppShell
+- F-010 | Usage Limits per User | ✅ COMPLETE (Merged into F-009 + Dashboard/Adapt banner integration)
 
 ### IN_PROGRESS
 
 ### BACKLOG
-- F-008 | Onboarding Wizard | 3-step guided flow for new users
-- F-010 | Usage Limits per User | ✅ Merged into F-009
 
 ---
 
@@ -64,13 +64,13 @@
 **V2 Features:** 5
 **V3 Features:** 2
 
-**Completadas:** 10 (76.9%)
+**Completadas:** 12 (92.3%)
 **En Progreso:** 0 (0%)
-**Pendientes:** 3 (23.1%)
+**Pendientes:** 1 (7.7%)
 
 **Por Fase:**
 - 🚀 MVP (No Auth): 6/6 (100%) - ✅ **MVP COMPLETO!**
-- 🔐 V2 (With Auth): 4/5 (80%) - F-001 Auth + F-011 App Shell + F-007 Job Library + F-009 MercadoPago done!
+- 🔐 V2 (With Auth): 6/6 (100%) - ✅ **V2 COMPLETO!** F-001 Auth + F-011 App Shell + F-007 Job Library + F-009 MercadoPago + F-008 Onboarding + F-010 Usage Limits
 - ✨ V3 (Enhancements): 0/2 (0%)
 
 **Estimación de Tiempo:**
@@ -127,7 +127,17 @@
   - Supabase tables: user_subscriptions, subscription_usage
   - Free tier (5 adaptations/month) + Pro tier ($9990 ARS/month unlimited)
   - Test mode with test users verified working
-- Next: F-008 Onboarding Wizard
+- ✅ F-008 - Onboarding Wizard COMPLETE
+  - 3-step wizard: Upload CV → Analyze Job → Generate Resume
+  - Auto-resume on abandon (detects progress via localStorage)
+  - Celebration modal with ATS score display
+  - Clean layout without AppShell
+  - Auto-redirect for new users
+- ✅ F-010 - Usage Limits COMPLETE (merged into F-009 + dashboard/adapt banners)
+  - SubscriptionBanner added to Dashboard and Adapt Resume pages
+  - Shows remaining adaptations for free users
+  - Upgrade CTA when near/at limit
+- Next: V3 features (F-013 Multiple Templates, F-014 URL Extraction)
 
 **Criterio de Éxito MVP:**
 - 100+ descargas/semana
