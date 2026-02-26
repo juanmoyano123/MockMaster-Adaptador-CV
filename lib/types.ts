@@ -179,7 +179,7 @@ export interface ValidationError {
  * Feature: F-006
  */
 
-export type TemplateType = 'clean' | 'modern' | 'compact';
+export type TemplateType = 'clean' | 'modern' | 'compact' | 'executive' | 'minimal';
 
 export interface PDFGenerationRequest {
   adapted_content: AdaptedContent;
@@ -316,4 +316,23 @@ export interface Application {
   notes: string | null;
   created_at: string;
   updated_at: string;
+}
+
+/**
+ * Type definitions for Job Description URL Extraction
+ * Feature: F-014
+ */
+
+export type UrlExtractionErrorCode =
+  | 'INVALID_URL'
+  | 'BLOCKED_URL'
+  | 'FETCH_TIMEOUT'
+  | 'FETCH_ERROR'
+  | 'LOGIN_WALL'
+  | 'CONTENT_TOO_LARGE'
+  | 'INTERNAL_ERROR';
+
+export interface UrlExtractionAPIError {
+  error: string;
+  code: UrlExtractionErrorCode;
 }

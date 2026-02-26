@@ -43,7 +43,7 @@ export function validatePDFRequest(data: unknown): {
     return { valid: false, error: 'Missing company_name' };
   }
 
-  const validTemplates: TemplateType[] = ['clean', 'modern', 'compact'];
+  const validTemplates: TemplateType[] = ['clean', 'modern', 'compact', 'executive', 'minimal'];
   if (!validTemplates.includes(request.template as TemplateType)) {
     return {
       valid: false,

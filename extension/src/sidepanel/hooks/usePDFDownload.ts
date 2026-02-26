@@ -34,11 +34,11 @@ import { AdaptedResume, mockMasterClient } from '../api/mockmaster-client';
 // ---------------------------------------------------------------------------
 
 /**
- * The three PDF template variants available in the backend renderer.
+ * The five PDF template variants available in the backend renderer.
  * These values map directly to the template keys expected by
  * POST /api/generate-pdf.
  */
-export type PDFTemplate = 'clean' | 'modern' | 'compact';
+export type PDFTemplate = 'clean' | 'modern' | 'compact' | 'executive' | 'minimal';
 
 export interface PDFDownloadState {
   /** True while the PDF is being generated and the Blob is downloading */
@@ -69,7 +69,7 @@ export function usePDFDownload(): PDFDownloadState & {
    *
    * @param adaptedResume - The full AdaptedResume object from useAdaptation.
    *   The hook extracts `adapted_content` internally before calling the API.
-   * @param template      - One of 'clean' | 'modern' | 'compact'
+   * @param template      - One of 'clean' | 'modern' | 'compact' | 'executive' | 'minimal'
    * @param companyName   - Used to label the downloaded file
    */
   download: (

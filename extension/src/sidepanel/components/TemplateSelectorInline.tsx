@@ -2,8 +2,9 @@
  * TemplateSelectorInline — compact footer component for PDF template
  * selection and download.
  *
- * Renders two rows inside a tight container (~60 px tall):
- *   Row 1: Three pill-style toggle buttons (Clasico / Moderno / Compacto)
+ * Renders two rows inside a tight container:
+ *   Row 1: Five pill-style toggle buttons (Clasico / Moderno / Compacto / Ejecutivo / Minimalista)
+ *           Pills wrap to a second line on narrow viewports via flex-wrap.
  *   Row 2: Full-width "Descargar PDF" action button
  *   Row 3: (conditional) Red error message below the button
  *
@@ -59,9 +60,11 @@ interface TemplateSelectorInlineProps {
  * `label` is the Spanish UI string shown in the pill.
  */
 const TEMPLATE_OPTIONS: { id: PDFTemplate; label: string }[] = [
-  { id: 'clean',   label: 'Clasico'  },
-  { id: 'modern',  label: 'Moderno'  },
-  { id: 'compact', label: 'Compacto' },
+  { id: 'clean',     label: 'Clasico'      },
+  { id: 'modern',    label: 'Moderno'      },
+  { id: 'compact',   label: 'Compacto'     },
+  { id: 'executive', label: 'Ejecutivo'    },
+  { id: 'minimal',   label: 'Minimalista'  },
 ];
 
 // ---------------------------------------------------------------------------
@@ -153,7 +156,7 @@ export default function TemplateSelectorInline({
       {/* Row 1: Template pill toggles                                        */}
       {/* ------------------------------------------------------------------- */}
       <div
-        className="flex gap-1"
+        className="flex flex-wrap gap-1 justify-center"
         role="group"
         aria-label="Seleccionar plantilla de PDF"
       >

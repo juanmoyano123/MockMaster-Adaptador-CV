@@ -1,8 +1,8 @@
 /**
  * Template Selector Modal Component
- * Feature: F-006
+ * Feature: F-006 / F-013
  *
- * Allows users to choose from 3 PDF templates: Clean, Modern, Compact
+ * Allows users to choose from 5 PDF templates: Clean, Modern, Compact, Executive, Minimal
  */
 
 'use client';
@@ -58,6 +58,28 @@ const TEMPLATE_OPTIONS: TemplateOption[] = [
       'Mas contenido por pagina',
     ],
   },
+  {
+    id: 'executive',
+    name: 'Ejecutivo',
+    description: 'Elegante y formal para perfiles senior',
+    features: [
+      'Fuente serif refinada (Cambria)',
+      'Encabezados en mayusculas con espaciado',
+      'Tono formal y sobrio',
+      'Ideal para directivos y gerentes',
+    ],
+  },
+  {
+    id: 'minimal',
+    name: 'Minimalista',
+    description: 'Ultra limpio, el contenido habla por si solo',
+    features: [
+      'Fuente geometrica moderna (Inter)',
+      'Sin lineas ni bordes decorativos',
+      'Maximo espacio en blanco',
+      'Perfecto para tech y startups',
+    ],
+  },
 ];
 
 export default function TemplateSelectorModal({
@@ -111,7 +133,7 @@ export default function TemplateSelectorModal({
 
         {/* Template Options */}
         <div className="p-6">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6">
             {TEMPLATE_OPTIONS.map((template) => (
               <div
                 key={template.id}
@@ -141,7 +163,11 @@ export default function TemplateSelectorModal({
                           ? 'bg-gradient-to-br from-gray-50 to-gray-100'
                           : template.id === 'modern'
                             ? 'bg-gradient-to-br from-blue-50 to-blue-100'
-                            : 'bg-gradient-to-br from-slate-50 to-slate-100'
+                            : template.id === 'executive'
+                              ? 'bg-gradient-to-br from-stone-50 to-stone-200'
+                              : template.id === 'minimal'
+                                ? 'bg-gradient-to-br from-white to-gray-50'
+                                : 'bg-gradient-to-br from-slate-50 to-slate-100'
                       }
                     `}
                   >
