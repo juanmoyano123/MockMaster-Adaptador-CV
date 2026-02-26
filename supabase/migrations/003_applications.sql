@@ -58,7 +58,8 @@ WITH CHECK (auth.uid() = user_id);
 DROP POLICY IF EXISTS "Users can update own applications" ON applications;
 CREATE POLICY "Users can update own applications"
 ON applications FOR UPDATE
-USING (auth.uid() = user_id);
+USING (auth.uid() = user_id)
+WITH CHECK (auth.uid() = user_id);
 
 DROP POLICY IF EXISTS "Users can delete own applications" ON applications;
 CREATE POLICY "Users can delete own applications"

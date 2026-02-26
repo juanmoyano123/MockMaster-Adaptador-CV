@@ -562,7 +562,7 @@ class MockMasterClient {
    */
   async updateApplication(
     id: string,
-    data: { status?: string; notes?: string }
+    data: { status?: ApplicationStatus; notes?: string }
   ): Promise<Application> {
     const response = await this.request<{ application: Application }>(
       `${API_ENDPOINTS.applications}/${id}`,

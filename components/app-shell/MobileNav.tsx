@@ -37,7 +37,7 @@ const navItems = [
     ),
   },
   {
-    name: 'Tracking',
+    name: 'Postulaciones',
     href: '/applications',
     icon: (
       <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">

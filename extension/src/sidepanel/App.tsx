@@ -119,7 +119,7 @@ function UnsupportedPageView({ onManualAnalysis }: ViewProps) {
 }
 
 
-function ApplicationSavedView({ jobData, onTransition }: ViewProps) {
+function ApplicationSavedView({ jobData, onTransition, alreadySaved }: ViewProps & { alreadySaved?: boolean }) {
   return (
     <div className="flex flex-col items-center justify-center h-full gap-4 p-6 text-center">
       <div className="w-12 h-12 rounded-full bg-green-100 flex items-center justify-center text-2xl">
@@ -127,12 +127,16 @@ function ApplicationSavedView({ jobData, onTransition }: ViewProps) {
       </div>
       <div>
         <h2 className="text-base font-semibold text-slate-700 mb-1">
-          Postulacion guardada!
+          {alreadySaved ? 'Postulacion ya guardada' : 'Postulacion guardada!'}
         </h2>
         <p className="text-sm text-slate-500">
-          {jobData?.company
-            ? `Tu postulacion a ${jobData.company} fue registrada en tu tracker.`
-            : 'Tu postulacion fue registrada en tu tracker.'}
+          {alreadySaved
+            ? jobData?.company
+              ? `Ya tenias guardada tu postulacion a ${jobData.company}.`
+              : 'Esta postulacion ya estaba en tu tracker.'
+            : jobData?.company
+              ? `Tu postulacion a ${jobData.company} fue registrada en tu tracker.`
+              : 'Tu postulacion fue registrada en tu tracker.'}
         </p>
       </div>
       <div className="flex flex-col gap-2 w-full">
@@ -384,8 +388,8 @@ export default function App() {
       // handle the correct transition when auth resolves.
       if (!auth.authenticated) return;
 
-      // Don't interrupt an in-progress or completed adaptation
-      if (state === 'adapting' || state === 'adapted') return;
+      // Don't interrupt an in-progress or completed adaptation, or a saved application
+      if (state === 'adapting' || state === 'adapted' || state === 'application_saved') return;
 
       if (isJobListingUrl(url)) {
         setCurrentUrl(url);
@@ -499,11 +503,12 @@ export default function App() {
 
     try {
       await application.saveApplication(payload);
-      handleTransition('application_saved');
+      // Both new saves and duplicates reach here (duplicate doesn't throw)
+      setState('application_saved');
     } catch {
       // Error stored in application.error, stay in 'adapted' state
     }
-  }, [extraction.jobData, adaptation.adaptedResume, adaptation.jobAnalysis, application, handleTransition]);
+  }, [extraction.jobData, adaptation.adaptedResume, adaptation.jobAnalysis, application]);
 
   /**
    * Opens the sign-up page in a new tab.
@@ -583,7 +588,7 @@ export default function App() {
         );
 
       case 'application_saved':
-        return <ApplicationSavedView {...viewProps} />;
+        return <ApplicationSavedView {...viewProps} alreadySaved={application.alreadySaved} />;
 
       case 'error':
         return <ErrorView {...viewProps} />;
