@@ -1,34 +1,42 @@
 /**
  * MockMaster Sidepanel — Root Application Component
  *
- * Implements a simple state machine that controls which view the user sees.
- * Each SidebarState maps to a dedicated placeholder view component.
+ * Implements a state machine that controls which view the user sees.
+ * Authentication and job-extraction logic are delegated to hooks:
+ *   - useAuth()          — manages authentication state and token lifecycle
+ *   - useJobExtraction() — manages DOM/Vision extraction and result caching
  *
  * State transitions (happy path):
  *   loading
- *     -> unauthenticated     (no valid token in storage)
- *     -> unsupported_page    (on a non-job-listing URL)
- *     -> job_extracted       (already extracted in this session)
- *   unauthenticated -> loading (after sign-in redirect)
- *   unsupported_page -> extracting (user navigated to a job page)
+ *     -> unauthenticated     (no valid token confirmed by service worker)
+ *     -> unsupported_page    (authenticated but current URL is not a job page)
+ *     -> extracting          (authenticated AND on a job listing URL)
  *   extracting -> job_extracted | error
+ *   unauthenticated -> (auth change) -> unsupported_page | extracting
+ *   unsupported_page -> extracting (user navigates to a job page)
  *   job_extracted -> adapting
  *   adapting -> adapted | error
  *   adapted -> application_saved
- *   error -> extracting | job_extracted (retry)
+ *   error -> extracting | unsupported_page (retry / go back)
  *
- * Track C will replace the placeholder views with real UI.
+ * Track C will replace the remaining placeholder views (AdaptedView, etc.)
+ * with fully designed components.
  */
 
 import React, { useEffect, useState, useCallback } from 'react';
 import { SidebarState, ExtractedJobData } from '../shared/types';
 import { MSG, STATE_LABELS, isJobListingUrl, API_BASE_URL } from '../shared/constants';
-import { getAuthToken } from '../shared/storage';
+
+// Custom hooks
+import { useAuth } from './hooks/useAuth';
+import { useJobExtraction } from './hooks/useJobExtraction';
+
+// Extracted components (Track H)
+import LoginScreen from './components/LoginScreen';
+import JobExtractionView from './components/JobExtractionView';
 
 // ---------------------------------------------------------------------------
-// Placeholder view components
-// Each one is a minimal card that shows the state name and a description.
-// Track C will replace these with fully designed components.
+// Inline view components (out of scope for Track H — kept as placeholders)
 // ---------------------------------------------------------------------------
 
 interface ViewProps {
@@ -42,50 +50,6 @@ function LoadingView() {
     <div className="flex flex-col items-center justify-center h-full gap-4 p-6">
       <div className="spinner w-10 h-10" />
       <p className="text-sm text-slate-500">{STATE_LABELS.loading}</p>
-    </div>
-  );
-}
-
-function UnauthenticatedView({ onTransition }: ViewProps) {
-  const handleSignIn = () => {
-    // Open the main web app in a new tab so the user can authenticate.
-    // After login, the web app will set a cookie that we read on the next
-    // CHECK_AUTH cycle.
-    chrome.tabs.create({ url: `${API_BASE_URL}/login?next=/auth/extension-callback` });
-    // Recheck auth after a short delay so the sidepanel responds quickly
-    // once the user completes login and returns.
-    setTimeout(() => onTransition?.('loading'), 3000);
-  };
-
-  return (
-    <div className="flex flex-col items-center justify-center h-full gap-6 p-6 text-center">
-      {/* Logo placeholder */}
-      <div className="w-16 h-16 rounded-2xl bg-primary-600 flex items-center justify-center">
-        <span className="text-white text-2xl font-bold">M</span>
-      </div>
-
-      <div>
-        <h1 className="text-lg font-bold text-slate-800 mb-1">MockMaster</h1>
-        <p className="text-sm text-slate-500">
-          Adapta tu CV a cada oferta con IA, sin cambiar de pestana.
-        </p>
-      </div>
-
-      <button className="btn-primary w-full" onClick={handleSignIn}>
-        Iniciar sesion
-      </button>
-
-      <p className="text-xs text-slate-400">
-        ¿No tenes cuenta?{' '}
-        <button
-          className="text-primary-600 hover:underline"
-          onClick={() =>
-            chrome.tabs.create({ url: `${API_BASE_URL}/signup` })
-          }
-        >
-          Registrate gratis
-        </button>
-      </p>
     </div>
   );
 }
@@ -134,95 +98,13 @@ function UnsupportedPageView({ onTransition }: ViewProps) {
   );
 }
 
-function ExtractingView() {
-  return (
-    <div className="flex flex-col items-center justify-center h-full gap-4 p-6 text-center">
-      <div className="spinner w-10 h-10" />
-      <div>
-        <h2 className="text-base font-semibold text-slate-700 mb-1">
-          Extrayendo aviso…
-        </h2>
-        <p className="text-sm text-slate-500">
-          Leyendo la descripcion del trabajo desde la pagina.
-        </p>
-      </div>
-    </div>
-  );
-}
-
-function JobExtractedView({ jobData, onTransition }: ViewProps) {
-  if (!jobData) {
-    return (
-      <div className="p-4 text-sm text-slate-500">
-        Sin datos del aviso. Vuelve a extraer.
-      </div>
-    );
-  }
-
-  return (
-    <div className="flex flex-col h-full">
-      {/* Header */}
-      <div className="p-4 border-b border-slate-200 bg-slate-50">
-        <div className="flex items-start justify-between gap-2">
-          <div>
-            <h2 className="text-sm font-bold text-slate-800 leading-snug">
-              {jobData.title}
-            </h2>
-            <p className="text-xs text-slate-500 mt-0.5">
-              {jobData.company}
-              {jobData.location ? ` · ${jobData.location}` : ''}
-            </p>
-          </div>
-          <span
-            className={`badge shrink-0 ${
-              jobData.source === 'linkedin' ? 'badge-info' : 'badge-warning'
-            }`}
-          >
-            {jobData.source === 'linkedin' ? 'LinkedIn' : 'Indeed'}
-          </span>
-        </div>
-
-        {jobData.modality && (
-          <span className="badge badge-success mt-2">
-            {jobData.modality === 'remote'
-              ? 'Remoto'
-              : jobData.modality === 'hybrid'
-              ? 'Hibrido'
-              : 'Presencial'}
-          </span>
-        )}
-      </div>
-
-      {/* Description preview */}
-      <div className="flex-1 overflow-y-auto p-4">
-        <p className="text-xs text-slate-400 uppercase font-semibold tracking-wide mb-2">
-          Descripcion
-        </p>
-        <p className="text-sm text-slate-700 line-clamp-6">
-          {jobData.description || 'Sin descripcion disponible.'}
-        </p>
-      </div>
-
-      {/* Action */}
-      <div className="p-4 border-t border-slate-200">
-        <button
-          className="btn-primary w-full"
-          onClick={() => onTransition?.('adapting')}
-        >
-          Adaptar mi CV con IA
-        </button>
-      </div>
-    </div>
-  );
-}
-
 function AdaptingView() {
   return (
     <div className="flex flex-col items-center justify-center h-full gap-4 p-6 text-center">
       <div className="spinner w-10 h-10" />
       <div>
         <h2 className="text-base font-semibold text-slate-700 mb-1">
-          Adaptando tu CV…
+          Adaptando tu CV...
         </h2>
         <p className="text-sm text-slate-500">
           La IA esta personalizando tu CV para esta oferta. Esto puede
@@ -304,7 +186,7 @@ function ApplicationSavedView({ jobData, onTransition }: ViewProps) {
       </div>
       <div>
         <h2 className="text-base font-semibold text-slate-700 mb-1">
-          ¡Postulacion guardada!
+          Postulacion guardada!
         </h2>
         <p className="text-sm text-slate-500">
           {jobData?.company
@@ -373,94 +255,112 @@ function ErrorView({ errorMessage, onTransition }: ViewProps) {
 
 export default function App() {
   const [state, setState] = useState<SidebarState>('loading');
-  const [jobData, setJobData] = useState<ExtractedJobData | null>(null);
   const [errorMessage, setErrorMessage] = useState<string>('');
 
-  // Trigger content script extraction via background (defined first so hooks below can reference it)
-  const triggerExtraction = useCallback(async () => {
-    try {
-      const response = await chrome.runtime.sendMessage({ type: MSG.EXTRACT_JOB });
+  /**
+   * The URL of the currently active tab. Used to call extraction.extract()
+   * when the auth state confirms the user is on a job listing page, and to
+   * pass to JobExtractionView's onRetry handler.
+   */
+  const [currentUrl, setCurrentUrl] = useState<string>('');
 
-      if (!response?.success) {
-        throw new Error(response?.error ?? 'Extraccion fallida');
-      }
+  // ---------------------------------------------------------------------------
+  // Hooks
+  // ---------------------------------------------------------------------------
 
-      setJobData(response.data as ExtractedJobData);
+  const auth = useAuth();
+  const extraction = useJobExtraction();
+
+  // ---------------------------------------------------------------------------
+  // Effect: sync extraction hook state -> sidebar state machine
+  //
+  // When extraction finishes (success or failure) we advance the state machine
+  // from 'extracting' to 'job_extracted' or 'error'. This effect depends on
+  // the extraction observable fields rather than the extract() Promise so that
+  // the sidebar state remains in sync even if extraction is triggered from
+  // multiple places (initial load vs. TAB_UPDATED).
+  // ---------------------------------------------------------------------------
+
+  useEffect(() => {
+    if (!extraction.extracting && extraction.jobData && state === 'extracting') {
       setState('job_extracted');
-    } catch (err) {
-      console.error('[MockMaster App] extraction failed:', err);
-      setErrorMessage(String(err));
+    }
+    if (!extraction.extracting && extraction.error && state === 'extracting') {
+      setErrorMessage(extraction.error);
       setState('error');
     }
-  }, []);
+  }, [extraction.extracting, extraction.jobData, extraction.error, state]);
 
-  // Initialise: check auth and current tab URL
+  // ---------------------------------------------------------------------------
+  // Effect: auth state drives the initial sidebar state
+  //
+  // Runs whenever auth loading/authenticated status changes.  When auth is
+  // confirmed, we query the background for the current tab URL and decide
+  // whether to auto-trigger extraction.
+  // ---------------------------------------------------------------------------
+
   useEffect(() => {
-    async function init() {
-      try {
-        // 1. Check auth token
-        const token = await getAuthToken();
-        if (!token) {
-          setState('unauthenticated');
-          return;
-        }
+    // Wait for the initial CHECK_AUTH round-trip to complete
+    if (auth.loading) return;
 
-        // 2. Check current tab URL via background service worker
-        const response = await chrome.runtime.sendMessage({ type: MSG.GET_TAB_URL });
-        if (!response?.success) {
-          setState('unsupported_page');
-          return;
-        }
-
-        const { url } = response.data as { url: string };
-        if (isJobListingUrl(url)) {
-          setState('extracting');
-          triggerExtraction();
-        } else {
-          setState('unsupported_page');
-        }
-      } catch (err) {
-        console.error('[MockMaster App] init failed:', err);
-        setState('error');
-        setErrorMessage(String(err));
-      }
+    if (!auth.authenticated) {
+      setState('unauthenticated');
+      return;
     }
 
-    init();
-  }, [triggerExtraction]);
+    // Authenticated — determine what the current tab is
+    chrome.runtime
+      .sendMessage({ type: MSG.GET_TAB_URL })
+      .then((response: { success: boolean; data?: { url: string } } | undefined) => {
+        if (response?.success && response.data?.url) {
+          const url = response.data.url;
+          setCurrentUrl(url);
 
-  // Listen for TAB_UPDATED and AUTH_CHANGED messages from the background service worker
-  useEffect(() => {
-    const handler = (message: { type: string; url?: string; isAuthenticated?: boolean }) => {
-      if (message.type === MSG.AUTH_CHANGED) {
-        if (message.isAuthenticated) {
-          chrome.runtime.sendMessage({ type: MSG.GET_TAB_URL }).then((response: any) => {
-            if (response?.success) {
-              const url = response.data?.url ?? '';
-              if (isJobListingUrl(url)) {
-                setState('extracting');
-                triggerExtraction();
-              } else {
-                setState('unsupported_page');
-              }
-            } else {
-              setState('unsupported_page');
-            }
-          }).catch(() => {
+          if (isJobListingUrl(url)) {
+            setState('extracting');
+            extraction.extract(url);
+          } else {
             setState('unsupported_page');
-          });
+          }
         } else {
-          setState('unauthenticated');
+          setState('unsupported_page');
         }
-        return;
-      }
+      })
+      .catch(() => {
+        setState('unsupported_page');
+      });
+    // Intentionally omit `extraction.extract` from deps — it is stable (useCallback
+    // with no deps), and including it would cause re-runs on every render.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [auth.loading, auth.authenticated]);
 
+  // ---------------------------------------------------------------------------
+  // Effect: listen for TAB_UPDATED and AUTH_CHANGED messages from the
+  // background service worker.
+  //
+  // TAB_UPDATED fires when the user navigates to a new page in the active tab.
+  // AUTH_CHANGED is handled by useAuth() directly, so we only need TAB_UPDATED
+  // here.
+  // ---------------------------------------------------------------------------
+
+  useEffect(() => {
+    const handler = (message: {
+      type: string;
+      url?: string;
+      isAuthenticated?: boolean;
+    }) => {
       if (message.type !== MSG.TAB_UPDATED) return;
 
       const url = message.url ?? '';
+
+      // Ignore tab updates while not authenticated — the auth effect will
+      // handle the correct transition when auth resolves.
+      if (!auth.authenticated) return;
+
       if (isJobListingUrl(url)) {
+        setCurrentUrl(url);
+        extraction.extract(url);
         setState('extracting');
-        triggerExtraction();
       } else if (state !== 'loading' && state !== 'unauthenticated') {
         setState('unsupported_page');
       }
@@ -468,49 +368,88 @@ export default function App() {
 
     chrome.runtime.onMessage.addListener(handler);
     return () => chrome.runtime.onMessage.removeListener(handler);
-  }, [state, triggerExtraction]);
+  }, [auth.authenticated, state, extraction]);
 
-  // Allow child views to request a state transition
-  const handleTransition = useCallback((next: SidebarState) => {
-    if (next === 'loading') {
-      // Re-run init to recheck auth
-      setState('loading');
-      setTimeout(() => {
-        getAuthToken().then((token) => {
-          setState(token ? 'unsupported_page' : 'unauthenticated');
-        });
-      }, 1000);
-      return;
-    }
-    if (next === 'extracting') {
-      setState('extracting');
-      triggerExtraction();
-      return;
-    }
-    setState(next);
-  }, [triggerExtraction]);
+  // ---------------------------------------------------------------------------
+  // handleTransition — allow child views to request a state transition
+  // (used by legacy inline views that are out of scope for Track H)
+  // ---------------------------------------------------------------------------
 
-  // -------------------------------------------------------------------------
+  const handleTransition = useCallback(
+    (next: SidebarState) => {
+      if (next === 'extracting') {
+        setState('extracting');
+        extraction.extract(currentUrl);
+        return;
+      }
+      setState(next);
+    },
+    [extraction, currentUrl]
+  );
+
+  /**
+   * Opens the sign-up page in a new tab.
+   * Wired to LoginScreen's onSignupClick prop.
+   */
+  const handleSignup = useCallback(() => {
+    chrome.tabs.create({ url: `${API_BASE_URL}/signup` });
+  }, []);
+
+  // ---------------------------------------------------------------------------
   // Render
-  // -------------------------------------------------------------------------
+  // ---------------------------------------------------------------------------
 
   const viewProps: ViewProps = {
     onTransition: handleTransition,
-    jobData,
+    jobData: extraction.jobData,
     errorMessage,
   };
 
   const renderView = () => {
     switch (state) {
-      case 'loading':          return <LoadingView />;
-      case 'unauthenticated':  return <UnauthenticatedView {...viewProps} />;
-      case 'unsupported_page': return <UnsupportedPageView {...viewProps} />;
-      case 'extracting':       return <ExtractingView />;
-      case 'job_extracted':    return <JobExtractedView {...viewProps} />;
-      case 'adapting':         return <AdaptingView />;
-      case 'adapted':          return <AdaptedView {...viewProps} />;
-      case 'application_saved':return <ApplicationSavedView {...viewProps} />;
-      case 'error':            return <ErrorView {...viewProps} />;
+      case 'loading':
+        return <LoadingView />;
+
+      case 'unauthenticated':
+        return (
+          <LoginScreen
+            onLoginClick={auth.openLogin}
+            onSignupClick={handleSignup}
+          />
+        );
+
+      case 'unsupported_page':
+        return <UnsupportedPageView {...viewProps} />;
+
+      // Both 'extracting' and 'job_extracted' render JobExtractionView —
+      // the component's own sub-state logic handles the visual distinction.
+      case 'extracting':
+      case 'job_extracted':
+        return (
+          <JobExtractionView
+            jobData={extraction.jobData}
+            extracting={extraction.extracting}
+            visionFallbackActive={extraction.visionFallbackActive}
+            error={extraction.error}
+            onAdapt={() => handleTransition('adapting')}
+            onRetry={() => {
+              setState('extracting');
+              extraction.extract(currentUrl);
+            }}
+          />
+        );
+
+      case 'adapting':
+        return <AdaptingView />;
+
+      case 'adapted':
+        return <AdaptedView {...viewProps} />;
+
+      case 'application_saved':
+        return <ApplicationSavedView {...viewProps} />;
+
+      case 'error':
+        return <ErrorView {...viewProps} />;
     }
   };
 
@@ -531,7 +470,7 @@ export default function App() {
         </span>
       </header>
 
-      {/* Main content area — scrollable */}
+      {/* Main content area */}
       <main className="flex-1 overflow-hidden">
         {renderView()}
       </main>
