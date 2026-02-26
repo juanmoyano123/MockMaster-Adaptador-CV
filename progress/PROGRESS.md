@@ -2,7 +2,7 @@
 
 **Arquitectura MVP:** localStorage (Sin Auth, Sin DB)
 
-Última actualización: 2026-02-24
+Última actualización: 2026-02-26
 
 ---
 
@@ -43,6 +43,22 @@
 
 ---
 
+## 🧩 Chrome Extension - Job Application Accelerator
+
+**Objetivo:** One-click job application from LinkedIn/Indeed with auto CV adaptation
+
+### DONE
+- F-EXT-001 | Extension Foundation | ✅ COMPLETE - Manifest V3, service worker, content scripts (LinkedIn + Indeed extractors), auth relay, sidepanel scaffold
+- F-EXT-002 | Sidepanel UI + Extraction Flow | ✅ COMPLETE - State machine UI (8 states), job extraction from DOM, Vision API fallback, manual input, template selector, PDF download
+- F-EXT-003 | AI Adaptation + Save Pipeline | ✅ COMPLETE - useAdaptation hook with Claude API, ATS score display, adapted resume view with copy/download, useApplication hook with save to Supabase
+- F-EXT-004 | Application Tracker (Backend + Web Dashboard) | ✅ COMPLETE - REST API (POST/GET/PATCH/DELETE), Supabase migrations applied, web dashboard with stats/filters/sort/search, inline status editing, delete with confirmation, expandable detail rows, pagination
+
+### IN_PROGRESS
+
+### BACKLOG
+
+---
+
 ## ✨ V3 - Enhancements (Month 3+)
 
 **Objetivo:** Growth features post-monetization
@@ -59,24 +75,21 @@
 
 ## 📊 Métricas de Progreso
 
-**Total Features:** 13
-**MVP Features:** 6 (down from original 10)
-**V2 Features:** 5
+**Total Features:** 16
+**MVP Features:** 6
+**V2 Features:** 6
+**Extension Features:** 4
 **V3 Features:** 2
 
-**Completadas:** 12 (92.3%)
+**Completadas:** 16 (100%)
 **En Progreso:** 0 (0%)
-**Pendientes:** 1 (7.7%)
+**Pendientes V3:** 2
 
 **Por Fase:**
 - 🚀 MVP (No Auth): 6/6 (100%) - ✅ **MVP COMPLETO!**
-- 🔐 V2 (With Auth): 6/6 (100%) - ✅ **V2 COMPLETO!** F-001 Auth + F-011 App Shell + F-007 Job Library + F-009 MercadoPago + F-008 Onboarding + F-010 Usage Limits
+- 🔐 V2 (With Auth): 6/6 (100%) - ✅ **V2 COMPLETO!**
+- 🧩 Chrome Extension: 4/4 (100%) - ✅ **EXTENSION COMPLETA!**
 - ✨ V3 (Enhancements): 0/2 (0%)
-
-**Estimación de Tiempo:**
-- MVP: 3-4 weeks (50% faster than original plan)
-- V2 Migration: 3-5 days (only lib/storage.ts changes)
-- V3: TBD based on user feedback
 
 ---
 
@@ -87,64 +100,22 @@
 - Costo: $5-10/mes (solo Claude API)
 - Deploy: Vercel (free tier)
 
-**V2 (Current):**
-- Stack: + Supabase (Auth implemented, DB pending)
+**V2 + Extension (Current):**
+- Stack: Next.js + Supabase (Auth + DB) + Claude API + Chrome Extension (Manifest V3)
 - Costo: $10-25/mes (Claude API + Supabase free tier)
-- Deploy: Vercel + Supabase Cloud
-- Auth: Email/password + Google OAuth ready
+- Deploy: Vercel + Supabase Cloud + Chrome Web Store (pending)
+- Auth: Email/password + Google OAuth + Extension Bearer token
+- DB: 4 tables (user_subscriptions, subscription_usage, user_resumes, applications) with RLS
 
 ---
 
 ## 🎯 Próximos Pasos
 
-**✅ MVP COMPLETO! Todas las features core implementadas:**
-1. ✅ ~~F-002 - Resume Upload (localStorage)~~ COMPLETE
-2. ✅ ~~F-003 - Job Description Analysis~~ COMPLETE
-3. ✅ ~~F-004 - AI Adaptation Engine (CORE)~~ COMPLETE
-4. ✅ ~~F-005 - ATS Score with Breakdown~~ COMPLETE
-5. ✅ ~~F-006 - PDF Export~~ COMPLETE (Pending: Vercel chrome-aws-lambda config)
-6. ✅ ~~F-012 - Edit Before Export~~ COMPLETE
+**✅ MVP + V2 + Chrome Extension COMPLETOS!**
 
-**🚀 V2 Progress:**
-- ✅ F-001 - User Authentication (Supabase) COMPLETE
-- ✅ Landing Page + Auth UI Screens COMPLETE
-- ✅ F-011 - App Shell + Dashboard + User Profile COMPLETE
-  - Sidebar navigation (Dashboard, Mi CV, Analizar, Ofertas, Adaptar, Perfil, Billing, Config)
-  - Header with UserMenu dropdown (avatar, name, logout)
-  - Profile page with password change
-  - Settings/Billing placeholder pages
-  - Mobile responsive with bottom nav
-- ✅ F-007 - Job Description Library COMPLETE
-  - Save analyzed job descriptions with name and tags
-  - Search and filter by tags
-  - Quick "Adaptar CV" button to jump to adaptation
-  - View/delete saved jobs
-  - localStorage persistence (up to 50 jobs)
-- ✅ F-009 - MercadoPago Subscription Integration COMPLETE
-  - Checkout flow with MercadoPago PreApproval API
-  - Webhook handler for subscription events
-  - Billing page with plan details and usage
-  - Supabase tables: user_subscriptions, subscription_usage
-  - Free tier (5 adaptations/month) + Pro tier ($9990 ARS/month unlimited)
-  - Test mode with test users verified working
-- ✅ F-008 - Onboarding Wizard COMPLETE
-  - 3-step wizard: Upload CV → Analyze Job → Generate Resume
-  - Auto-resume on abandon (detects progress via localStorage)
-  - Celebration modal with ATS score display
-  - Clean layout without AppShell
-  - Auto-redirect for new users
-- ✅ F-010 - Usage Limits COMPLETE (merged into F-009 + dashboard/adapt banners)
-  - SubscriptionBanner added to Dashboard and Adapt Resume pages
-  - Shows remaining adaptations for free users
-  - Upgrade CTA when near/at limit
-- Next: V3 features (F-013 Multiple Templates, F-014 URL Extraction)
-
-**Criterio de Éxito MVP:**
-- 100+ descargas/semana
-- 30%+ usuarios regresan mismo día
-- Feedback positivo sobre AI quality
-
-**Cuando Migrar a V2:**
-- Si MVP tiene tracción (100+ usuarios/semana)
-- Usuarios piden "guardar mi trabajo"
-- Listo para monetizar
+**Pendientes para produccion:**
+- [ ] Push 11 commits to origin/main
+- [ ] Deploy web app to Vercel
+- [ ] Publish Chrome Extension to Chrome Web Store
+- [ ] E2E testing on production environment
+- [ ] V3 features (F-013 Multiple Templates, F-014 URL Extraction)
