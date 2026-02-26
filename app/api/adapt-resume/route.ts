@@ -16,7 +16,7 @@ import {
   AdaptationAPIError,
 } from '@/lib/types';
 import { validateNoHallucination, simpleHash } from '@/lib/validation';
-import { createClient } from '@/lib/supabase/server';
+import { getAuthenticatedUser } from '@/lib/auth-helper';
 import { PLANS } from '@/lib/subscription-config';
 
 // Initialize Anthropic client
@@ -37,8 +37,8 @@ export async function POST(request: NextRequest) {
     };
 
     // Check subscription limits (F-009)
-    const supabase = await createClient();
-    const { data: { user } } = await supabase.auth.getUser();
+    // Supports both cookie-based auth (web app) and Bearer token (extension)
+    const { user, supabase } = await getAuthenticatedUser(request);
 
     if (user) {
       // Get subscription

@@ -49,10 +49,15 @@ export default function ResumeUploadFlow() {
   };
 
   /**
-   * Handle save to localStorage
+   * Handle save to localStorage (primary) and Supabase (additive, non-blocking).
+   *
+   * localStorage remains the web app's primary store so the existing UX is
+   * unchanged. The Supabase call is fire-and-forget — if it fails, the user
+   * still has their data locally and we just log a warning.
    */
   const handleSave = (data: ResumeData) => {
     try {
+      // 1. Primary: persist to localStorage (always runs first)
       resumeStorage.saveResume(data);
       setResumeData(data);
       setSaveSuccess(true);
@@ -74,7 +79,22 @@ export default function ResumeUploadFlow() {
       } else {
         alert('Failed to save resume. Please try again.');
       }
+      // Do not proceed to the Supabase sync if localStorage failed
+      return;
     }
+
+    // 2. Additive: sync to Supabase so the Chrome Extension can access it.
+    //    This is intentionally fire-and-forget — failures are logged but
+    //    do not interrupt the user's workflow.
+    fetch('/api/user/resume', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        name: data.name || 'Mi CV',
+        original_text: data.original_text,
+        parsed_content: data.parsed_content,
+      }),
+    }).catch((err) => console.warn('Failed to sync resume to cloud:', err));
   };
 
   /**

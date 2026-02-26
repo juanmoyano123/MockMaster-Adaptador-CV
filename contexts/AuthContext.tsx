@@ -80,8 +80,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
       if (error) throw error;
 
-      // Redirect to dashboard after successful login
-      router.push('/dashboard');
+      // Redirect to `next` param if present (used by Chrome Extension), otherwise dashboard
+      const params = new URLSearchParams(window.location.search);
+      const nextUrl = params.get('next');
+      router.push(nextUrl || '/dashboard');
     } catch (error) {
       const authError = error as AuthError;
       throw new Error(authError.message || 'Error signing in');

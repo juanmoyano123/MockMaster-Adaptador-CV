@@ -6,19 +6,16 @@
  * Returns current subscription status and usage for the authenticated user
  */
 
-import { NextResponse } from 'next/server';
-import { createClient } from '@/lib/supabase/server';
+import { NextRequest, NextResponse } from 'next/server';
+import { getAuthenticatedUser } from '@/lib/auth-helper';
 import { PLANS } from '@/lib/subscription-config';
 import { getUsageThisMonth } from '@/lib/subscription-storage';
 import { SubscriptionTier } from '@/lib/types';
 
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
-    // Get authenticated user
-    const supabase = await createClient();
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
+    // Get authenticated user — supports cookie (web app) and Bearer token (extension)
+    const { user, supabase } = await getAuthenticatedUser(request);
 
     if (!user) {
       return NextResponse.json(

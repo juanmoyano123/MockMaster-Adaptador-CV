@@ -10,17 +10,14 @@
  * 2. API-based: Creates subscription via API (for testing or custom subscriptions)
  */
 
-import { NextResponse } from 'next/server';
-import { createClient } from '@/lib/supabase/server';
+import { NextRequest, NextResponse } from 'next/server';
+import { getAuthenticatedUser } from '@/lib/auth-helper';
 import { createSubscription } from '@/lib/mercadopago';
 
-export async function POST() {
+export async function POST(request: NextRequest) {
   try {
-    // Get authenticated user
-    const supabase = await createClient();
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
+    // Get authenticated user — supports cookie (web app) and Bearer token (extension)
+    const { user, supabase } = await getAuthenticatedUser(request);
 
     if (!user) {
       return NextResponse.json(

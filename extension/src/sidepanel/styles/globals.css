@@ -1,0 +1,178 @@
+/*
+ * MockMaster Sidepanel — Global Styles
+ *
+ * Tailwind CSS is loaded via PostCSS (webpack postcss-loader).
+ * Custom CSS variables mirror the Next.js main app so both surfaces
+ * share the same visual identity.
+ *
+ * Sidepanel constraints:
+ *   - Chrome renders the panel at 400px wide by default.
+ *   - Height is the full browser window height minus the toolbar.
+ *   - There is no external stylesheet to inherit from — all styles must
+ *     be self-contained in this bundle.
+ */
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ---------------------------------------------------------------------------
+   CSS custom properties (design tokens)
+   These replicate the tokens from the main app's globals.css so the two
+   surfaces stay visually consistent without sharing a build pipeline.
+   --------------------------------------------------------------------------- */
+:root {
+  /* Brand colors */
+  --color-primary: #0A66C2;
+  --color-primary-light: #3B82F6;
+  --color-primary-dark: #0B5394;
+
+  --color-secondary: #059669;
+  --color-secondary-light: #10B981;
+  --color-secondary-dark: #047857;
+
+  --color-accent: #DC2626;
+  --color-accent-light: #EF4444;
+  --color-accent-dark: #B91C1C;
+
+  /* Neutrals */
+  --color-background: #FFFFFF;
+  --color-surface: #F8FAFC;
+  --color-border: #E2E8F0;
+  --color-text-primary: #0F172A;
+  --color-text-secondary: #475569;
+  --color-text-muted: #94A3B8;
+
+  /* Spacing */
+  --panel-padding: 16px;
+  --panel-width: 400px;
+
+  /* Typography */
+  --font-sans: 'Inter', system-ui, sans-serif;
+  --font-size-xs: 0.75rem;
+  --font-size-sm: 0.875rem;
+  --font-size-base: 1rem;
+  --font-size-lg: 1.125rem;
+  --font-size-xl: 1.25rem;
+
+  /* Transitions */
+  --transition-fast: 150ms ease-in-out;
+  --transition-normal: 250ms ease-in-out;
+}
+
+/* ---------------------------------------------------------------------------
+   Base reset / normalization for the extension context
+   --------------------------------------------------------------------------- */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+  min-height: 100vh;
+  font-family: var(--font-sans);
+  font-size: var(--font-size-base);
+  color: var(--color-text-primary);
+  background-color: var(--color-background);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Sidepanel-specific scroll behaviour */
+body {
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+
+/* ---------------------------------------------------------------------------
+   Reusable component classes (extends Tailwind utilities)
+   --------------------------------------------------------------------------- */
+
+@layer components {
+  /* Primary action button */
+  .btn-primary {
+    @apply inline-flex items-center justify-center gap-2
+           px-4 py-2.5 rounded-lg
+           bg-primary-600 text-white font-medium text-sm
+           hover:bg-primary-700 active:bg-primary-800
+           transition-colors duration-150
+           focus:outline-none focus:ring-2 focus:ring-primary-300
+           disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+
+  /* Secondary / outline button */
+  .btn-secondary {
+    @apply inline-flex items-center justify-center gap-2
+           px-4 py-2.5 rounded-lg
+           border border-primary-600 text-primary-600 font-medium text-sm
+           hover:bg-primary-50 active:bg-primary-100
+           transition-colors duration-150
+           focus:outline-none focus:ring-2 focus:ring-primary-300
+           disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+
+  /* Ghost / text button */
+  .btn-ghost {
+    @apply inline-flex items-center justify-center gap-2
+           px-3 py-2 rounded-lg
+           text-slate-600 font-medium text-sm
+           hover:bg-slate-100 active:bg-slate-200
+           transition-colors duration-150
+           focus:outline-none focus:ring-2 focus:ring-slate-300;
+  }
+
+  /* Section card */
+  .card {
+    @apply bg-white rounded-xl border border-slate-200 shadow-sm p-4;
+  }
+
+  /* Status badge */
+  .badge {
+    @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium;
+  }
+
+  .badge-success {
+    @apply badge bg-green-100 text-green-800;
+  }
+
+  .badge-warning {
+    @apply badge bg-yellow-100 text-yellow-800;
+  }
+
+  .badge-error {
+    @apply badge bg-red-100 text-red-800;
+  }
+
+  .badge-info {
+    @apply badge bg-blue-100 text-blue-800;
+  }
+
+  /* Loading spinner */
+  .spinner {
+    @apply animate-spin rounded-full border-2 border-slate-200 border-t-primary-600;
+  }
+
+  /* Section header inside the panel */
+  .section-header {
+    @apply flex items-center justify-between mb-3;
+  }
+
+  .section-title {
+    @apply text-sm font-semibold text-slate-700 uppercase tracking-wide;
+  }
+
+  /* Copy-to-clipboard button used in adapted resume sections */
+  .copy-btn {
+    @apply inline-flex items-center gap-1 px-2 py-1 rounded
+           text-xs text-slate-500 hover:text-slate-700
+           hover:bg-slate-100 transition-colors duration-100
+           focus:outline-none focus:ring-1 focus:ring-slate-300;
+  }
+}
