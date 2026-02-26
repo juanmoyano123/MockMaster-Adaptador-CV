@@ -10,6 +10,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import HeroSection from './HeroSection';
 import HowItWorks from './HowItWorks';
 import FeaturesSection from './FeaturesSection';
+import ExtensionSection from './ExtensionSection';
 import CTASection from './CTASection';
 import Footer from './Footer';
 
@@ -96,6 +97,7 @@ export default function LandingPage() {
         <HeroSection />
         <HowItWorks />
         <FeaturesSection />
+        <ExtensionSection />
         <CTASection />
       </main>
 

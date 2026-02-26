@@ -22,20 +22,19 @@ export default function CTASection() {
       <div className="relative max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
         {/* Content */}
         <h2 className="font-serif text-3xl sm:text-4xl lg:text-5xl font-bold text-white mb-6">
-          Listo para conseguir{' '}
-          <span className="text-primary-400">más entrevistas</span>?
+          Empezá gratis hoy.{' '}
+          <span className="text-primary-400">Tu próxima entrevista está más cerca.</span>
         </h2>
         <p className="text-lg text-slate-300 mb-10 max-w-2xl mx-auto">
-          No pierdas más oportunidades por un CV genérico. Adapta tu experiencia
-          a cada oferta y destaca entre los candidatos.
+          5 adaptaciones gratis. Sin tarjeta de crédito. Extensión disponible en Pro.
         </p>
 
         {/* CTA Button */}
         <Link
-          href="/upload"
+          href="/signup"
           className="inline-flex items-center justify-center gap-3 px-10 py-5 bg-white hover:bg-slate-50 text-slate-900 font-semibold rounded-xl shadow-2xl hover:shadow-white/20 transition-all duration-300 group"
         >
-          <span className="text-lg">Comenzar Gratis</span>
+          <span className="text-lg">Crear cuenta gratis</span>
           <svg
             className="w-5 h-5 group-hover:translate-x-1 transition-transform"
             fill="none"
@@ -53,7 +52,7 @@ export default function CTASection() {
 
         {/* Sub-text */}
         <p className="text-slate-400 mt-6 text-sm">
-          No requiere registro para empezar
+          Sin tarjeta de crédito · 5 adaptaciones gratis · Extensión disponible en Pro
         </p>
 
         {/* Trust badges */}
@@ -66,15 +65,15 @@ export default function CTASection() {
           </div>
           <div className="flex items-center gap-2 text-slate-400 text-sm">
             <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-              <path fillRule="evenodd" d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" clipRule="evenodd" />
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
             </svg>
-            <span>Hecho con IA</span>
+            <span>Hecho con Claude AI</span>
           </div>
           <div className="flex items-center gap-2 text-slate-400 text-sm">
-            <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-              <path fillRule="evenodd" d="M12.316 3.051a1 1 0 01.633 1.265l-4 12a1 1 0 11-1.898-.632l4-12a1 1 0 011.265-.633zM5.707 6.293a1 1 0 010 1.414L3.414 10l2.293 2.293a1 1 0 11-1.414 1.414l-3-3a1 1 0 010-1.414l3-3a1 1 0 011.414 0zm8.586 0a1 1 0 011.414 0l3 3a1 1 0 010 1.414l-3 3a1 1 0 11-1.414-1.414L16.586 10l-2.293-2.293a1 1 0 010-1.414z" clipRule="evenodd" />
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M11 4a2 2 0 114 0v1a1 1 0 001 1h3a1 1 0 011 1v3a1 1 0 01-1 1h-1a2 2 0 100 4h1a1 1 0 011 1v3a1 1 0 01-1 1h-3a1 1 0 01-1-1v-1a2 2 0 10-4 0v1a1 1 0 01-1 1H7a1 1 0 01-1-1v-3a1 1 0 00-1-1H4a2 2 0 110-4h1a1 1 0 001-1V7a1 1 0 011-1h3a1 1 0 001-1V4z" />
             </svg>
-            <span>Open Source</span>
+            <span>Extensión Pro</span>
           </div>
         </div>
       </div>
