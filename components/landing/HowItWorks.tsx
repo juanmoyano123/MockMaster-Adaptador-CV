@@ -1,6 +1,6 @@
 /**
  * How It Works Section Component
- * 3-step process explanation
+ * 4-step process explanation
  */
 
 'use client';
@@ -8,8 +8,8 @@
 const steps = [
   {
     number: '01',
-    title: 'Sube tu CV',
-    description: 'Carga tu currículum actual en formato PDF, DOCX o simplemente pega el texto.',
+    title: 'Subí tu CV',
+    description: 'Cargá tu CV una sola vez. MockMaster lo guarda para reutilizarlo en cada postulación.',
     icon: (
       <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
@@ -19,8 +19,8 @@ const steps = [
   },
   {
     number: '02',
-    title: 'Pega la oferta',
-    description: 'Copia y pega la descripción del trabajo al que quieres aplicar.',
+    title: 'Analizá la oferta',
+    description: 'Pegá la descripción del puesto o usá la extensión Chrome para extraerla directamente desde LinkedIn o Indeed.',
     icon: (
       <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
@@ -30,16 +30,50 @@ const steps = [
   },
   {
     number: '03',
-    title: 'Descarga optimizado',
-    description: 'Obtén tu CV adaptado con keywords relevantes y formato ATS-friendly.',
+    title: 'Adaptá con IA',
+    description: 'La IA reescribe tu CV para la oferta, optimiza keywords y te muestra el Score ATS antes de descargar.',
     icon: (
       <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
       </svg>
     ),
-    color: 'primary',
+    color: 'purple',
+  },
+  {
+    number: '04',
+    title: 'Guardá y hacé seguimiento',
+    description: 'Con un clic guardás la postulación. Seguí el estado de cada proceso desde el tracker.',
+    icon: (
+      <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
+      </svg>
+    ),
+    color: 'amber',
   },
 ];
+
+const colorMap: Record<string, { badge: string; icon: string; hover: string }> = {
+  primary: {
+    badge: 'bg-primary-600 text-white',
+    icon: 'bg-primary-50 text-primary-600',
+    hover: 'hover:border-primary-200',
+  },
+  secondary: {
+    badge: 'bg-secondary-600 text-white',
+    icon: 'bg-secondary-50 text-secondary-600',
+    hover: 'hover:border-secondary-200',
+  },
+  purple: {
+    badge: 'bg-purple-600 text-white',
+    icon: 'bg-purple-50 text-purple-600',
+    hover: 'hover:border-purple-200',
+  },
+  amber: {
+    badge: 'bg-amber-500 text-white',
+    icon: 'bg-amber-50 text-amber-600',
+    hover: 'hover:border-amber-200',
+  },
+};
 
 export default function HowItWorks() {
   return (
@@ -54,53 +88,48 @@ export default function HowItWorks() {
             Cómo Funciona
           </h2>
           <p className="text-lg text-slate-600 mt-4">
-            En tres simples pasos, transforma tu CV genérico en uno optimizado para cada oportunidad laboral.
+            En cuatro pasos, pasás de un CV genérico a una postulación optimizada y con seguimiento.
           </p>
         </div>
 
         {/* Steps */}
-        <div className="grid md:grid-cols-3 gap-8 lg:gap-12">
-          {steps.map((step, index) => (
-            <div key={step.number} className="relative group">
-              {/* Connector line (hidden on mobile, last item) */}
-              {index < steps.length - 1 && (
-                <div className="hidden md:block absolute top-16 left-1/2 w-full h-0.5 bg-slate-200">
-                  <div className="absolute right-0 top-1/2 -translate-y-1/2 w-2 h-2 border-t-2 border-r-2 border-slate-300 transform rotate-45" />
-                </div>
-              )}
+        <div className="grid md:grid-cols-4 gap-8 lg:gap-6">
+          {steps.map((step, index) => {
+            const colors = colorMap[step.color];
+            return (
+              <div key={step.number} className="relative group">
+                {/* Connector line (hidden on mobile, last item) */}
+                {index < steps.length - 1 && (
+                  <div className="hidden md:block absolute top-16 left-1/2 w-full h-0.5 bg-slate-200">
+                    <div className="absolute right-0 top-1/2 -translate-y-1/2 w-2 h-2 border-t-2 border-r-2 border-slate-300 transform rotate-45" />
+                  </div>
+                )}
 
-              {/* Card */}
-              <div className="relative bg-white rounded-2xl p-8 shadow-sm border border-slate-100 hover:shadow-lg hover:border-slate-200 transition-all duration-300 h-full">
-                {/* Step number */}
-                <div className="absolute -top-4 left-8">
-                  <span className={`inline-block px-3 py-1 text-sm font-bold rounded-full ${
-                    step.color === 'primary'
-                      ? 'bg-primary-600 text-white'
-                      : 'bg-secondary-600 text-white'
-                  }`}>
-                    {step.number}
-                  </span>
-                </div>
+                {/* Card */}
+                <div className={`relative bg-white rounded-2xl p-8 shadow-sm border border-slate-100 ${colors.hover} hover:shadow-lg transition-all duration-300 h-full`}>
+                  {/* Step number */}
+                  <div className="absolute -top-4 left-8">
+                    <span className={`inline-block px-3 py-1 text-sm font-bold rounded-full ${colors.badge}`}>
+                      {step.number}
+                    </span>
+                  </div>
 
-                {/* Icon */}
-                <div className={`w-16 h-16 rounded-xl flex items-center justify-center mb-6 ${
-                  step.color === 'primary'
-                    ? 'bg-primary-50 text-primary-600'
-                    : 'bg-secondary-50 text-secondary-600'
-                }`}>
-                  {step.icon}
-                </div>
+                  {/* Icon */}
+                  <div className={`w-16 h-16 rounded-xl flex items-center justify-center mb-6 ${colors.icon}`}>
+                    {step.icon}
+                  </div>
 
-                {/* Content */}
-                <h3 className="font-serif text-xl font-semibold text-slate-900 mb-3">
-                  {step.title}
-                </h3>
-                <p className="text-slate-600 leading-relaxed">
-                  {step.description}
-                </p>
+                  {/* Content */}
+                  <h3 className="font-serif text-xl font-semibold text-slate-900 mb-3">
+                    {step.title}
+                  </h3>
+                  <p className="text-slate-600 leading-relaxed">
+                    {step.description}
+                  </p>
+                </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
 
         {/* Bottom CTA */}
