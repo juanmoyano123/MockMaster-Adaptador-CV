@@ -46,17 +46,17 @@ export async function POST(request: Request) {
     );
 
     const pdfGenerationPromise = (async () => {
-      // Use @sparticuz/chromium for Vercel, regular puppeteer for local dev
-      const isProduction = process.env.NODE_ENV === 'production';
+      // Use @sparticuz/chromium only on Vercel/serverless, regular puppeteer otherwise
+      const isVercel = !!process.env.VERCEL;
 
       const browser = await puppeteer.launch({
-        args: isProduction ? chromium.args : [
+        args: isVercel ? chromium.args : [
           '--no-sandbox',
           '--disable-setuid-sandbox',
           '--disable-dev-shm-usage',
           '--disable-gpu',
         ],
-        executablePath: isProduction
+        executablePath: isVercel
           ? await chromium.executablePath()
           : puppeteer.executablePath(),
         headless: true,
