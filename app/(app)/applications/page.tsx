@@ -9,7 +9,7 @@
  * Supports filtering by status, sorting, client-side search, and pagination.
  */
 
-import { useState, useEffect, useMemo, useCallback } from 'react';
+import { useState, useEffect, useMemo, useCallback, Fragment } from 'react';
 import { Application, ApplicationStatus } from '@/lib/types';
 
 // ---------------------------------------------------------------------------
@@ -28,6 +28,12 @@ const SOURCE_CONFIG: Record<Application['source'], { label: string; color: strin
   linkedin: { label: 'LinkedIn', color: 'text-[#0A66C2]' },
   indeed:   { label: 'Indeed',   color: 'text-[#2164f3]' },
   manual:   { label: 'Manual',   color: 'text-slate-500' },
+};
+
+const MODALITY_CONFIG: Record<string, { label: string; bgClass: string; textClass: string }> = {
+  remote:  { label: 'Remoto',     bgClass: 'bg-teal-100',   textClass: 'text-teal-700' },
+  hybrid:  { label: 'Hibrido',    bgClass: 'bg-purple-100', textClass: 'text-purple-700' },
+  onsite:  { label: 'Presencial', bgClass: 'bg-orange-100', textClass: 'text-orange-700' },
 };
 
 const SORT_OPTIONS = [
@@ -49,6 +55,122 @@ function formatDate(iso: string): string {
     month: 'short',
     year: 'numeric',
   });
+}
+
+// ---------------------------------------------------------------------------
+// Helper components
+// ---------------------------------------------------------------------------
+
+/**
+ * Chevron icon that rotates 180 degrees when the row is expanded.
+ */
+function ChevronIcon({ expanded }: { expanded: boolean }) {
+  return (
+    <svg
+      className={`w-4 h-4 text-slate-400 transition-transform duration-200 flex-shrink-0 ${expanded ? 'rotate-180' : ''}`}
+      fill="none"
+      stroke="currentColor"
+      viewBox="0 0 24 24"
+    >
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+    </svg>
+  );
+}
+
+/**
+ * Expanded detail panel shown below a row/card.
+ * Displays location, salary, modality, notes, ATS score, template and adaptation info.
+ */
+function DetailPanel({ app }: { app: Application }) {
+  const modalityCfg = app.modality ? MODALITY_CONFIG[app.modality] : null;
+
+  const atsColor = app.ats_score === null ? 'text-slate-400'
+    : app.ats_score >= 70 ? 'text-green-600'
+    : app.ats_score >= 50 ? 'text-amber-600'
+    : 'text-red-600';
+
+  const atsBgColor = app.ats_score === null ? 'bg-slate-50'
+    : app.ats_score >= 70 ? 'bg-green-50'
+    : app.ats_score >= 50 ? 'bg-amber-50'
+    : 'bg-red-50';
+
+  return (
+    <div className="bg-slate-50 rounded-lg p-4 grid grid-cols-1 md:grid-cols-2 gap-4">
+      {/* Left — Job Details */}
+      <div className="space-y-3">
+        <h4 className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Detalles del puesto</h4>
+
+        {app.location && (
+          <div className="flex items-center gap-2 text-sm text-slate-700">
+            <svg className="w-4 h-4 text-slate-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+            </svg>
+            <span>{app.location}</span>
+          </div>
+        )}
+
+        {app.salary && (
+          <div className="flex items-center gap-2 text-sm text-slate-700">
+            <svg className="w-4 h-4 text-slate-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <span>{app.salary}</span>
+          </div>
+        )}
+
+        {modalityCfg && (
+          <div className="flex items-center gap-2 text-sm">
+            <svg className="w-4 h-4 text-slate-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+            </svg>
+            <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${modalityCfg.bgClass} ${modalityCfg.textClass}`}>
+              {modalityCfg.label}
+            </span>
+          </div>
+        )}
+
+        <div className="pt-2">
+          <p className="text-xs font-medium text-slate-500 mb-1">Notas</p>
+          <p className="text-sm text-slate-600">{app.notes || 'Sin notas'}</p>
+        </div>
+      </div>
+
+      {/* Right — Adaptation Details */}
+      <div className="space-y-3">
+        <h4 className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Detalles de adaptacion</h4>
+
+        {app.ats_score !== null ? (
+          <div className={`inline-flex items-center gap-2 px-3 py-2 rounded-lg ${atsBgColor}`}>
+            <span className={`text-2xl font-bold ${atsColor}`}>{app.ats_score}%</span>
+            <span className="text-xs text-slate-500">ATS Score</span>
+          </div>
+        ) : (
+          <p className="text-sm text-slate-400">Sin puntaje ATS</p>
+        )}
+
+        {app.template_used && (
+          <div className="flex items-center gap-2 text-sm">
+            <span className="text-slate-500">Plantilla:</span>
+            <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-700">
+              {app.template_used}
+            </span>
+          </div>
+        )}
+
+        {app.adapted_content ? (
+          <div className="flex items-center gap-2 text-sm text-green-600">
+            <svg className="w-4 h-4 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+              <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+            </svg>
+            <span className="font-medium">Adaptado con IA</span>
+          </div>
+        ) : (
+          <p className="text-sm text-slate-400">No se uso adaptacion de CV</p>
+        )}
+      </div>
+    </div>
+  );
 }
 
 // ---------------------------------------------------------------------------
@@ -79,6 +201,15 @@ export default function ApplicationsPage() {
   });
   const [totalAll, setTotalAll] = useState<number>(0);
 
+  // Inline-edit & delete state
+  const [updatingStatus, setUpdatingStatus] = useState<string | null>(null);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
+  const [toastMessage, setToastMessage] = useState<{ text: string; type: 'success' | 'error' } | null>(null);
+
+  // Expandable detail row state
+  const [expandedId, setExpandedId] = useState<string | null>(null);
+
   // ---------------------------------------------------------------------------
   // Data fetching
   // ---------------------------------------------------------------------------
@@ -108,6 +239,7 @@ export default function ApplicationsPage() {
       const data = await response.json();
       setApplications(data.applications ?? data.data ?? []);
       setTotal(data.total ?? 0);
+      setExpandedId(null);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Error al cargar las postulaciones');
     } finally {
@@ -121,40 +253,38 @@ export default function ApplicationsPage() {
   }, [fetchApplications]);
 
   /**
-   * Fetches all applications once on mount to compute status counts and totalAll.
-   * Uses a large limit to capture everything (up to 100).
+   * Fetches all applications to compute status counts and totalAll.
+   * Extracted as a useCallback so it can be called after mutations (status update, delete).
    */
-  useEffect(() => {
-    async function fetchStats() {
-      try {
-        const response = await fetch('/api/applications?limit=100', { credentials: 'include' });
-        if (!response.ok) return;
-
-        const data = await response.json();
-        const allApps: Application[] = data.applications ?? data.data ?? [];
-
-        const counts: Record<ApplicationStatus, number> = {
-          aplicada: 0,
-          entrevista: 0,
-          oferta: 0,
-          rechazada: 0,
-          descartada: 0,
-        };
-        for (const app of allApps) {
-          if (app.status in counts) {
-            counts[app.status]++;
-          }
-        }
-
-        setStatusCounts(counts);
-        setTotalAll(data.total ?? allApps.length);
-      } catch {
-        // Stats are non-critical; silently ignore errors
+  const fetchStats = useCallback(async () => {
+    try {
+      const response = await fetch('/api/applications?limit=100', { credentials: 'include' });
+      if (!response.ok) return;
+      const data = await response.json();
+      const allApps: Application[] = data.applications ?? data.data ?? [];
+      const counts: Record<ApplicationStatus, number> = {
+        aplicada: 0, entrevista: 0, oferta: 0, rechazada: 0, descartada: 0,
+      };
+      for (const app of allApps) {
+        if (app.status in counts) { counts[app.status]++; }
       }
+      setStatusCounts(counts);
+      setTotalAll(data.total ?? allApps.length);
+    } catch {
+      // Stats are non-critical
     }
-
-    fetchStats();
   }, []);
+
+  useEffect(() => {
+    fetchStats();
+  }, [fetchStats]);
+
+  // Auto-dismiss toast after 3 seconds
+  useEffect(() => {
+    if (!toastMessage) return;
+    const timer = setTimeout(() => setToastMessage(null), 3000);
+    return () => clearTimeout(timer);
+  }, [toastMessage]);
 
   // Reset to page 1 when the status filter changes
   useEffect(() => {
@@ -174,6 +304,84 @@ export default function ApplicationsPage() {
         app.job_title.toLowerCase().includes(q)
     );
   }, [applications, searchQuery]);
+
+  /**
+   * Optimistically updates a single application's status in local state,
+   * then persists via PATCH /api/applications/:id and refreshes stats.
+   * Rolls back on error.
+   */
+  const handleStatusChange = useCallback(async (appId: string, newStatus: ApplicationStatus) => {
+    const prevApp = applications.find((a) => a.id === appId);
+    if (!prevApp || prevApp.status === newStatus) return;
+
+    setApplications((prev) =>
+      prev.map((a) => (a.id === appId ? { ...a, status: newStatus } : a))
+    );
+    setUpdatingStatus(appId);
+
+    try {
+      const response = await fetch(`/api/applications/${appId}`, {
+        method: 'PATCH',
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status: newStatus }),
+      });
+      if (!response.ok) {
+        const body = await response.json().catch(() => ({}));
+        throw new Error(body?.error ?? `Error ${response.status}`);
+      }
+      await fetchStats();
+      setToastMessage({ text: `Estado actualizado a "${STATUS_CONFIG[newStatus].label}"`, type: 'success' });
+    } catch (err) {
+      setApplications((prev) =>
+        prev.map((a) => (a.id === appId ? { ...a, status: prevApp.status } : a))
+      );
+      setToastMessage({
+        text: err instanceof Error ? err.message : 'Error al actualizar el estado',
+        type: 'error',
+      });
+    } finally {
+      setUpdatingStatus(null);
+    }
+  }, [applications, fetchStats]);
+
+  /**
+   * Deletes an application via DELETE /api/applications/:id,
+   * removes it from local state, and refreshes stats.
+   */
+  const handleDelete = useCallback(async (appId: string) => {
+    setDeletingId(appId);
+    try {
+      const response = await fetch(`/api/applications/${appId}`, {
+        method: 'DELETE',
+        credentials: 'include',
+      });
+      if (!response.ok) {
+        const body = await response.json().catch(() => ({}));
+        throw new Error(body?.error ?? `Error ${response.status}`);
+      }
+      setApplications((prev) => prev.filter((a) => a.id !== appId));
+      setTotal((prev) => Math.max(0, prev - 1));
+      setDeleteConfirmId(null);
+      await fetchStats();
+      setToastMessage({ text: 'Postulacion eliminada', type: 'success' });
+    } catch (err) {
+      setToastMessage({
+        text: err instanceof Error ? err.message : 'Error al eliminar la postulacion',
+        type: 'error',
+      });
+    } finally {
+      setDeletingId(null);
+    }
+  }, [fetchStats]);
+
+  /**
+   * Toggles the expanded detail panel for a given application row.
+   * Clicking the same row again collapses it.
+   */
+  const toggleExpanded = useCallback((id: string) => {
+    setExpandedId((prev) => (prev === id ? null : id));
+  }, []);
 
   // ---------------------------------------------------------------------------
   // Render
@@ -362,6 +570,9 @@ export default function ApplicationsPage() {
                   <th className="text-left px-4 py-3 font-semibold text-slate-700">ATS Score</th>
                   <th className="text-left px-4 py-3 font-semibold text-slate-700">Fecha</th>
                   <th className="text-left px-4 py-3 font-semibold text-slate-700">Enlace</th>
+                  <th className="text-center px-2 py-3 w-12">
+                    <span className="sr-only">Acciones</span>
+                  </th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
@@ -378,57 +589,142 @@ export default function ApplicationsPage() {
                       : 'text-red-600';
 
                   return (
-                    <tr key={app.id} className="hover:bg-slate-50 transition-colors">
-                      {/* Empresa / Puesto */}
-                      <td className="px-5 py-4">
-                        <p className="font-semibold text-slate-900">{app.company_name}</p>
-                        <p className="text-slate-500 text-xs mt-0.5">{app.job_title}</p>
-                      </td>
+                    <Fragment key={app.id}>
+                      <tr
+                        onClick={() => toggleExpanded(app.id)}
+                        className="hover:bg-slate-50 transition-colors cursor-pointer"
+                      >
+                        {/* Empresa / Puesto */}
+                        <td className="px-5 py-4">
+                          <div className="flex items-center gap-3">
+                            <ChevronIcon expanded={expandedId === app.id} />
+                            <div>
+                              <p className="font-semibold text-slate-900">{app.company_name}</p>
+                              <p className="text-slate-500 text-xs mt-0.5">{app.job_title}</p>
+                            </div>
+                          </div>
+                        </td>
 
-                      {/* Fuente */}
-                      <td className="px-4 py-4">
-                        <span className={`font-medium ${sourceCfg.color}`}>{sourceCfg.label}</span>
-                      </td>
+                        {/* Fuente */}
+                        <td className="px-4 py-4">
+                          <span className={`font-medium ${sourceCfg.color}`}>{sourceCfg.label}</span>
+                        </td>
 
-                      {/* Estado */}
-                      <td className="px-4 py-4">
-                        <span
-                          className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium ${statusCfg.bgClass} ${statusCfg.textClass}`}
-                        >
-                          {statusCfg.label}
-                        </span>
-                      </td>
+                        {/* Estado — inline-editable select styled as a colored pill */}
+                        <td className="px-4 py-4">
+                          <div className="relative inline-flex items-center">
+                            <select
+                              value={app.status}
+                              onChange={(e) => { e.stopPropagation(); handleStatusChange(app.id, e.target.value as ApplicationStatus); }}
+                              onClick={(e) => e.stopPropagation()}
+                              disabled={updatingStatus === app.id}
+                              className={`appearance-none cursor-pointer px-2.5 py-1 pr-6 rounded-full text-xs font-medium border-0 focus:ring-2 focus:ring-primary-500 ${statusCfg.bgClass} ${statusCfg.textClass} disabled:opacity-60`}
+                            >
+                              {(Object.entries(STATUS_CONFIG) as [ApplicationStatus, typeof STATUS_CONFIG[ApplicationStatus]][]).map(
+                                ([status, config]) => (
+                                  <option key={status} value={status}>{config.label}</option>
+                                )
+                              )}
+                            </select>
+                            {updatingStatus === app.id ? (
+                              <div className="absolute right-1.5 top-1/2 -translate-y-1/2">
+                                <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-current" />
+                              </div>
+                            ) : (
+                              <svg className="absolute right-1.5 top-1/2 -translate-y-1/2 w-3 h-3 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                              </svg>
+                            )}
+                          </div>
+                        </td>
 
-                      {/* ATS Score */}
-                      <td className="px-4 py-4">
-                        {app.ats_score !== null ? (
-                          <span className={`font-semibold ${atsColor}`}>{app.ats_score}%</span>
-                        ) : (
-                          <span className="text-slate-400">--</span>
-                        )}
-                      </td>
+                        {/* ATS Score */}
+                        <td className="px-4 py-4">
+                          {app.ats_score !== null ? (
+                            <span className={`font-semibold ${atsColor}`}>{app.ats_score}%</span>
+                          ) : (
+                            <span className="text-slate-400">--</span>
+                          )}
+                        </td>
 
-                      {/* Fecha */}
-                      <td className="px-4 py-4 text-slate-600 whitespace-nowrap">
-                        {formatDate(app.applied_at)}
-                      </td>
+                        {/* Fecha */}
+                        <td className="px-4 py-4 text-slate-600 whitespace-nowrap">
+                          {formatDate(app.applied_at)}
+                        </td>
 
-                      {/* Enlace */}
-                      <td className="px-4 py-4">
-                        {app.job_url ? (
-                          <a
-                            href={app.job_url}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="text-primary-600 hover:text-primary-700 font-medium text-xs underline underline-offset-2"
+                        {/* Enlace */}
+                        <td className="px-4 py-4">
+                          {app.job_url ? (
+                            <a
+                              href={app.job_url}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              onClick={(e) => e.stopPropagation()}
+                              className="text-primary-600 hover:text-primary-700 font-medium text-xs underline underline-offset-2"
+                            >
+                              Ver oferta
+                            </a>
+                          ) : (
+                            <span className="text-slate-400 text-xs">--</span>
+                          )}
+                        </td>
+
+                        {/* Acciones — delete button */}
+                        <td className="px-2 py-4 text-center">
+                          <button
+                            onClick={(e) => { e.stopPropagation(); setDeleteConfirmId(app.id); }}
+                            disabled={deletingId === app.id}
+                            className="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors disabled:opacity-40"
+                            title="Eliminar postulacion"
                           >
-                            Ver oferta
-                          </a>
-                        ) : (
-                          <span className="text-slate-400 text-xs">--</span>
-                        )}
-                      </td>
-                    </tr>
+                            {deletingId === app.id ? (
+                              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-red-600" />
+                            ) : (
+                              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                              </svg>
+                            )}
+                          </button>
+                        </td>
+                      </tr>
+
+                      {/* Inline delete confirmation row */}
+                      {deleteConfirmId === app.id && (
+                        <tr className="bg-red-50">
+                          <td colSpan={7} className="px-5 py-3">
+                            <div className="flex items-center justify-between">
+                              <p className="text-sm text-red-700">
+                                Eliminar postulacion a <strong>{app.company_name}</strong>? Esta accion no se puede deshacer.
+                              </p>
+                              <div className="flex gap-2 flex-shrink-0 ml-4">
+                                <button
+                                  onClick={() => handleDelete(app.id)}
+                                  disabled={deletingId === app.id}
+                                  className="px-3 py-1.5 bg-red-600 hover:bg-red-700 text-white text-sm font-medium rounded transition-colors disabled:opacity-60"
+                                >
+                                  {deletingId === app.id ? 'Eliminando...' : 'Si, eliminar'}
+                                </button>
+                                <button
+                                  onClick={() => setDeleteConfirmId(null)}
+                                  className="px-3 py-1.5 bg-white hover:bg-slate-50 text-slate-700 text-sm font-medium rounded border border-slate-200 transition-colors"
+                                >
+                                  Cancelar
+                                </button>
+                              </div>
+                            </div>
+                          </td>
+                        </tr>
+                      )}
+
+                      {/* Expandable detail row */}
+                      {expandedId === app.id && (
+                        <tr>
+                          <td colSpan={7} className="px-5 py-4">
+                            <DetailPanel app={app} />
+                          </td>
+                        </tr>
+                      )}
+                    </Fragment>
                   );
                 })}
               </tbody>
@@ -452,42 +748,118 @@ export default function ApplicationsPage() {
               return (
                 <div
                   key={app.id}
-                  className="bg-white rounded-xl p-4 shadow-sm border border-slate-200"
+                  className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden"
                 >
-                  {/* Header row */}
-                  <div className="flex items-start justify-between gap-2 mb-3">
-                    <div className="min-w-0">
-                      <p className="font-semibold text-slate-900 truncate">{app.company_name}</p>
-                      <p className="text-slate-500 text-sm truncate">{app.job_title}</p>
+                  {/* Clickable content area — triggers expand/collapse */}
+                  <div onClick={() => toggleExpanded(app.id)} className="p-4 cursor-pointer">
+                    {/* Header row */}
+                    <div className="flex items-start justify-between gap-2 mb-3">
+                      <div className="flex items-center gap-2 min-w-0">
+                        <ChevronIcon expanded={expandedId === app.id} />
+                        <div className="min-w-0">
+                          <p className="font-semibold text-slate-900 truncate">{app.company_name}</p>
+                          <p className="text-slate-500 text-sm truncate">{app.job_title}</p>
+                        </div>
+                      </div>
+                      {/* Status — inline-editable select styled as a colored pill */}
+                      <div className="relative flex-shrink-0 inline-flex items-center">
+                        <select
+                          value={app.status}
+                          onChange={(e) => { e.stopPropagation(); handleStatusChange(app.id, e.target.value as ApplicationStatus); }}
+                          onClick={(e) => e.stopPropagation()}
+                          disabled={updatingStatus === app.id}
+                          className={`appearance-none cursor-pointer px-2.5 py-1 pr-6 rounded-full text-xs font-medium border-0 focus:ring-2 focus:ring-primary-500 ${statusCfg.bgClass} ${statusCfg.textClass} disabled:opacity-60`}
+                        >
+                          {(Object.entries(STATUS_CONFIG) as [ApplicationStatus, typeof STATUS_CONFIG[ApplicationStatus]][]).map(
+                            ([status, config]) => (
+                              <option key={status} value={status}>{config.label}</option>
+                            )
+                          )}
+                        </select>
+                        {updatingStatus === app.id ? (
+                          <div className="absolute right-1.5 top-1/2 -translate-y-1/2">
+                            <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-current" />
+                          </div>
+                        ) : (
+                          <svg className="absolute right-1.5 top-1/2 -translate-y-1/2 w-3 h-3 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                          </svg>
+                        )}
+                      </div>
                     </div>
-                    <span
-                      className={`flex-shrink-0 inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium ${statusCfg.bgClass} ${statusCfg.textClass}`}
-                    >
-                      {statusCfg.label}
-                    </span>
-                  </div>
 
-                  {/* Meta row */}
-                  <div className="flex items-center gap-4 text-xs">
-                    <span className={`font-medium ${sourceCfg.color}`}>{sourceCfg.label}</span>
+                    {/* Meta row */}
+                    <div className="flex items-center gap-4 text-xs">
+                      <span className={`font-medium ${sourceCfg.color}`}>{sourceCfg.label}</span>
 
-                    {app.ats_score !== null && (
-                      <span className={`font-semibold ${atsColor}`}>ATS {app.ats_score}%</span>
-                    )}
+                      {app.ats_score !== null && (
+                        <span className={`font-semibold ${atsColor}`}>ATS {app.ats_score}%</span>
+                      )}
 
-                    <span className="text-slate-500">{formatDate(app.applied_at)}</span>
+                      <span className="text-slate-500">{formatDate(app.applied_at)}</span>
 
-                    {app.job_url && (
-                      <a
-                        href={app.job_url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="ml-auto text-primary-600 hover:text-primary-700 font-medium underline underline-offset-2"
+                      {app.job_url && (
+                        <a
+                          href={app.job_url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          onClick={(e) => e.stopPropagation()}
+                          className="ml-auto text-primary-600 hover:text-primary-700 font-medium underline underline-offset-2"
+                        >
+                          Ver oferta
+                        </a>
+                      )}
+                    </div>
+
+                    {/* Delete button row */}
+                    <div className="flex justify-end mt-2 pt-2 border-t border-slate-100">
+                      <button
+                        onClick={(e) => { e.stopPropagation(); setDeleteConfirmId(app.id); }}
+                        disabled={deletingId === app.id}
+                        className="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors disabled:opacity-40"
+                        title="Eliminar postulacion"
                       >
-                        Ver oferta
-                      </a>
-                    )}
+                        {deletingId === app.id ? (
+                          <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-red-600" />
+                        ) : (
+                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                          </svg>
+                        )}
+                      </button>
+                    </div>
                   </div>
+
+                  {/* Inline delete confirmation */}
+                  {deleteConfirmId === app.id && (
+                    <div className="mx-4 mb-4 p-3 bg-red-50 border border-red-200 rounded-lg">
+                      <p className="text-sm text-red-700 mb-2">
+                        Eliminar postulacion a <strong>{app.company_name}</strong>?
+                      </p>
+                      <div className="flex gap-2">
+                        <button
+                          onClick={() => handleDelete(app.id)}
+                          disabled={deletingId === app.id}
+                          className="px-3 py-1.5 bg-red-600 hover:bg-red-700 text-white text-sm font-medium rounded transition-colors disabled:opacity-60"
+                        >
+                          {deletingId === app.id ? 'Eliminando...' : 'Si, eliminar'}
+                        </button>
+                        <button
+                          onClick={() => setDeleteConfirmId(null)}
+                          className="px-3 py-1.5 bg-white hover:bg-slate-50 text-slate-700 text-sm font-medium rounded border border-slate-200 transition-colors"
+                        >
+                          Cancelar
+                        </button>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Expandable detail panel */}
+                  {expandedId === app.id && (
+                    <div className="px-4 pb-4">
+                      <DetailPanel app={app} />
+                    </div>
+                  )}
                 </div>
               );
             })}
@@ -537,6 +909,17 @@ export default function ApplicationsPage() {
           >
             Siguiente
           </button>
+        </div>
+      )}
+
+      {/* ------------------------------------------------------------------ */}
+      {/* Toast Notification                                                   */}
+      {/* ------------------------------------------------------------------ */}
+      {toastMessage && (
+        <div className={`fixed bottom-6 right-6 z-50 px-4 py-3 rounded-lg shadow-lg text-sm font-medium ${
+          toastMessage.type === 'error' ? 'bg-red-600 text-white' : 'bg-green-600 text-white'
+        }`}>
+          {toastMessage.text}
         </div>
       )}
     </div>
