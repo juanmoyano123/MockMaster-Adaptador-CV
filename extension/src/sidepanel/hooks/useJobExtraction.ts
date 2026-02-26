@@ -46,12 +46,13 @@ export interface JobExtractionState {
  *
  * @example
  * ```tsx
- * const { extracting, jobData, error, visionFallbackActive, extract, clearExtraction } = useJobExtraction();
+ * const { extracting, jobData, error, visionFallbackActive, extract, clearExtraction, setJobData } = useJobExtraction();
  * ```
  */
 export function useJobExtraction(): JobExtractionState & {
   extract: (url?: string) => Promise<void>;
   clearExtraction: () => void;
+  setJobData: (data: ExtractedJobData) => void;
 } {
   const [state, setState] = useState<JobExtractionState>({
     extracting: false,
@@ -264,5 +265,26 @@ export function useJobExtraction(): JobExtractionState & {
     });
   }, []);
 
-  return { ...state, extract, clearExtraction };
+  // -------------------------------------------------------------------------
+  // setJobData()
+  //
+  // Allows externally-produced job data (e.g. from ManualInput) to be injected
+  // directly into the hook state, bypassing the DOM/Vision extraction pipeline.
+  // Any in-flight extraction is cancelled before the data is set.
+  // -------------------------------------------------------------------------
+
+  const setJobData = useCallback((data: ExtractedJobData): void => {
+    // Cancel any in-flight extraction so stale async results don't overwrite
+    // the manually-injected data when they eventually resolve.
+    pendingUrlRef.current = null;
+
+    setState({
+      extracting: false,
+      jobData: data,
+      error: null,
+      visionFallbackActive: false,
+    });
+  }, []);
+
+  return { ...state, extract, clearExtraction, setJobData };
 }

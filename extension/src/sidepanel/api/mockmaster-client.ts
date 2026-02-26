@@ -10,79 +10,151 @@
  *     chrome.storage.local on mount and calls setToken() once.
  *   - All methods throw on error so callers can use try/catch uniformly.
  *   - Generic `request()` handles auth headers, base URL, and error parsing.
- *
- * Track C will fill in the actual request bodies and response parsing.
- * This skeleton defines every method signature so TypeScript can validate
- * call-sites in the sidepanel components.
  */
 
 import { API_BASE_URL, API_ENDPOINTS } from '../../shared/constants';
 import { SubscriptionStatus, Application, ApplicationStatus } from '../../shared/types';
 
 // ---------------------------------------------------------------------------
-// Response shapes (mirrors the Next.js API route responses)
+// Types mirroring backend lib/types.ts
 // ---------------------------------------------------------------------------
 
-export interface JobAnalysis {
-  title: string;
+export interface ContactInfo {
+  name: string;
+  email: string;
+  phone?: string;
+  linkedin?: string;
+  location?: string;
+}
+
+export interface ExperienceItem {
   company: string;
+  title: string;
+  dates: string;
+  bullets: string[];
+}
+
+export interface EducationItem {
+  school: string;
+  degree: string;
+  year: string;
+}
+
+export interface ParsedContent {
+  contact: ContactInfo;
+  summary?: string;
+  experience: ExperienceItem[];
+  education: EducationItem[];
+  skills: string[];
+}
+
+export interface ResumeData {
+  name: string;
+  original_text: string;
+  parsed_content: ParsedContent;
+  uploaded_at: string;
+}
+
+export interface JobAnalysisResult {
+  job_title: string;
+  company_name: string;
   required_skills: string[];
   preferred_skills: string[];
-  experience_years: number | null;
-  education: string | null;
-  key_responsibilities: string[];
-  seniority: string | null;
+  responsibilities: string[];
+  seniority_level: string;
+  industry: string;
+}
+
+export interface JobAnalysis {
+  raw_text?: string;
+  text_hash: string;
+  analysis: JobAnalysisResult;
+  analyzed_at: string;
+}
+
+export interface AdaptedExperienceItem extends ExperienceItem {
+  relevance_score: number;
+}
+
+export interface AdaptedContent {
+  contact: ContactInfo;
   summary: string;
+  experience: AdaptedExperienceItem[];
+  education: EducationItem[];
+  skills: string[];
+}
+
+export interface ChangesSummary {
+  skills_highlighted: number;
+  bullets_reformulated: number;
+  experiences_reordered: boolean;
 }
 
 export interface AdaptedResume {
-  professional_summary: string;
-  experience: ExperienceEntry[];
-  education: EducationEntry[];
-  skills: string[];
-  languages: LanguageEntry[];
-  certifications: string[];
-  raw_text: string;
+  original_resume_hash: string;
+  job_analysis_hash: string;
+  adapted_content: AdaptedContent;
+  ats_score: number;
+  ats_breakdown?: ATSScoreBreakdown;
+  changes_summary: ChangesSummary;
+  adapted_at: string;
 }
 
-export interface ExperienceEntry {
-  company: string;
-  position: string;
-  start_date: string;
-  end_date: string | null;
-  description: string;
-  achievements: string[];
-}
-
-export interface EducationEntry {
-  institution: string;
-  degree: string;
-  field: string;
-  start_date: string;
-  end_date: string | null;
-}
-
-export interface LanguageEntry {
-  language: string;
-  level: string;
-}
-
-export interface ATSBreakdown {
-  overall_score: number;
-  keyword_match: number;
+export interface ATSScoreBreakdown {
+  total_score: number;
+  keyword_score: number;
+  skills_score: number;
+  experience_score: number;
   format_score: number;
-  experience_match: number;
-  skills_match: number;
-  feedback: string[];
+  keywords_matched: number;
+  keywords_total: number;
+  missing_keywords: string[];
+  skills_matched: string[];
+  skills_missing: string[];
+  suggestions: string[];
 }
 
-export interface UserResume {
+export interface UserResumeRow {
   id: string;
-  user_id: string;
-  content: string;
-  parsed_data: Record<string, unknown>;
-  created_at: string;
-  updated_at: string;
+  name: string;
+  original_text: string;
+  parsed_content: ParsedContent;
+  uploaded_at: string;
+}
+
+/**
+ * Raw shape returned by GET /api/subscriptions/status.
+ *
+ * This is an implementation detail of the API transport layer — the
+ * sidepanel always consumes the mapped SubscriptionStatus shape instead.
+ * Kept private to this module so callers never depend on the raw format.
+ */
+interface ApiSubscriptionResponse {
+  /** Subscription tier: 'free' or 'pro' */
+  tier: 'free' | 'pro';
+  /** Subscription lifecycle status (e.g. 'active', 'trialing', 'canceled') */
+  status: string;
+  /** Plan metadata returned by the API */
+  plan: {
+    name: string;
+    price: number;
+    currency: string;
+    features: string[];
+  };
+  /** Usage counters for the current billing period */
+  usage: {
+    adaptations_used: number;
+    adaptations_limit: number;
+    /** True when the user still has remaining adaptations */
+    can_adapt: boolean;
+    /** ISO 8601 start date of the current usage period */
+    period_start: string;
+  };
+  /** Nullable subscription timestamps (null for free users with no sub record) */
+  subscription: {
+    current_period_end: string | null;
+    trial_ends_at: string | null;
+  } | null;
 }
 
 // ---------------------------------------------------------------------------
@@ -151,13 +223,17 @@ class MockMasterClient {
 
     if (!response.ok) {
       let errorMessage = `HTTP ${response.status} ${response.statusText}`;
+      let errorCode: string | undefined;
       try {
         const body = await response.json();
         errorMessage = body.error ?? body.message ?? errorMessage;
+        errorCode = body.code;
       } catch {
         // Response body was not JSON — use the status text
       }
-      throw new Error(errorMessage);
+      const err = new Error(errorMessage) as Error & { code?: string };
+      err.code = errorCode;
+      throw err;
     }
 
     return response.json() as Promise<T>;
@@ -169,13 +245,15 @@ class MockMasterClient {
 
   /**
    * Sends the raw job description text to the API for structured analysis.
-   * Returns a JobAnalysis object with extracted skills, requirements, etc.
    *
-   * Track C: implement request body + response parsing.
+   * Backend: POST /api/analyze-job
+   *   Request:  { text: string }
+   *   Response: { text_hash: string, analysis: JobAnalysisResult, analyzed_at: string }
+   *
+   * The response shape exactly matches JobAnalysis (raw_text is optional and
+   * not included by the backend endpoint).
    */
   async analyzeJob(text: string): Promise<JobAnalysis> {
-    // TODO (Track C): validate response shape, handle quota errors
-    // NOTE: the backend route expects { text }, NOT { job_description }
     return this.request<JobAnalysis>(API_ENDPOINTS.analyzeJob, {
       method: 'POST',
       body: JSON.stringify({ text }),
@@ -188,18 +266,18 @@ class MockMasterClient {
 
   /**
    * Sends the user's resume and the job analysis to the AI adaptation endpoint.
-   * Returns an AdaptedResume with sections tailored for the specific job.
    *
-   * Track C: implement request body + response parsing.
+   * Backend: POST /api/adapt-resume
+   *   Request:  { resume: ResumeData, jobAnalysis: JobAnalysis }   <-- camelCase key
+   *   Response: AdaptedResume (direct, not wrapped in an envelope)
+   *
+   * NOTE: The backend destructures `{ resume, jobAnalysis }` (camelCase).
+   * The old snake_case key `job_analysis` caused silent validation failures.
    */
-  async adaptResume(
-    resume: UserResume,
-    jobAnalysis: JobAnalysis
-  ): Promise<AdaptedResume> {
-    // TODO (Track C): validate response shape, handle quota/rate-limit errors
+  async adaptResume(resume: ResumeData, jobAnalysis: JobAnalysis): Promise<AdaptedResume> {
     return this.request<AdaptedResume>(API_ENDPOINTS.adaptResume, {
       method: 'POST',
-      body: JSON.stringify({ resume, job_analysis: jobAnalysis }),
+      body: JSON.stringify({ resume, jobAnalysis }),
     });
   }
 
@@ -210,9 +288,31 @@ class MockMasterClient {
   /**
    * Returns the current user's subscription plan, usage, and quota.
    * Used by the sidepanel to gate the "Adaptar CV" action.
+   *
+   * Maps the raw API response (ApiSubscriptionResponse) to the canonical
+   * SubscriptionStatus shape used throughout the sidepanel.
    */
   async getSubscriptionStatus(): Promise<SubscriptionStatus> {
-    return this.request<SubscriptionStatus>(API_ENDPOINTS.subscriptionStatus);
+    const response = await this.request<ApiSubscriptionResponse>(
+      API_ENDPOINTS.subscriptionStatus
+    );
+
+    // Compute reset_at as the first day of the month AFTER the period start.
+    // Example: period_start = 2026-02-10 → reset_at = 2026-03-01T00:00:00.000Z
+    const periodStart = new Date(response.usage.period_start);
+    const resetAt = new Date(
+      periodStart.getFullYear(),
+      periodStart.getMonth() + 1,
+      1
+    );
+
+    return {
+      plan: response.tier,
+      adaptations_used: response.usage.adaptations_used,
+      adaptations_limit: response.usage.adaptations_limit,
+      can_adapt: response.usage.can_adapt,
+      reset_at: resetAt.toISOString(),
+    };
   }
 
   // -------------------------------------------------------------------------
@@ -220,20 +320,30 @@ class MockMasterClient {
   // -------------------------------------------------------------------------
 
   /**
-   * Calculates the ATS compatibility score between the adapted resume and
-   * the original job description.
+   * Calculates the detailed ATS compatibility score breakdown.
    *
-   * Track C: implement request body + response parsing.
+   * Backend: POST /api/calculate-ats-breakdown
+   *   Request:  { adapted_content: AdaptedContent, job_analysis: JobAnalysis }
+   *   Response: { breakdown: ATSScoreBreakdown }
+   *
+   * Accepts AdaptedContent (the inner content object from AdaptedResume) and
+   * unwraps the `{ breakdown }` envelope before returning.
    */
   async calculateATSBreakdown(
-    adapted: AdaptedResume,
+    adaptedContent: AdaptedContent,
     jobAnalysis: JobAnalysis
-  ): Promise<ATSBreakdown> {
-    // TODO (Track C): validate response shape
-    return this.request<ATSBreakdown>(API_ENDPOINTS.calculateATSBreakdown, {
-      method: 'POST',
-      body: JSON.stringify({ adapted_resume: adapted, job_analysis: jobAnalysis }),
-    });
+  ): Promise<ATSScoreBreakdown> {
+    const response = await this.request<{ breakdown: ATSScoreBreakdown }>(
+      API_ENDPOINTS.calculateATSBreakdown,
+      {
+        method: 'POST',
+        body: JSON.stringify({
+          adapted_content: adaptedContent,
+          job_analysis: jobAnalysis,
+        }),
+      }
+    );
+    return response.breakdown;
   }
 
   // -------------------------------------------------------------------------
@@ -300,10 +410,20 @@ class MockMasterClient {
 
   /**
    * Returns the currently authenticated user's stored resume.
-   * If no resume exists, the API returns a 404 which becomes a thrown Error.
+   *
+   * Backend: GET /api/user/resume
+   *   Response: { resume: UserResumeRow }
+   *
+   * The API wraps the record in a `{ resume }` envelope — this method
+   * unwraps it so callers receive the row directly.
+   *
+   * Throws if no resume exists (404 becomes an Error with code NOT_FOUND).
    */
-  async getUserResume(): Promise<UserResume> {
-    return this.request<UserResume>(API_ENDPOINTS.userResume);
+  async getUserResume(): Promise<UserResumeRow> {
+    const response = await this.request<{ resume: UserResumeRow }>(
+      API_ENDPOINTS.userResume
+    );
+    return response.resume;
   }
 
   // -------------------------------------------------------------------------

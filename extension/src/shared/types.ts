@@ -183,5 +183,7 @@ export interface SubscriptionStatus {
   plan: 'free' | 'pro';
   adaptations_used: number;
   adaptations_limit: number;
+  /** True when the user still has remaining adaptations for the current period */
+  can_adapt: boolean;
   reset_at: string | null;
 }

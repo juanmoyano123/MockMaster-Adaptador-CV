@@ -24,6 +24,17 @@ interface JobExtractionViewProps {
   onAdapt: () => void;
   /** Called when the user clicks "Reintentar" after an error */
   onRetry: () => void;
+  /**
+   * True when the user has exhausted their adaptation quota for the period.
+   * When true, the adapt button is disabled and an upgrade prompt is shown.
+   */
+  isLimitReached?: boolean;
+  /** Number of adaptations consumed in the current billing period */
+  adaptationsUsed?: number;
+  /** Maximum adaptations allowed in the current billing period */
+  adaptationsLimit?: number;
+  /** Called when the user clicks "Actualizar a Pro" */
+  onUpgrade?: () => void;
 }
 
 // ---------------------------------------------------------------------------
@@ -54,9 +65,20 @@ function SpinnerState({ title, subtitle }: SpinnerStateProps) {
 interface JobCardProps {
   jobData: ExtractedJobData;
   onAdapt: () => void;
+  isLimitReached?: boolean;
+  adaptationsUsed?: number;
+  adaptationsLimit?: number;
+  onUpgrade?: () => void;
 }
 
-function JobCard({ jobData, onAdapt }: JobCardProps) {
+function JobCard({
+  jobData,
+  onAdapt,
+  isLimitReached,
+  adaptationsUsed,
+  adaptationsLimit,
+  onUpgrade,
+}: JobCardProps) {
   // Collapsible description state — reset whenever the URL changes so that
   // navigating to a new job starts collapsed.
   const [expanded, setExpanded] = useState(false);
@@ -144,12 +166,46 @@ function JobCard({ jobData, onAdapt }: JobCardProps) {
       </div>
 
       {/* ----------------------------------------------------------------- */}
-      {/* Footer — CTA                                                       */}
+      {/* Footer — CTA + subscription gating                                */}
       {/* ----------------------------------------------------------------- */}
-      <div className="p-4 border-t border-slate-200">
-        <button className="btn-primary w-full" onClick={onAdapt}>
+      <div className="p-4 border-t border-slate-200 flex flex-col gap-2">
+        {/* Usage counter — only shown when we have real subscription data */}
+        {!isLimitReached &&
+          adaptationsUsed !== undefined &&
+          adaptationsLimit !== undefined && (
+            <p className="text-xs text-slate-400 text-center">
+              {adaptationsUsed}/{adaptationsLimit} adaptaciones usadas
+            </p>
+          )}
+
+        {/* Adapt button — disabled when the quota is exhausted */}
+        <button
+          className={`btn-primary w-full ${
+            isLimitReached ? 'opacity-50 cursor-not-allowed' : ''
+          }`}
+          onClick={isLimitReached ? undefined : onAdapt}
+          disabled={isLimitReached}
+          aria-disabled={isLimitReached}
+        >
           Adaptar mi CV con IA
         </button>
+
+        {/* Limit-reached state: quota message + upgrade CTA */}
+        {isLimitReached && (
+          <>
+            <p className="text-xs text-amber-700 bg-amber-50 border border-amber-200 rounded px-3 py-2 text-center">
+              Alcanzaste el limite de{' '}
+              {adaptationsLimit !== undefined ? adaptationsLimit : ''}{' '}
+              adaptaciones este mes
+            </p>
+            <button
+              className="btn-secondary w-full"
+              onClick={onUpgrade}
+            >
+              Actualizar a Pro
+            </button>
+          </>
+        )}
       </div>
     </div>
   );
@@ -196,6 +252,10 @@ export default function JobExtractionView({
   error,
   onAdapt,
   onRetry,
+  isLimitReached,
+  adaptationsUsed,
+  adaptationsLimit,
+  onUpgrade,
 }: JobExtractionViewProps) {
   // Sub-state A: DOM extraction in progress
   if (extracting && !visionFallbackActive) {
@@ -219,7 +279,16 @@ export default function JobExtractionView({
 
   // Sub-state C: Extraction succeeded
   if (!extracting && jobData !== null) {
-    return <JobCard jobData={jobData} onAdapt={onAdapt} />;
+    return (
+      <JobCard
+        jobData={jobData}
+        onAdapt={onAdapt}
+        isLimitReached={isLimitReached}
+        adaptationsUsed={adaptationsUsed}
+        adaptationsLimit={adaptationsLimit}
+        onUpgrade={onUpgrade}
+      />
+    );
   }
 
   // Sub-state D: Extraction failed
