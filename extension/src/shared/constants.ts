@@ -21,7 +21,7 @@ import { SidebarState } from './types';
  * chrome.storage.local (see storage.ts).
  */
 export const API_BASE_URL_DEV = 'http://localhost:3000';
-export const API_BASE_URL_PROD = 'https://mockmaster.vercel.app';
+export const API_BASE_URL_PROD = 'https://mockmastercv.com';
 
 /**
  * Resolved base URL.

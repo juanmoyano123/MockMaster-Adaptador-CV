@@ -39,7 +39,7 @@ import { StoredAuthToken } from '../shared/types';
 const MOCKMASTER_COOKIE_DOMAIN =
   process.env.NODE_ENV === 'development'
     ? 'localhost'
-    : 'mockmaster.vercel.app';
+    : 'mockmastercv.com';
 
 // ---------------------------------------------------------------------------
 // Cookie reading helpers

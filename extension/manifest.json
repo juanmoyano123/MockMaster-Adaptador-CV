@@ -15,7 +15,7 @@
   ],
   "host_permissions": [
     "http://localhost:3000/*",
-    "https://mockmaster.vercel.app/*",
+    "https://mockmastercv.com/*",
     "https://www.linkedin.com/jobs/*",
     "https://linkedin.com/jobs/*",
     "https://www.indeed.com/*",
@@ -49,7 +49,7 @@
     {
       "matches": [
         "http://localhost:3000/auth/extension-callback*",
-        "https://mockmaster.vercel.app/auth/extension-callback*"
+        "https://mockmastercv.com/auth/extension-callback*"
       ],
       "js": ["content-scripts/auth-relay.js"],
       "run_at": "document_idle"
