@@ -120,6 +120,7 @@ export const MSG = {
   GET_TAB_URL: 'GET_TAB_URL',
   TAB_UPDATED: 'TAB_UPDATED',
   AUTH_CHANGED: 'AUTH_CHANGED',
+  AUTH_TOKEN_RECEIVED: 'AUTH_TOKEN_RECEIVED',
 } as const;
 
 // ---------------------------------------------------------------------------

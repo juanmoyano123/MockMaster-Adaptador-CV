@@ -259,7 +259,7 @@ chrome.runtime.onMessage.addListener(
       }
 
       // -----------------------------------------------------------------------
-      case 'AUTH_TOKEN_RECEIVED': {
+      case MSG.AUTH_TOKEN_RECEIVED: {
         // Content script on /auth/extension-callback relayed the Supabase token.
         // Store it in the canonical storage key so getAuthToken() can read it.
         const { token, user } = message.data || {};

@@ -175,9 +175,10 @@ class MockMasterClient {
    */
   async analyzeJob(text: string): Promise<JobAnalysis> {
     // TODO (Track C): validate response shape, handle quota errors
+    // NOTE: the backend route expects { text }, NOT { job_description }
     return this.request<JobAnalysis>(API_ENDPOINTS.analyzeJob, {
       method: 'POST',
-      body: JSON.stringify({ job_description: text }),
+      body: JSON.stringify({ text }),
     });
   }
 

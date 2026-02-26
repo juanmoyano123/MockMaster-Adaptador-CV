@@ -401,7 +401,7 @@ export async function POST(request: NextRequest) {
           title: parsed.title as string,
           company: parsed.company as string,
           location:
-            typeof parsed.location === 'string' ? parsed.location : null,
+            typeof parsed.location === 'string' ? parsed.location : '',
           salary: typeof parsed.salary === 'string' ? parsed.salary : null,
           modality:
             parsed.modality === 'remote' ||

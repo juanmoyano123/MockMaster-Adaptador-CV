@@ -1,4 +1,5 @@
 const path = require('path');
+const webpack = require('webpack');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
 const CssMinimizerPlugin = require('css-minimizer-webpack-plugin');
@@ -82,6 +83,13 @@ module.exports = (env, argv) => {
     },
 
     plugins: [
+      // Replace `process.env.NODE_ENV` at compile time so code that branches
+      // on development vs production works correctly in the Chrome extension
+      // context where `process` does not exist at runtime (node: false).
+      new webpack.DefinePlugin({
+        'process.env.NODE_ENV': JSON.stringify(argv.mode || 'production'),
+      }),
+
       // Extract CSS into a separate file so the sidepanel can load it as
       // a <link> tag instead of injecting it via JS (required for CSP).
       new MiniCssExtractPlugin({

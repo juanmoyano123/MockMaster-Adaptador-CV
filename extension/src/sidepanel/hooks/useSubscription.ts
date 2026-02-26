@@ -48,8 +48,11 @@ export function useSubscription(): SubscriptionState & {
   };
 
   const openUpgrade = useCallback((): void => {
+    // `process.env.NODE_ENV` is replaced at compile time by webpack's
+    // DefinePlugin, so this is a string literal comparison at runtime —
+    // NOT a runtime `process` reference (node: false means no `process` object).
     const upgradeUrl =
-      typeof process !== 'undefined' && process.env.NODE_ENV === 'development'
+      process.env.NODE_ENV === 'development'
         ? 'http://localhost:3000/pricing'
         : 'https://mockmaster.vercel.app/pricing';
 

@@ -9,6 +9,8 @@
  * posts the token multiple times (to handle timing issues).
  */
 
+import { MSG } from '../shared/constants';
+
 let relayed = false;
 
 function relayToken(token: string, user: unknown): void {
@@ -18,7 +20,7 @@ function relayToken(token: string, user: unknown): void {
   console.log('[MockMaster auth-relay] Relaying token to background...');
 
   chrome.runtime.sendMessage({
-    type: 'AUTH_TOKEN_RECEIVED',
+    type: MSG.AUTH_TOKEN_RECEIVED,
     data: { token, user },
   }).then(() => {
     console.log('[MockMaster auth-relay] Token relayed successfully');
