@@ -30,6 +30,7 @@ import { useAuth } from './hooks/useAuth';
 import { useJobExtraction } from './hooks/useJobExtraction';
 import { useAdaptation } from './hooks/useAdaptation';
 import { useSubscription } from './hooks/useSubscription';
+import { useApplication } from './hooks/useApplication';
 
 // Extracted components (Track H)
 import LoginScreen from './components/LoginScreen';
@@ -256,6 +257,8 @@ export default function App() {
    */
   const subscription = useSubscription({ enabled: auth.authenticated });
 
+  const application = useApplication();
+
   // ---------------------------------------------------------------------------
   // Effect: sync extraction hook state -> sidebar state machine
   //
@@ -297,6 +300,23 @@ export default function App() {
       setState('error');
     }
   }, [adaptation.adapting, adaptation.adaptedResume, adaptation.error, state]);
+
+  // ---------------------------------------------------------------------------
+  // Effect: check for duplicate when the user reaches the 'adapted' state.
+  //
+  // Runs once each time `state` transitions to 'adapted'. Silently pre-marks
+  // the save button as disabled when the job was already saved previously.
+  // The dep array intentionally only includes `state` — application and
+  // extraction are stable references and including them would re-run the check
+  // on every render cycle.
+  // ---------------------------------------------------------------------------
+
+  useEffect(() => {
+    if (state !== 'adapted') return;
+    if (!extraction.jobData?.url) return;
+    application.checkIfAlreadySaved(extraction.jobData.url);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [state]);
 
   // ---------------------------------------------------------------------------
   // Effect: auth state drives the initial sidebar state
@@ -442,11 +462,48 @@ export default function App() {
       if (next === 'unsupported_page') {
         // Clear stale hook state when going back to start
         adaptation.clearAdaptation();
+        application.clearApplication();
       }
       setState(next);
     },
-    [extraction, currentUrl, adaptation]
+    [extraction, currentUrl, adaptation, application]
   );
+
+  // ---------------------------------------------------------------------------
+  // handleSaveApplication — saves the current job as an application record.
+  //
+  // Called by AdaptedResumeView's "Guardar postulacion" button.
+  // On success, advances the state machine to 'application_saved'.
+  // On error, application.error is set by the hook and we stay in 'adapted'.
+  // Defined after handleTransition so it can reference it safely.
+  // ---------------------------------------------------------------------------
+
+  const handleSaveApplication = useCallback(async () => {
+    if (!extraction.jobData) return;
+
+    const source: 'linkedin' | 'indeed' | 'manual' =
+      extraction.jobData.source === 'other' ? 'manual' : extraction.jobData.source;
+
+    const payload = {
+      job_title: extraction.jobData.title,
+      company_name: extraction.jobData.company,
+      job_url: extraction.jobData.url,
+      source,
+      location: extraction.jobData.location || undefined,
+      salary: extraction.jobData.salary || undefined,
+      modality: extraction.jobData.modality || undefined,
+      adapted_content: adaptation.adaptedResume?.adapted_content as unknown,
+      ats_score: adaptation.adaptedResume?.ats_score,
+      job_analysis: adaptation.jobAnalysis?.analysis as unknown,
+    };
+
+    try {
+      await application.saveApplication(payload);
+      handleTransition('application_saved');
+    } catch {
+      // Error stored in application.error, stay in 'adapted' state
+    }
+  }, [extraction.jobData, adaptation.adaptedResume, adaptation.jobAnalysis, application, handleTransition]);
 
   /**
    * Opens the sign-up page in a new tab.
@@ -517,7 +574,10 @@ export default function App() {
             adaptedResume={adaptation.adaptedResume}
             atsBreakdown={adaptation.atsBreakdown}
             jobAnalysis={adaptation.jobAnalysis}
-            onSaveApplication={() => handleTransition('application_saved')}
+            onSaveApplication={handleSaveApplication}
+            saving={application.saving}
+            saveError={application.error}
+            alreadySaved={application.alreadySaved}
             onGoBack={() => handleTransition('unsupported_page')}
           />
         );

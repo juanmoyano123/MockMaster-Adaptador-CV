@@ -49,6 +49,12 @@ interface AdaptedResumeViewProps {
   onSaveApplication?: () => void;
   /** Called when the user clicks "Volver" (reserved for future back-nav) */
   onGoBack?: () => void;
+  /** True while the save request is in flight */
+  saving?: boolean;
+  /** Error message from a failed save attempt, null otherwise */
+  saveError?: string | null;
+  /** True when this job URL was already saved in a previous session */
+  alreadySaved?: boolean;
 }
 
 // ---------------------------------------------------------------------------
@@ -61,6 +67,9 @@ export default function AdaptedResumeView({
   jobAnalysis,
   onSaveApplication,
   onGoBack,
+  saving = false,
+  saveError = null,
+  alreadySaved = false,
 }: AdaptedResumeViewProps) {
   // Derive the structured content
   const content = adaptedResume?.adapted_content;
@@ -187,9 +196,16 @@ export default function AdaptedResumeView({
         <button
           className="btn-primary w-full"
           onClick={onSaveApplication}
+          disabled={saving || alreadySaved}
         >
-          Guardar postulacion
+          {saving ? 'Guardando...' : alreadySaved ? 'Ya guardaste esta oferta' : 'Guardar postulacion'}
         </button>
+
+        {saveError && (
+          <p className="text-xs text-red-600 bg-red-50 rounded p-2 text-center">
+            {saveError}
+          </p>
+        )}
 
         {/* PDF template selector + download button */}
         {adaptedResume && (

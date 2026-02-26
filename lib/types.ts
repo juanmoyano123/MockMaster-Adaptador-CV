@@ -284,3 +284,36 @@ export interface SubscriptionAPIError {
   error: string;
   code: SubscriptionErrorCode;
 }
+
+/**
+ * Type definitions for Application Tracker
+ * Feature: Track W
+ */
+
+export type ApplicationStatus =
+  | 'aplicada'
+  | 'entrevista'
+  | 'oferta'
+  | 'rechazada'
+  | 'descartada';
+
+export interface Application {
+  id: string;
+  user_id: string;
+  job_title: string;
+  company_name: string;
+  job_url: string;
+  source: 'linkedin' | 'indeed' | 'manual';
+  location: string | null;
+  salary: string | null;
+  modality: 'remote' | 'hybrid' | 'onsite' | null;
+  status: ApplicationStatus;
+  applied_at: string;
+  adapted_content: Record<string, unknown> | null;
+  ats_score: number | null;
+  template_used: string | null;
+  job_analysis: Record<string, unknown> | null;
+  notes: string | null;
+  created_at: string;
+  updated_at: string;
+}
