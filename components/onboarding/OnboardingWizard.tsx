@@ -19,6 +19,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { resumeStorage } from '@/lib/storage';
 import { jobAnalysisStorage } from '@/lib/job-storage';
 import { AdaptedResume } from '@/lib/types';
@@ -27,6 +28,8 @@ import StepUploadResume from './StepUploadResume';
 import StepAddJobDescription from './StepAddJobDescription';
 import StepGenerateResume from './StepGenerateResume';
 import CelebrationModal from './CelebrationModal';
+
+const ONBOARDING_COMPLETE_KEY = 'mockmaster_onboarding_complete';
 
 /** Step definitions used by OnboardingProgress */
 const STEPS = [
@@ -59,6 +62,7 @@ export default function OnboardingWizard() {
   const [isMounted, setIsMounted] = useState(false);
   const [showCelebration, setShowCelebration] = useState(false);
   const [adaptedResume, setAdaptedResume] = useState<AdaptedResume | null>(null);
+  const router = useRouter();
 
   // After hydration: detect the correct starting step from localStorage
   useEffect(() => {
@@ -81,6 +85,15 @@ export default function OnboardingWizard() {
   const handleStep2Complete = (result: AdaptedResume) => {
     setAdaptedResume(result);
     setShowCelebration(true);
+  };
+
+  const handleSkip = () => {
+    try {
+      localStorage.setItem(ONBOARDING_COMPLETE_KEY, 'true');
+    } catch {
+      // ignore
+    }
+    router.replace('/dashboard');
   };
 
   // -------------------------------------------------------
@@ -145,10 +158,18 @@ export default function OnboardingWizard() {
             )}
           </div>
 
-          {/* Step indicator text below card */}
-          <p className="text-center text-xs text-neutral-400 mt-4">
-            Paso {currentStep + 1} de {STEPS.length}
-          </p>
+          {/* Step indicator + skip */}
+          <div className="flex items-center justify-between mt-4">
+            <p className="text-xs text-neutral-400">
+              Paso {currentStep + 1} de {STEPS.length}
+            </p>
+            <button
+              onClick={handleSkip}
+              className="text-xs text-neutral-400 hover:text-neutral-600 underline underline-offset-2 transition-colors"
+            >
+              Saltear onboarding
+            </button>
+          </div>
         </div>
       </div>
 
