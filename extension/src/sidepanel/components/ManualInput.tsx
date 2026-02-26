@@ -116,9 +116,9 @@ export default function ManualInput({ onAnalysisComplete, disabled = false }: Ma
       // fully-typed object regardless of whether data came from DOM, Vision, or
       // manual text input.
       const syntheticJobData: ExtractedJobData = {
-        // Source and URL are not meaningful for manual input; 'linkedin' is used
-        // as the required union value and url is left empty.
-        source: 'linkedin',
+        // Source and URL are not meaningful for manual input; 'other' signals
+        // this was user-pasted text, and url is left empty.
+        source: 'other',
         url: '',
 
         title: analysis.job_title ?? 'Puesto sin titulo',
@@ -139,9 +139,8 @@ export default function ManualInput({ onAnalysisComplete, disabled = false }: Ma
 
         extracted_at: analyzed_at,
 
-        // 'dom' is the closest fit in the existing union type; 'manual' would
-        // require a type change that is out of scope for this track.
-        extraction_method: 'dom',
+        // 'manual' correctly identifies this data as user-pasted input.
+        extraction_method: 'manual',
       };
 
       onAnalysisComplete(syntheticJobData);

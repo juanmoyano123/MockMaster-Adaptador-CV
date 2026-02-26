@@ -219,7 +219,16 @@ class MockMasterClient {
       headers['Content-Type'] = 'application/json';
     }
 
-    const response = await fetch(url, { ...options, headers });
+    let response: Response;
+    try {
+      response = await fetch(url, { ...options, headers });
+    } catch (fetchErr) {
+      const err = new Error(
+        'Sin conexion a internet. Verifica tu conexion y vuelve a intentarlo.'
+      ) as Error & { code?: string };
+      err.code = 'NETWORK_ERROR';
+      throw err;
+    }
 
     if (!response.ok) {
       let errorMessage = `HTTP ${response.status} ${response.statusText}`;
@@ -378,15 +387,22 @@ class MockMasterClient {
     }
     headers['Content-Type'] = 'application/json';
 
-    const response = await fetch(url, {
-      method: 'POST',
-      headers,
-      body: JSON.stringify({
-        adapted_content: adaptedContent,
-        template,
-        company_name: companyName,
-      }),
-    });
+    let response: Response;
+    try {
+      response = await fetch(url, {
+        method: 'POST',
+        headers,
+        body: JSON.stringify({
+          adapted_content: adaptedContent,
+          template,
+          company_name: companyName,
+        }),
+      });
+    } catch (fetchErr) {
+      throw new Error(
+        'Sin conexion a internet. Verifica tu conexion y vuelve a intentarlo.'
+      );
+    }
 
     if (!response.ok) {
       // Attempt to parse an error body for a more descriptive message.

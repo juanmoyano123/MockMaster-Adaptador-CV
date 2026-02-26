@@ -135,10 +135,11 @@ export function useAuth(): AuthState & {
       });
     } catch (err) {
       // chrome.runtime.sendMessage can throw if the service worker is
-      // completely unresponsive (e.g. during extension reload).  Treat as
-      // unauthenticated and let the user retry.
+      // completely unresponsive (e.g. during extension reload).  Fully reset
+      // to unauthenticated to avoid preserving stale authenticated/token state
+      // from a previous successful check.
       console.error('[useAuth] Unexpected error in checkAuth:', err);
-      setState((prev) => ({ ...prev, loading: false }));
+      setState({ loading: false, authenticated: false, user: null, token: null });
     }
   }, []);
 

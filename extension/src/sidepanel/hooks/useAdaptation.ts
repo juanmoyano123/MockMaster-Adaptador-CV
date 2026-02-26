@@ -71,6 +71,10 @@ function mapError(err: unknown): string {
   const code = error.code;
   const message = error.message ?? '';
 
+  if (code === 'NETWORK_ERROR') {
+    return error.message; // Already a user-friendly Spanish message
+  }
+
   if (code === 'MISSING_RESUME' || code === 'NOT_FOUND') {
     return 'Necesitas subir tu CV primero en MockMaster.';
   }

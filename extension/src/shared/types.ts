@@ -20,7 +20,7 @@
  */
 export interface ExtractedJobData {
   /** Which job board the data came from */
-  source: 'linkedin' | 'indeed';
+  source: 'linkedin' | 'indeed' | 'other';
   /** Canonical URL of the job listing page */
   url: string;
   /** Job title as shown in the listing */
@@ -45,8 +45,9 @@ export interface ExtractedJobData {
    * How the data was extracted:
    *   - 'dom'    — CSS selector traversal (preferred, fast)
    *   - 'vision' — Screenshot sent to Vision API as fallback
+   *   - 'manual' — User pasted the text manually via ManualInput
    */
-  extraction_method: 'dom' | 'vision';
+  extraction_method: 'dom' | 'vision' | 'manual';
   /** Complete raw text of the job listing for LLM processing */
   raw_text: string;
 }

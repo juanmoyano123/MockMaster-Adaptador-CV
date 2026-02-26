@@ -35,6 +35,8 @@ interface JobExtractionViewProps {
   adaptationsLimit?: number;
   /** Called when the user clicks "Actualizar a Pro" */
   onUpgrade?: () => void;
+  /** Called when user wants to try manual input after extraction failure */
+  onGoManual?: () => void;
 }
 
 // ---------------------------------------------------------------------------
@@ -154,11 +156,12 @@ function JobCard({
           {jobData.description || 'Sin descripcion disponible.'}
         </p>
 
-        {/* Only show toggle when the description is long enough to overflow */}
-        {jobData.description && jobData.description.length > 0 && (
+        {/* Only show toggle when the description is long enough to actually overflow */}
+        {jobData.description && jobData.description.length > 200 && (
           <button
             className="text-primary-600 text-xs hover:underline cursor-pointer mt-1 focus:outline-none"
             onClick={() => setExpanded((prev) => !prev)}
+            aria-expanded={expanded}
           >
             {expanded ? 'Ver menos' : 'Ver mas'}
           </button>
@@ -218,9 +221,10 @@ function JobCard({
 interface ErrorStateProps {
   error: string;
   onRetry: () => void;
+  onGoManual?: () => void;
 }
 
-function ErrorState({ error, onRetry }: ErrorStateProps) {
+function ErrorState({ error, onRetry, onGoManual }: ErrorStateProps) {
   return (
     <div className="flex flex-col items-center justify-center h-full gap-4 p-6 text-center">
       <div className="w-12 h-12 rounded-full bg-red-100 flex items-center justify-center">
@@ -237,6 +241,11 @@ function ErrorState({ error, onRetry }: ErrorStateProps) {
       <button className="btn-primary w-full" onClick={onRetry}>
         Reintentar
       </button>
+      {onGoManual && (
+        <button className="btn-ghost w-full" onClick={onGoManual}>
+          Ingresar aviso manualmente
+        </button>
+      )}
     </div>
   );
 }
@@ -256,6 +265,7 @@ export default function JobExtractionView({
   adaptationsUsed,
   adaptationsLimit,
   onUpgrade,
+  onGoManual,
 }: JobExtractionViewProps) {
   // Sub-state A: DOM extraction in progress
   if (extracting && !visionFallbackActive) {
@@ -293,7 +303,7 @@ export default function JobExtractionView({
 
   // Sub-state D: Extraction failed
   if (!extracting && error) {
-    return <ErrorState error={error} onRetry={onRetry} />;
+    return <ErrorState error={error} onRetry={onRetry} onGoManual={onGoManual} />;
   }
 
   // Fallback: no data, no error, not extracting — should not occur in normal

@@ -254,9 +254,9 @@ export default function ATSScoreCard({ atsBreakdown, fallbackScore }: ATSScoreCa
                 Palabras clave faltantes
               </span>
               <div className="inline-flex flex-wrap gap-1">
-                {atsBreakdown.missing_keywords.map((kw) => (
+                {atsBreakdown.missing_keywords.map((kw, idx) => (
                   <span
-                    key={kw}
+                    key={`${kw}-${idx}`}
                     className="bg-red-50 text-red-600 text-xs px-2 py-0.5 rounded-full"
                   >
                     {kw}

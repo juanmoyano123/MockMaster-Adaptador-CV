@@ -50,8 +50,10 @@ interface ViewProps {
   onTransition?: (next: SidebarState) => void;
   jobData?: ExtractedJobData | null;
   errorMessage?: string;
+  errorSource?: 'extraction' | 'adaptation' | null;
   /** Called by UnsupportedPageView when the user completes a manual analysis */
   onManualAnalysis?: (jobData: ExtractedJobData) => void;
+  onLogin?: () => void;
 }
 
 function LoadingView() {
@@ -152,7 +154,12 @@ function ApplicationSavedView({ jobData, onTransition }: ViewProps) {
   );
 }
 
-function ErrorView({ errorMessage, onTransition }: ViewProps) {
+function ErrorView({ errorMessage, errorSource, onTransition, onLogin }: ViewProps) {
+  // Determine which error type this is based on message content
+  const isMissingResume = errorMessage?.includes('subir tu CV') ?? false;
+  const isAuthExpired = errorMessage?.includes('sesion expiro') ?? false;
+  const isAdaptationError = errorSource === 'adaptation';
+
   return (
     <div className="flex flex-col items-center justify-center h-full gap-4 p-6 text-center">
       <div className="w-12 h-12 rounded-full bg-red-100 flex items-center justify-center text-2xl">
@@ -167,22 +174,52 @@ function ErrorView({ errorMessage, onTransition }: ViewProps) {
             {errorMessage}
           </p>
         )}
-        <p className="text-sm text-slate-500 mt-2">
-          Podes intentar extraer el aviso nuevamente.
-        </p>
       </div>
-      <button
-        className="btn-primary w-full"
-        onClick={() => onTransition?.('extracting')}
-      >
-        Reintentar extraccion
-      </button>
-      <button
-        className="btn-ghost w-full"
-        onClick={() => onTransition?.('unsupported_page')}
-      >
-        Volver al inicio
-      </button>
+
+      {/* CTA buttons based on error type */}
+      {isMissingResume ? (
+        <>
+          <button
+            className="btn-primary w-full"
+            onClick={() => chrome.tabs.create({ url: `${API_BASE_URL}/resumes` })}
+          >
+            Subir CV en MockMaster
+          </button>
+          <button className="btn-ghost w-full" onClick={() => onTransition?.('unsupported_page')}>
+            Volver al inicio
+          </button>
+        </>
+      ) : isAuthExpired ? (
+        <>
+          <button className="btn-primary w-full" onClick={onLogin}>
+            Iniciar sesion
+          </button>
+          <button className="btn-ghost w-full" onClick={() => onTransition?.('unsupported_page')}>
+            Volver al inicio
+          </button>
+        </>
+      ) : isAdaptationError ? (
+        <>
+          <button
+            className="btn-primary w-full"
+            onClick={() => onTransition?.('job_extracted')}
+          >
+            Reintentar adaptacion
+          </button>
+          <button className="btn-ghost w-full" onClick={() => onTransition?.('unsupported_page')}>
+            Volver al inicio
+          </button>
+        </>
+      ) : (
+        <>
+          <button className="btn-primary w-full" onClick={() => onTransition?.('extracting')}>
+            Reintentar extraccion
+          </button>
+          <button className="btn-ghost w-full" onClick={() => onTransition?.('unsupported_page')}>
+            Volver al inicio
+          </button>
+        </>
+      )}
     </div>
   );
 }
@@ -194,6 +231,7 @@ function ErrorView({ errorMessage, onTransition }: ViewProps) {
 export default function App() {
   const [state, setState] = useState<SidebarState>('loading');
   const [errorMessage, setErrorMessage] = useState<string>('');
+  const [errorSource, setErrorSource] = useState<'extraction' | 'adaptation' | null>(null);
 
   /**
    * The URL of the currently active tab. Used to call extraction.extract()
@@ -234,6 +272,7 @@ export default function App() {
     }
     if (!extraction.extracting && extraction.error && state === 'extracting') {
       setErrorMessage(extraction.error);
+      setErrorSource('extraction');
       setState('error');
     }
   }, [extraction.extracting, extraction.jobData, extraction.error, state]);
@@ -254,6 +293,7 @@ export default function App() {
     }
     if (!adaptation.adapting && adaptation.error) {
       setErrorMessage(adaptation.error);
+      setErrorSource('adaptation');
       setState('error');
     }
   }, [adaptation.adapting, adaptation.adaptedResume, adaptation.error, state]);
@@ -324,8 +364,12 @@ export default function App() {
       // handle the correct transition when auth resolves.
       if (!auth.authenticated) return;
 
+      // Don't interrupt an in-progress or completed adaptation
+      if (state === 'adapting' || state === 'adapted') return;
+
       if (isJobListingUrl(url)) {
         setCurrentUrl(url);
+        adaptation.clearAdaptation();
         extraction.extract(url);
         setState('extracting');
       } else if (state !== 'loading' && state !== 'unauthenticated') {
@@ -335,7 +379,7 @@ export default function App() {
 
     chrome.runtime.onMessage.addListener(handler);
     return () => chrome.runtime.onMessage.removeListener(handler);
-  }, [auth.authenticated, state, extraction]);
+  }, [auth.authenticated, state, extraction, adaptation]);
 
   // ---------------------------------------------------------------------------
   // handleAdapt — triggers the 4-step adaptation pipeline.
@@ -386,13 +430,22 @@ export default function App() {
   const handleTransition = useCallback(
     (next: SidebarState) => {
       if (next === 'extracting') {
+        // If no URL is available (manual input path), go to unsupported_page instead
+        if (!currentUrl) {
+          setState('unsupported_page');
+          return;
+        }
         setState('extracting');
         extraction.extract(currentUrl);
         return;
       }
+      if (next === 'unsupported_page') {
+        // Clear stale hook state when going back to start
+        adaptation.clearAdaptation();
+      }
       setState(next);
     },
-    [extraction, currentUrl]
+    [extraction, currentUrl, adaptation]
   );
 
   /**
@@ -411,7 +464,9 @@ export default function App() {
     onTransition: handleTransition,
     jobData: extraction.jobData,
     errorMessage,
+    errorSource,
     onManualAnalysis: handleManualAnalysis,
+    onLogin: auth.openLogin,
   };
 
   const renderView = () => {
@@ -449,6 +504,7 @@ export default function App() {
             adaptationsUsed={subscription.subscription?.adaptations_used}
             adaptationsLimit={subscription.subscription?.adaptations_limit}
             onUpgrade={subscription.openUpgrade}
+            onGoManual={() => setState('unsupported_page')}
           />
         );
 
@@ -485,10 +541,12 @@ export default function App() {
           <span className="text-sm font-bold text-slate-800">MockMaster</span>
         </div>
 
-        {/* State indicator (dev helper) */}
-        <span className="text-xs text-slate-400 font-mono bg-slate-100 px-2 py-0.5 rounded">
-          {state}
-        </span>
+        {/* State indicator (dev helper — hidden in production builds) */}
+        {process.env.NODE_ENV === 'development' && (
+          <span className="text-xs text-slate-400 font-mono bg-slate-100 px-2 py-0.5 rounded">
+            {state}
+          </span>
+        )}
       </header>
 
       {/* Main content area */}

@@ -222,13 +222,20 @@ export default function TemplateSelectorInline({
       {/* Row 3: Error message (conditional)                                  */}
       {/* ------------------------------------------------------------------- */}
       {error && (
-        <p
-          className="text-xs text-red-600 text-center leading-snug"
+        <div
+          className="flex items-center justify-between gap-2 text-xs text-red-600"
           role="alert"
           aria-live="polite"
         >
-          {error}
-        </p>
+          <p className="leading-snug">{error}</p>
+          <button
+            type="button"
+            className="text-red-600 hover:text-red-700 underline shrink-0 font-medium"
+            onClick={onDownload}
+          >
+            Reintentar
+          </button>
+        </div>
       )}
     </div>
   );

@@ -26,7 +26,7 @@
  * ```
  */
 
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useRef, useEffect } from 'react';
 import { AdaptedResume, mockMasterClient } from '../api/mockmaster-client';
 
 // ---------------------------------------------------------------------------
@@ -86,6 +86,19 @@ export function usePDFDownload(): PDFDownloadState & {
     success: false,
   });
 
+  // Store the auto-reset timer ID so we can cancel it on rapid re-calls or
+  // on unmount, preventing a setState-after-unmount warning.
+  const resetTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // Clean up any pending timeout when the component unmounts.
+  useEffect(() => {
+    return () => {
+      if (resetTimerRef.current !== null) {
+        clearTimeout(resetTimerRef.current);
+      }
+    };
+  }, []);
+
   // -------------------------------------------------------------------------
   // download()
   // -------------------------------------------------------------------------
@@ -129,10 +142,18 @@ export function usePDFDownload(): PDFDownloadState & {
 
       setState({ downloading: false, error: null, success: true });
 
+      // Clear any previous auto-reset timer before scheduling a new one to
+      // prevent stale timers from accumulating on rapid consecutive clicks.
+      if (resetTimerRef.current !== null) {
+        clearTimeout(resetTimerRef.current);
+        resetTimerRef.current = null;
+      }
+
       // Auto-reset the success flag after 3 seconds so the button reverts to
       // its default "Descargar PDF" label without any user action.
-      setTimeout(() => {
+      resetTimerRef.current = setTimeout(() => {
         setState((prev) => ({ ...prev, success: false }));
+        resetTimerRef.current = null;
       }, 3000);
     } catch (err) {
       console.error('[usePDFDownload] Error generating PDF:', err);

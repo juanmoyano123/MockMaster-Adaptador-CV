@@ -5,6 +5,8 @@
  * update them in one place when the API moves or URL patterns change.
  */
 
+import { SidebarState } from './types';
+
 // ---------------------------------------------------------------------------
 // API
 // ---------------------------------------------------------------------------
@@ -128,7 +130,7 @@ export const MSG = {
 // ---------------------------------------------------------------------------
 
 /** Human-readable labels for sidebar states, used in placeholder UI */
-export const STATE_LABELS: Record<string, string> = {
+export const STATE_LABELS: Record<SidebarState, string> = {
   loading: 'Cargando…',
   unauthenticated: 'Inicia sesion para continuar',
   unsupported_page: 'Navega a un aviso de empleo',

@@ -60,6 +60,7 @@ export default function AdaptedResumeView({
   atsBreakdown,
   jobAnalysis,
   onSaveApplication,
+  onGoBack,
 }: AdaptedResumeViewProps) {
   // Derive the structured content
   const content = adaptedResume?.adapted_content;
@@ -78,6 +79,15 @@ export default function AdaptedResumeView({
   const educationText = formatEducation(content?.education ?? []);
   const skillsText = formatSkills(content?.skills ?? []);
 
+  // Count how many sections came back empty from the adaptation pipeline.
+  // Used to surface a warning banner when the adapted CV has significant gaps.
+  const emptySectionCount = [
+    !content?.summary,
+    !content?.experience || content.experience.length === 0,
+    !content?.education || content.education.length === 0,
+    !content?.skills || content.skills.length === 0,
+  ].filter(Boolean).length;
+
   return (
     <div className="flex flex-col h-full">
       {/* ------------------------------------------------------------------- */}
@@ -93,6 +103,13 @@ export default function AdaptedResumeView({
       {/* Section order per design spec: Summary → Experience → Education → Skills */}
       {/* ------------------------------------------------------------------- */}
       <div className="flex-1 overflow-y-auto p-4 flex flex-col gap-3">
+
+        {/* Warning banner when multiple sections are empty */}
+        {emptySectionCount >= 2 && (
+          <div className="px-3 py-2 bg-amber-50 border border-amber-200 rounded-lg text-xs text-amber-700" role="alert">
+            La adaptacion tuvo datos incompletos en {emptySectionCount} secciones. Verifica que tu CV en MockMaster tenga toda la informacion.
+          </div>
+        )}
 
         {/* Resumen Profesional */}
         <CopyableSection title="Resumen Profesional" copyText={summaryText}>
@@ -147,9 +164,9 @@ export default function AdaptedResumeView({
         <CopyableSection title="Habilidades" copyText={skillsText}>
           {content?.skills && content.skills.length > 0 ? (
             <div className="flex flex-wrap gap-1">
-              {content.skills.map((skill) => (
+              {content.skills.map((skill, idx) => (
                 <span
-                  key={skill}
+                  key={`${skill}-${idx}`}
                   className="inline-block bg-primary-50 text-primary-700 text-xs px-2 py-0.5 rounded-full"
                 >
                   {skill}
@@ -186,6 +203,12 @@ export default function AdaptedResumeView({
             success={pdfDownload.success}
             error={pdfDownload.error}
           />
+        )}
+
+        {onGoBack && (
+          <button className="btn-ghost w-full text-xs" onClick={onGoBack}>
+            Volver al inicio
+          </button>
         )}
       </div>
     </div>
