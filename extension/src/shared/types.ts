@@ -153,27 +153,30 @@ export interface StoredAuthToken {
 export interface Application {
   id: string;
   user_id: string;
-  job_url: string;
   job_title: string;
-  company: string;
+  company_name: string;
+  job_url: string;
+  source: 'linkedin' | 'indeed' | 'manual';
   location: string | null;
-  source: 'linkedin' | 'indeed' | 'other';
+  salary: string | null;
+  modality: 'remote' | 'hybrid' | 'onsite' | null;
   status: ApplicationStatus;
-  applied_at: string | null;
-  cv_version_id: string | null;
+  applied_at: string;
+  adapted_content: Record<string, unknown> | null;
+  ats_score: number | null;
+  template_used: string | null;
+  job_analysis: Record<string, unknown> | null;
   notes: string | null;
   created_at: string;
   updated_at: string;
 }
 
 export type ApplicationStatus =
-  | 'saved'
-  | 'applied'
-  | 'phone_screen'
-  | 'interview'
-  | 'offer'
-  | 'rejected'
-  | 'withdrawn';
+  | 'aplicada'
+  | 'entrevista'
+  | 'oferta'
+  | 'rechazada'
+  | 'descartada';
 
 // ---------------------------------------------------------------------------
 // Subscription

@@ -472,28 +472,54 @@ class MockMasterClient {
   /**
    * Creates a new application record in the tracker.
    *
-   * Track D: implement full request body shape.
+   * Backend: POST /api/applications
+   *   Request:  { job_title, company_name, job_url, source, location?, salary?,
+   *               modality?, adapted_content?, ats_score?, template_used?,
+   *               job_analysis?, notes? }
+   *   Response: { application: Application }
+   *
+   * Unwraps the `{ application }` envelope before returning.
    */
-  async createApplication(data: Partial<Application>): Promise<Application> {
-    // TODO (Track D): validate required fields before sending
-    return this.request<Application>(API_ENDPOINTS.applications, {
-      method: 'POST',
-      body: JSON.stringify(data),
-    });
+  async createApplication(data: {
+    job_title: string;
+    company_name: string;
+    job_url: string;
+    source: 'linkedin' | 'indeed' | 'manual';
+    location?: string;
+    salary?: string;
+    modality?: 'remote' | 'hybrid' | 'onsite';
+    adapted_content?: unknown;
+    ats_score?: number;
+    template_used?: string;
+    job_analysis?: unknown;
+    notes?: string;
+  }): Promise<Application> {
+    const response = await this.request<{ application: Application }>(
+      API_ENDPOINTS.applications,
+      {
+        method: 'POST',
+        body: JSON.stringify(data),
+      }
+    );
+    return response.application;
   }
 
   /**
    * Returns all application records for the current user, with optional
    * filtering and pagination.
    *
-   * Track D: implement query params.
+   * Backend: GET /api/applications
+   *   Query params: status (comma-separated), job_url, sort, order, limit, offset
+   *   Response: { applications: Application[], total: number }
    */
   async getApplications(params?: {
-    status?: ApplicationStatus;
-    source?: 'linkedin' | 'indeed' | 'other';
+    status?: string;
+    job_url?: string;
+    sort?: string;
+    order?: 'asc' | 'desc';
     limit?: number;
     offset?: number;
-  }): Promise<Application[]> {
+  }): Promise<{ applications: Application[]; total: number }> {
     const qs = params
       ? '?' + new URLSearchParams(
           Object.entries(params)
@@ -501,25 +527,66 @@ class MockMasterClient {
             .map(([k, v]) => [k, String(v)])
         ).toString()
       : '';
-    return this.request<Application[]>(`${API_ENDPOINTS.applications}${qs}`);
+    return this.request<{ applications: Application[]; total: number }>(
+      `${API_ENDPOINTS.applications}${qs}`
+    );
   }
 
   /**
    * Checks whether an application for the given job URL already exists.
    * Returns the application if found, or null.
    *
-   * Track D: implement response handling.
+   * Uses the job_url query filter to perform an exact-match lookup.
+   * Never throws — returns null on any error so callers can continue safely.
    */
   async checkApplicationExists(jobUrl: string): Promise<Application | null> {
     try {
-      const qs = '?' + new URLSearchParams({ job_url: jobUrl }).toString();
-      const results = await this.request<Application[]>(
+      const qs = '?' + new URLSearchParams({ job_url: jobUrl, limit: '1' }).toString();
+      const { applications } = await this.request<{ applications: Application[]; total: number }>(
         `${API_ENDPOINTS.applications}${qs}`
       );
-      return results[0] ?? null;
+      return applications[0] ?? null;
     } catch {
       return null;
     }
+  }
+
+  /**
+   * Updates the status and/or notes of an existing application.
+   *
+   * Backend: PATCH /api/applications/[id]
+   *   Request:  { status?, notes? }
+   *   Response: { application: Application }
+   *
+   * Unwraps the `{ application }` envelope before returning.
+   */
+  async updateApplication(
+    id: string,
+    data: { status?: string; notes?: string }
+  ): Promise<Application> {
+    const response = await this.request<{ application: Application }>(
+      `${API_ENDPOINTS.applications}/${id}`,
+      {
+        method: 'PATCH',
+        body: JSON.stringify(data),
+      }
+    );
+    return response.application;
+  }
+
+  /**
+   * Permanently deletes an application record.
+   *
+   * Backend: DELETE /api/applications/[id]
+   *   Response: { success: true }
+   *
+   * Throws if the application is not found or belongs to another user.
+   */
+  async deleteApplication(id: string): Promise<void> {
+    await this.request<{ success: true }>(
+      `${API_ENDPOINTS.applications}/${id}`,
+      { method: 'DELETE' }
+    );
   }
 }
 
