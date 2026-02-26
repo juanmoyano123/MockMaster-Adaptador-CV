@@ -47,7 +47,7 @@ function formatDate(iso: string | null): string {
 
 function TierBadge({ tier, adminGranted }: { tier: string; adminGranted: boolean }) {
   if (adminGranted) {
-    return <span className="text-xs px-2 py-0.5 rounded-full bg-purple-100 text-purple-700 font-medium">Acceso Admin</span>;
+    return <span className="text-xs px-2 py-0.5 rounded-full bg-purple-100 text-purple-700 font-medium">Acceso Ext.</span>;
   }
   if (tier === 'pro') {
     return <span className="text-xs px-2 py-0.5 rounded-full bg-secondary-100 text-secondary-700 font-medium">Pro</span>;

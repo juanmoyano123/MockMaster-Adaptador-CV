@@ -9,11 +9,12 @@
 
 import { useState, useEffect } from 'react';
 import { PLANS, TRIAL_DAYS } from '@/lib/subscription-config';
-import UpgradeModal from '@/components/UpgradeModal';
+import UpgradeModal from '@/components/ui/UpgradeModal';
 
 interface SubscriptionData {
   tier: 'free' | 'pro';
   status: string;
+  has_extension_access: boolean;
   plan: {
     name: string;
     price: number;
@@ -37,6 +38,7 @@ export default function BillingPage() {
   const [loading, setLoading] = useState(true);
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
   const [cancelling, setCancelling] = useState(false);
+  const [extensionInstructions, setExtensionInstructions] = useState(false);
 
   useEffect(() => {
     fetchSubscription();
@@ -267,6 +269,74 @@ export default function BillingPage() {
           </div>
         </div>
       )}
+
+      {/* Extension Chrome */}
+      <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+        <div className="p-6">
+          <div className="flex items-center gap-3 mb-4">
+            <div className="w-10 h-10 bg-slate-100 rounded-lg flex items-center justify-center">
+              {data?.has_extension_access ? (
+                <svg className="w-5 h-5 text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 10v6m0 0l-3-3m3 3l3-3M3 17V7a2 2 0 012-2h6l2 2h6a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2z" />
+                </svg>
+              ) : (
+                <svg className="w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                </svg>
+              )}
+            </div>
+            <div>
+              <h3 className="font-semibold text-slate-900">Extension Chrome</h3>
+              <p className="text-sm text-slate-500">
+                {data?.has_extension_access
+                  ? 'Adapta tu CV directamente desde LinkedIn e Indeed'
+                  : 'Disponible con el plan Pro'}
+              </p>
+            </div>
+          </div>
+
+          {data?.has_extension_access ? (
+            <div className="space-y-4">
+              <a
+                href="/api/download-extension"
+                className="inline-flex items-center gap-2 px-4 py-2 bg-primary-600 text-white text-sm font-semibold rounded-lg hover:bg-primary-700 transition-colors"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                </svg>
+                Descargar Extension
+              </a>
+
+              <div>
+                <button
+                  onClick={() => setExtensionInstructions(!extensionInstructions)}
+                  className="flex items-center gap-1 text-sm text-slate-600 hover:text-slate-900"
+                >
+                  <svg className={`w-4 h-4 transition-transform ${extensionInstructions ? 'rotate-90' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                  </svg>
+                  Instrucciones de instalacion
+                </button>
+                {extensionInstructions && (
+                  <ol className="mt-3 space-y-1.5 text-sm text-slate-600 list-decimal list-inside pl-1">
+                    <li>Descarga y descomprime el archivo <code className="text-xs bg-slate-100 px-1 py-0.5 rounded">.zip</code></li>
+                    <li>Abre <code className="text-xs bg-slate-100 px-1 py-0.5 rounded">chrome://extensions</code> en tu navegador</li>
+                    <li>Activa el &ldquo;Modo desarrollador&rdquo; (esquina superior derecha)</li>
+                    <li>Haz clic en &ldquo;Cargar descomprimida&rdquo; y selecciona la carpeta extraida</li>
+                  </ol>
+                )}
+              </div>
+            </div>
+          ) : (
+            <button
+              onClick={() => setShowUpgradeModal(true)}
+              className="inline-flex items-center gap-2 px-4 py-2 bg-slate-900 text-white text-sm font-semibold rounded-lg hover:bg-slate-800 transition-colors"
+            >
+              Suscribite al Pro
+            </button>
+          )}
+        </div>
+      </div>
 
       {/* FAQ */}
       <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">

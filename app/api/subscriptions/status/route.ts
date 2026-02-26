@@ -46,6 +46,11 @@ export async function GET(request: NextRequest) {
     // Check if admin granted free access (bypasses tier and usage limits)
     const adminGrantedAccess = subscription?.admin_granted_access === true;
 
+    // Calculate extension access: pro active/trialing OR admin granted
+    const hasExtensionAccess =
+      adminGrantedAccess ||
+      (tier === 'pro' && (status === 'active' || status === 'trialing'));
+
     // Calculate if user can adapt
     const canAdapt =
       adminGrantedAccess ||
@@ -71,6 +76,7 @@ export async function GET(request: NextRequest) {
         can_adapt: canAdapt,
         period_start: periodStart.toISOString(),
       },
+      has_extension_access: hasExtensionAccess,
       subscription: subscription
         ? {
             current_period_end: subscription.current_period_end,
