@@ -11,6 +11,7 @@ import { getAuthenticatedUser } from '@/lib/auth-helper';
 import { PLANS } from '@/lib/subscription-config';
 import { getUsageThisMonth } from '@/lib/storage/subscription';
 import { SubscriptionTier } from '@/lib/types';
+import { getProPrice } from '@/lib/pricing';
 
 export async function GET(request: NextRequest) {
   try {
@@ -61,12 +62,16 @@ export async function GET(request: NextRequest) {
     const now = new Date();
     const periodStart = new Date(now.getFullYear(), now.getMonth(), 1);
 
+    // Always include the dynamic Pro price so billing pages can display it
+    const proPrice = await getProPrice();
+
     return NextResponse.json({
       tier,
       status,
+      pro_price: proPrice,
       plan: {
         name: plan.name,
-        price: plan.price,
+        price: tier === 'pro' ? proPrice : plan.price,
         currency: plan.currency,
         features: plan.features,
       },

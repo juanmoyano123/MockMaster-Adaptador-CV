@@ -28,7 +28,8 @@ function getPreApproval(): PreApproval {
  */
 export async function createSubscription(
   userId: string,
-  email: string
+  email: string,
+  price: number = PLANS.pro.price
 ): Promise<{ init_point: string; subscription_id: string }> {
   const preApproval = getPreApproval();
 
@@ -46,7 +47,7 @@ export async function createSubscription(
     auto_recurring: {
       frequency: 1,
       frequency_type: 'months' as const,
-      transaction_amount: PLANS.pro.price,
+      transaction_amount: price,
       currency_id: 'ARS' as const,
     },
     back_url: `${process.env.NEXT_PUBLIC_APP_URL}/billing?success=true`,

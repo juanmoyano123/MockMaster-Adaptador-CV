@@ -14,6 +14,7 @@ import UpgradeModal from '@/components/ui/UpgradeModal';
 interface SubscriptionData {
   tier: 'free' | 'pro';
   status: string;
+  pro_price: number;
   has_extension_access: boolean;
   plan: {
     name: string;
@@ -235,7 +236,7 @@ export default function BillingPage() {
                 <p className="text-primary-100 mt-1">Adaptaciones ilimitadas para profesionales</p>
               </div>
               <div className="text-right">
-                <p className="text-3xl font-bold text-white">${PLANS.pro.price}</p>
+                <p className="text-3xl font-bold text-white">${data?.pro_price ?? PLANS.pro.price}</p>
                 <p className="text-sm text-primary-200">/{PLANS.pro.currency}/mes</p>
               </div>
             </div>
@@ -370,6 +371,7 @@ export default function BillingPage() {
       <UpgradeModal
         isOpen={showUpgradeModal}
         onClose={() => setShowUpgradeModal(false)}
+        price={data?.pro_price}
       />
     </div>
   );

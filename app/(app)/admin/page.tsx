@@ -36,7 +36,7 @@ interface AdminApplication {
   applied_at: string;
 }
 
-type Tab = 'usuarios' | 'cvs' | 'aplicaciones';
+type Tab = 'usuarios' | 'cvs' | 'aplicaciones' | 'configuracion';
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -90,12 +90,63 @@ export default function AdminPage() {
   const [appSearch, setAppSearch] = useState('');
   const [appTotal, setAppTotal] = useState(0);
 
+  // Pricing
+  const [proPrice, setProPrice] = useState<number | null>(null);
+  const [priceDraft, setPriceDraft] = useState('');
+  const [priceSaving, setPriceSaving] = useState(false);
+  const [priceSaved, setPriceSaved] = useState(false);
+  const [priceError, setPriceError] = useState<string | null>(null);
+
   // ── Auth check ──────────────────────────────────────────────────────────────
   useEffect(() => {
     fetch('/api/admin/check')
       .then((r) => setAuthorized(r.ok))
       .catch(() => setAuthorized(false));
   }, []);
+
+  // ── Fetch pricing ────────────────────────────────────────────────────────────
+  const fetchPricing = useCallback(async () => {
+    try {
+      const r = await fetch('/api/admin/pricing');
+      if (r.ok) {
+        const data = await r.json();
+        setProPrice(data.price);
+        setPriceDraft(String(data.price));
+      }
+    } catch {
+      // non-critical
+    }
+  }, []);
+
+  const handleSavePrice = async () => {
+    const value = parseFloat(priceDraft);
+    if (isNaN(value) || value <= 0) {
+      setPriceError('Ingresá un número mayor a 0');
+      return;
+    }
+    setPriceSaving(true);
+    setPriceError(null);
+    setPriceSaved(false);
+    try {
+      const r = await fetch('/api/admin/pricing', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ price: value }),
+      });
+      if (r.ok) {
+        const data = await r.json();
+        setProPrice(data.price);
+        setPriceDraft(String(data.price));
+        setPriceSaved(true);
+        setTimeout(() => setPriceSaved(false), 3000);
+      } else {
+        const err = await r.json();
+        setPriceError(err.error || 'Error al guardar');
+      }
+    } finally {
+      setPriceSaving(false);
+    }
+  };
 
   // ── Data fetchers ────────────────────────────────────────────────────────────
   const fetchUsers = useCallback(async () => {
@@ -137,8 +188,9 @@ export default function AdminPage() {
       fetchUsers();
       fetchResumes();
       fetchApplications();
+      fetchPricing();
     }
-  }, [authorized, fetchUsers, fetchResumes, fetchApplications]);
+  }, [authorized, fetchUsers, fetchResumes, fetchApplications, fetchPricing]);
 
   // ── Toggle admin access ──────────────────────────────────────────────────────
   const handleToggleAccess = async (userId: string, currentGranted: boolean) => {
@@ -226,7 +278,8 @@ export default function AdminPage() {
             { id: 'usuarios', label: 'Usuarios', count: users.length },
             { id: 'cvs', label: 'CVs', count: resumes.length },
             { id: 'aplicaciones', label: 'Aplicaciones', count: appTotal },
-          ] as { id: Tab; label: string; count: number }[]).map((tab) => (
+            { id: 'configuracion', label: 'Configuración', count: null },
+          ] as { id: Tab; label: string; count: number | null }[]).map((tab) => (
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
@@ -237,9 +290,11 @@ export default function AdminPage() {
               }`}
             >
               {tab.label}
-              <span className={`text-xs px-1.5 py-0.5 rounded-full ${activeTab === tab.id ? 'bg-primary-100 text-primary-700' : 'bg-slate-100 text-slate-500'}`}>
-                {tab.count}
-              </span>
+              {tab.count !== null && (
+                <span className={`text-xs px-1.5 py-0.5 rounded-full ${activeTab === tab.id ? 'bg-primary-100 text-primary-700' : 'bg-slate-100 text-slate-500'}`}>
+                  {tab.count}
+                </span>
+              )}
             </button>
           ))}
         </div>
@@ -355,6 +410,75 @@ export default function AdminPage() {
                   ))}
               </tbody>
             </table>
+          </div>
+        )}
+
+        {/* ── Tab: Configuración ────────────────────────────────────────────── */}
+        {activeTab === 'configuracion' && (
+          <div className="p-6 max-w-lg space-y-6">
+            {/* Precio Pro */}
+            <div>
+              <h3 className="text-base font-semibold text-slate-900 mb-1">Precio del Plan Pro</h3>
+              <p className="text-sm text-slate-500 mb-4">
+                Modificá el precio que se muestra a los usuarios y se usa al crear nuevas suscripciones via API.
+                {process.env.NODE_ENV !== 'production' && (
+                  <span className="block mt-1 text-amber-600">
+                    Nota: si usás MP_PLAN_ID, el cobro real lo define el plan en MercadoPago.
+                  </span>
+                )}
+              </p>
+              <div className="flex items-center gap-3">
+                <div className="relative">
+                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 font-medium">$</span>
+                  <input
+                    type="number"
+                    min="1"
+                    step="1"
+                    value={priceDraft}
+                    onChange={(e) => { setPriceDraft(e.target.value); setPriceError(null); setPriceSaved(false); }}
+                    className="pl-7 pr-4 py-2.5 w-36 border border-slate-200 rounded-lg text-slate-900 font-semibold text-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none"
+                    placeholder="100"
+                  />
+                </div>
+                <span className="text-slate-500 text-sm font-medium">ARS / mes</span>
+                <button
+                  onClick={handleSavePrice}
+                  disabled={priceSaving || priceDraft === String(proPrice)}
+                  className="px-4 py-2.5 bg-primary-600 hover:bg-primary-700 disabled:opacity-50 disabled:cursor-not-allowed text-white text-sm font-semibold rounded-lg transition-colors flex items-center gap-2"
+                >
+                  {priceSaving ? (
+                    <svg className="animate-spin w-4 h-4" fill="none" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                    </svg>
+                  ) : priceSaved ? (
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                    </svg>
+                  ) : null}
+                  {priceSaving ? 'Guardando...' : priceSaved ? 'Guardado' : 'Guardar'}
+                </button>
+              </div>
+              {priceError && (
+                <p className="mt-2 text-sm text-red-600">{priceError}</p>
+              )}
+              {priceSaved && (
+                <p className="mt-2 text-sm text-green-600">Precio actualizado correctamente.</p>
+              )}
+            </div>
+
+            {/* Info card */}
+            <div className="bg-amber-50 border border-amber-200 rounded-lg p-4">
+              <div className="flex gap-3">
+                <svg className="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <div className="text-sm text-amber-800 space-y-1">
+                  <p className="font-medium">Importante sobre MercadoPago</p>
+                  <p>Si tu cuenta usa un <strong>plan pre-creado</strong> en MercadoPago (MP_PLAN_ID), el cobro real lo determina el precio configurado en tu cuenta de MercadoPago, no este valor. Este campo controla el precio mostrado en la app y el cobrado al crear suscripciones por API.</p>
+                </div>
+              </div>
+            </div>
           </div>
         )}
 

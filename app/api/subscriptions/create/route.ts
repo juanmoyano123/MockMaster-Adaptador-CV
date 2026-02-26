@@ -13,6 +13,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getAuthenticatedUser } from '@/lib/auth-helper';
 import { createSubscription } from '@/lib/mercadopago';
+import { getProPrice } from '@/lib/pricing';
 
 export async function POST(request: NextRequest) {
   try {
@@ -53,7 +54,8 @@ export async function POST(request: NextRequest) {
       });
     } else {
       // Mode 2: API-based subscription (testing)
-      const result = await createSubscription(user.id, user.email || '');
+      const price = await getProPrice();
+      const result = await createSubscription(user.id, user.email || '', price);
 
       // Save the subscription ID for later reference
       await supabase
