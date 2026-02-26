@@ -24,7 +24,6 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { SidebarState, ExtractedJobData } from '../shared/types';
 import { MSG, STATE_LABELS, isJobListingUrl, API_BASE_URL } from '../shared/constants';
-import { AdaptedResume, ATSScoreBreakdown } from './api/mockmaster-client';
 
 // Custom hooks
 import { useAuth } from './hooks/useAuth';
@@ -39,6 +38,10 @@ import JobExtractionView from './components/JobExtractionView';
 // Manual text input fallback (Track N)
 import ManualInput from './components/ManualInput';
 
+// Adaptation views (Track O)
+import AdaptingView from './components/AdaptingView';
+import AdaptedResumeView from './components/AdaptedResumeView';
+
 // ---------------------------------------------------------------------------
 // Inline view components (out of scope for Track H — kept as placeholders)
 // ---------------------------------------------------------------------------
@@ -49,10 +52,6 @@ interface ViewProps {
   errorMessage?: string;
   /** Called by UnsupportedPageView when the user completes a manual analysis */
   onManualAnalysis?: (jobData: ExtractedJobData) => void;
-  /** The adapted resume returned by the adaptation pipeline (step 3) */
-  adaptedResume?: AdaptedResume | null;
-  /** Detailed ATS score breakdown returned by step 4 of the pipeline */
-  atsBreakdown?: ATSScoreBreakdown | null;
 }
 
 function LoadingView() {
@@ -116,249 +115,6 @@ function UnsupportedPageView({ onManualAnalysis }: ViewProps) {
   );
 }
 
-interface AdaptingViewProps {
-  step?: string;
-}
-
-const ADAPTING_STEP_LABELS: Record<string, string> = {
-  fetching_resume: 'Obteniendo tu CV...',
-  analyzing_job: 'Analizando el aviso con IA...',
-  adapting_resume: 'Personalizando tu CV...',
-  calculating_ats: 'Calculando puntaje ATS...',
-};
-
-function AdaptingView({ step }: AdaptingViewProps) {
-  const stepLabel = (step && ADAPTING_STEP_LABELS[step]) ?? 'Adaptando tu CV...';
-
-  return (
-    <div className="flex flex-col items-center justify-center h-full gap-4 p-6 text-center">
-      <div className="spinner w-10 h-10" />
-      <div>
-        <h2 className="text-base font-semibold text-slate-700 mb-1">
-          {stepLabel}
-        </h2>
-        <p className="text-sm text-slate-500">
-          La IA esta personalizando tu CV para esta oferta. Esto puede
-          tomar unos segundos.
-        </p>
-      </div>
-    </div>
-  );
-}
-
-function AdaptedView({ adaptedResume, atsBreakdown, onTransition }: ViewProps) {
-  /**
-   * Copies `text` to the clipboard and logs for debugging.
-   * Errors are swallowed — clipboard access may be denied in some contexts.
-   */
-  const handleCopy = (text: string, label: string) => {
-    navigator.clipboard.writeText(text).then(() => {
-      console.info(`[MockMaster] Copied: ${label}`);
-    }).catch((err) => {
-      console.warn(`[MockMaster] Clipboard write failed for ${label}:`, err);
-    });
-  };
-
-  // Derive display values from the adaptation result
-  const content = adaptedResume?.adapted_content;
-  const atsScore = atsBreakdown?.total_score ?? adaptedResume?.ats_score ?? null;
-
-  // Build the experience text for copying (all bullets concatenated)
-  const experienceText = content?.experience
-    .map((exp) => `${exp.title} en ${exp.company} (${exp.dates})\n${exp.bullets.join('\n')}`)
-    .join('\n\n') ?? '';
-
-  const skillsText = content?.skills.join(', ') ?? '';
-
-  const educationText = content?.education
-    .map((edu) => `${edu.degree} — ${edu.school} (${edu.year})`)
-    .join('\n') ?? '';
-
-  // Colour the ATS score badge: green >= 75, yellow >= 50, red < 50
-  const atsColour =
-    atsScore === null
-      ? 'text-slate-400'
-      : atsScore >= 75
-      ? 'text-secondary-600'
-      : atsScore >= 50
-      ? 'text-yellow-600'
-      : 'text-red-600';
-
-  return (
-    <div className="flex flex-col h-full">
-      {/* ----------------------------------------------------------------- */}
-      {/* ATS score banner                                                   */}
-      {/* ----------------------------------------------------------------- */}
-      <div className="p-4 border-b border-slate-200 bg-green-50">
-        <div className="flex items-center justify-between">
-          <div>
-            <span className="text-sm font-semibold text-slate-700">
-              Puntaje ATS
-            </span>
-            {atsBreakdown && (
-              <p className="text-xs text-slate-500 mt-0.5">
-                {atsBreakdown.keywords_matched}/{atsBreakdown.keywords_total} palabras clave coinciden
-              </p>
-            )}
-          </div>
-          <span className={`text-3xl font-bold ${atsColour}`}>
-            {atsScore !== null ? `${atsScore}` : '—'}
-          </span>
-        </div>
-
-        {/* Missing keywords hint */}
-        {atsBreakdown && atsBreakdown.missing_keywords.length > 0 && (
-          <p className="text-xs text-slate-500 mt-1">
-            Faltan:{' '}
-            <span className="font-medium">
-              {atsBreakdown.missing_keywords.slice(0, 3).join(', ')}
-              {atsBreakdown.missing_keywords.length > 3 ? '...' : ''}
-            </span>
-          </p>
-        )}
-      </div>
-
-      {/* ----------------------------------------------------------------- */}
-      {/* Scrollable content sections                                        */}
-      {/* ----------------------------------------------------------------- */}
-      <div className="flex-1 overflow-y-auto p-4 flex flex-col gap-3">
-        {/* Resumen profesional */}
-        <div className="card">
-          <div className="section-header">
-            <span className="section-title">Resumen Profesional</span>
-            <button
-              className="copy-btn"
-              onClick={() => handleCopy(content?.summary ?? '', 'Resumen Profesional')}
-            >
-              Copiar
-            </button>
-          </div>
-          <p className="text-xs text-slate-700 whitespace-pre-line leading-relaxed">
-            {content?.summary ?? 'Sin datos.'}
-          </p>
-        </div>
-
-        {/* Habilidades */}
-        <div className="card">
-          <div className="section-header">
-            <span className="section-title">Habilidades</span>
-            <button
-              className="copy-btn"
-              onClick={() => handleCopy(skillsText, 'Habilidades')}
-            >
-              Copiar
-            </button>
-          </div>
-          {content?.skills && content.skills.length > 0 ? (
-            <div className="flex flex-wrap gap-1 mt-1">
-              {content.skills.map((skill) => (
-                <span
-                  key={skill}
-                  className="inline-block bg-primary-50 text-primary-700 text-xs px-2 py-0.5 rounded-full"
-                >
-                  {skill}
-                </span>
-              ))}
-            </div>
-          ) : (
-            <p className="text-xs text-slate-500">Sin datos.</p>
-          )}
-        </div>
-
-        {/* Experiencia */}
-        <div className="card">
-          <div className="section-header">
-            <span className="section-title">Experiencia</span>
-            <button
-              className="copy-btn"
-              onClick={() => handleCopy(experienceText, 'Experiencia')}
-            >
-              Copiar
-            </button>
-          </div>
-          {content?.experience && content.experience.length > 0 ? (
-            <div className="flex flex-col gap-3 mt-1">
-              {content.experience.map((exp, idx) => (
-                <div key={idx} className="text-xs">
-                  <p className="font-semibold text-slate-800">
-                    {exp.title}{' '}
-                    <span className="font-normal text-slate-500">en {exp.company}</span>
-                  </p>
-                  <p className="text-slate-400 mb-1">{exp.dates}</p>
-                  <ul className="list-disc list-inside space-y-0.5 text-slate-700">
-                    {exp.bullets.map((bullet, bi) => (
-                      <li key={bi}>{bullet}</li>
-                    ))}
-                  </ul>
-                </div>
-              ))}
-            </div>
-          ) : (
-            <p className="text-xs text-slate-500">Sin datos.</p>
-          )}
-        </div>
-
-        {/* Educacion */}
-        <div className="card">
-          <div className="section-header">
-            <span className="section-title">Educacion</span>
-            <button
-              className="copy-btn"
-              onClick={() => handleCopy(educationText, 'Educacion')}
-            >
-              Copiar
-            </button>
-          </div>
-          {content?.education && content.education.length > 0 ? (
-            <div className="flex flex-col gap-1 mt-1">
-              {content.education.map((edu, idx) => (
-                <p key={idx} className="text-xs text-slate-700">
-                  <span className="font-semibold">{edu.degree}</span>
-                  {' — '}
-                  {edu.school}
-                  {edu.year ? ` (${edu.year})` : ''}
-                </p>
-              ))}
-            </div>
-          ) : (
-            <p className="text-xs text-slate-500">Sin datos.</p>
-          )}
-        </div>
-
-        {/* ATS suggestions */}
-        {atsBreakdown && atsBreakdown.suggestions.length > 0 && (
-          <div className="card border-yellow-200 bg-yellow-50">
-            <div className="section-header">
-              <span className="section-title text-yellow-800">Sugerencias de mejora</span>
-            </div>
-            <ul className="list-disc list-inside space-y-1 mt-1">
-              {atsBreakdown.suggestions.map((suggestion, idx) => (
-                <li key={idx} className="text-xs text-yellow-800">
-                  {suggestion}
-                </li>
-              ))}
-            </ul>
-          </div>
-        )}
-      </div>
-
-      {/* ----------------------------------------------------------------- */}
-      {/* Footer actions                                                     */}
-      {/* ----------------------------------------------------------------- */}
-      <div className="p-4 border-t border-slate-200 flex flex-col gap-2">
-        <button
-          className="btn-primary w-full"
-          onClick={() => onTransition?.('application_saved')}
-        >
-          Guardar postulacion
-        </button>
-        <button className="btn-ghost w-full text-xs" onClick={() => {}}>
-          Descargar PDF
-        </button>
-      </div>
-    </div>
-  );
-}
 
 function ApplicationSavedView({ jobData, onTransition }: ViewProps) {
   return (
@@ -656,8 +412,6 @@ export default function App() {
     jobData: extraction.jobData,
     errorMessage,
     onManualAnalysis: handleManualAnalysis,
-    adaptedResume: adaptation.adaptedResume,
-    atsBreakdown: adaptation.atsBreakdown,
   };
 
   const renderView = () => {
@@ -702,7 +456,15 @@ export default function App() {
         return <AdaptingView step={adaptation.step} />;
 
       case 'adapted':
-        return <AdaptedView {...viewProps} />;
+        return (
+          <AdaptedResumeView
+            adaptedResume={adaptation.adaptedResume}
+            atsBreakdown={adaptation.atsBreakdown}
+            jobAnalysis={adaptation.jobAnalysis}
+            onSaveApplication={() => handleTransition('application_saved')}
+            onGoBack={() => handleTransition('unsupported_page')}
+          />
+        );
 
       case 'application_saved':
         return <ApplicationSavedView {...viewProps} />;

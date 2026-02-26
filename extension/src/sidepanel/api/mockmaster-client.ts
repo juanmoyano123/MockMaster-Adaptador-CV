@@ -352,14 +352,23 @@ class MockMasterClient {
 
   /**
    * Requests a PDF export of the adapted resume.
-   * Returns a Blob that can be downloaded or shared.
+   * Returns a Blob that the caller can download via a temporary object URL.
    *
-   * Track C: implement template selection and response handling.
+   * Uses raw fetch (not this.request) because the response is a binary PDF
+   * stream, not JSON — response.json() would throw on a PDF body.
+   *
+   * Backend: POST /api/generate-pdf
+   *   Request:  { adapted_content: AdaptedContent, template: string, company_name: string }
+   *   Response: application/pdf binary stream
+   *
+   * @param adaptedContent - The inner content object from AdaptedResume.adapted_content
+   * @param template       - Template identifier: 'clean' | 'modern' | 'compact'
+   * @param companyName    - Company name used to label the downloaded file
    */
   async generatePDF(
-    adapted: AdaptedResume,
+    adaptedContent: AdaptedContent,
     template: string,
-    company: string
+    companyName: string
   ): Promise<Blob> {
     const url = `${this.baseUrl}${API_ENDPOINTS.generatePDF}`;
 
@@ -372,11 +381,25 @@ class MockMasterClient {
     const response = await fetch(url, {
       method: 'POST',
       headers,
-      body: JSON.stringify({ adapted_resume: adapted, template, company }),
+      body: JSON.stringify({
+        adapted_content: adaptedContent,
+        template,
+        company_name: companyName,
+      }),
     });
 
     if (!response.ok) {
-      throw new Error(`PDF generation failed: HTTP ${response.status}`);
+      // Attempt to parse an error body for a more descriptive message.
+      // If the body is not JSON (e.g. a network proxy error), fall back to
+      // the HTTP status text.
+      let errorMessage = `PDF generation failed: HTTP ${response.status}`;
+      try {
+        const body = await response.json();
+        errorMessage = body.error ?? body.message ?? errorMessage;
+      } catch {
+        // Non-JSON error body — use the status-based fallback above
+      }
+      throw new Error(errorMessage);
     }
 
     return response.blob();
