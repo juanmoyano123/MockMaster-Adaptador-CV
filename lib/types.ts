@@ -251,6 +251,7 @@ export interface UserSubscription {
   current_period_start: string | null;
   current_period_end: string | null;
   trial_ends_at: string | null;
+  admin_granted_access: boolean;
   created_at: string;
   updated_at: string;
 }

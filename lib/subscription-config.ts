@@ -47,8 +47,10 @@ export const TRIAL_DAYS = 2;
 // Check if user can adapt based on their subscription
 export function canAdapt(
   tier: SubscriptionTier,
-  adaptationsUsed: number
+  adaptationsUsed: number,
+  adminGrantedAccess: boolean = false
 ): boolean {
+  if (adminGrantedAccess) return true;
   const plan = PLANS[tier];
   if (plan.limits.adaptations_per_month === -1) {
     return true; // Unlimited

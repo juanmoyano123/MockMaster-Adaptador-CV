@@ -9,7 +9,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getAuthenticatedUser } from '@/lib/auth-helper';
 import { PLANS } from '@/lib/subscription-config';
-import { getUsageThisMonth } from '@/lib/subscription-storage';
+import { getUsageThisMonth } from '@/lib/storage/subscription';
 import { SubscriptionTier } from '@/lib/types';
 
 export async function GET(request: NextRequest) {
@@ -43,8 +43,12 @@ export async function GET(request: NextRequest) {
     // Get usage for current month
     const adaptationsUsed = await getUsageThisMonth();
 
+    // Check if admin granted free access (bypasses tier and usage limits)
+    const adminGrantedAccess = subscription?.admin_granted_access === true;
+
     // Calculate if user can adapt
     const canAdapt =
+      adminGrantedAccess ||
       plan.limits.adaptations_per_month === -1 ||
       adaptationsUsed < plan.limits.adaptations_per_month;
 
@@ -63,7 +67,7 @@ export async function GET(request: NextRequest) {
       },
       usage: {
         adaptations_used: adaptationsUsed,
-        adaptations_limit: plan.limits.adaptations_per_month,
+        adaptations_limit: adminGrantedAccess ? -1 : plan.limits.adaptations_per_month,
         can_adapt: canAdapt,
         period_start: periodStart.toISOString(),
       },
