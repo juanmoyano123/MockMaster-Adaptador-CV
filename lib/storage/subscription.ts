@@ -96,38 +96,16 @@ export async function incrementUsage(): Promise<boolean> {
   const periodStart = new Date(now.getFullYear(), now.getMonth(), 1);
   const periodKey = periodStart.toISOString().split('T')[0];
 
-  // Try to increment existing record
-  const { data: existing } = await supabase
-    .from('subscription_usage')
-    .select('adaptations_count')
-    .eq('user_id', user.id)
-    .eq('period_start', periodKey)
-    .single();
+  // Atomic increment using ON CONFLICT DO UPDATE — prevents race conditions
+  // when concurrent requests hit the same period row simultaneously
+  const { error } = await supabase.rpc('increment_adaptation_count', {
+    p_user_id: user.id,
+    p_period_start: periodKey,
+  });
 
-  if (existing) {
-    // Update existing record
-    const { error } = await supabase
-      .from('subscription_usage')
-      .update({ adaptations_count: existing.adaptations_count + 1 })
-      .eq('user_id', user.id)
-      .eq('period_start', periodKey);
-
-    if (error) {
-      console.error('Error updating usage:', error);
-      return false;
-    }
-  } else {
-    // Create new record
-    const { error } = await supabase.from('subscription_usage').insert({
-      user_id: user.id,
-      period_start: periodKey,
-      adaptations_count: 1,
-    });
-
-    if (error) {
-      console.error('Error creating usage:', error);
-      return false;
-    }
+  if (error) {
+    console.error('Error incrementing usage:', error);
+    return false;
   }
 
   return true;

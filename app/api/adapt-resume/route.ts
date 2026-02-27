@@ -44,15 +44,16 @@ export async function POST(request: NextRequest) {
       // Get subscription
       const { data: subscription } = await supabase
         .from('user_subscriptions')
-        .select('tier')
+        .select('tier, admin_granted_access')
         .eq('user_id', user.id)
         .single();
 
       const tier = (subscription?.tier || 'free') as 'free' | 'pro';
+      const adminGrantedAccess = subscription?.admin_granted_access === true;
       const plan = PLANS[tier];
 
-      // Check usage if not unlimited
-      if (plan.limits.adaptations_per_month !== -1) {
+      // Check usage if not unlimited and not admin-granted
+      if (!adminGrantedAccess && plan.limits.adaptations_per_month !== -1) {
         const now = new Date();
         const periodStart = new Date(now.getFullYear(), now.getMonth(), 1);
         const periodKey = periodStart.toISOString().split('T')[0];
@@ -102,11 +103,8 @@ export async function POST(request: NextRequest) {
     // Build prompt for Claude API
     const prompt = buildAdaptationPrompt(resume, jobAnalysis);
 
-    // Call Claude API
-    console.log('Calling Claude API for resume adaptation...');
-    const startTime = Date.now();
-
-    const message = await anthropic.messages.create({
+    // Call Claude API with 30s timeout
+    const claudeRequest = anthropic.messages.create({
       model: 'claude-sonnet-4-5-20250929',
       max_tokens: 8000,
       temperature: 0.3, // Slight creativity for reformulation
@@ -118,8 +116,11 @@ export async function POST(request: NextRequest) {
       ],
     });
 
-    const duration = Date.now() - startTime;
-    console.log(`Claude API responded in ${duration}ms`);
+    const timeoutPromise = new Promise<never>((_, reject) =>
+      setTimeout(() => reject(new Error('Claude API timeout after 30s')), 30000)
+    );
+
+    const message = await Promise.race([claudeRequest, timeoutPromise]);
 
     // Extract JSON from Claude's response
     const content = message.content[0];
@@ -166,31 +167,19 @@ export async function POST(request: NextRequest) {
     }
 
     // Increment usage counter after successful adaptation (F-009)
+    // Uses atomic RPC to prevent race conditions on concurrent requests
     if (user) {
       const now = new Date();
       const periodStart = new Date(now.getFullYear(), now.getMonth(), 1);
       const periodKey = periodStart.toISOString().split('T')[0];
 
-      // Try to get existing usage
-      const { data: existingUsage } = await supabase
-        .from('subscription_usage')
-        .select('adaptations_count')
-        .eq('user_id', user.id)
-        .eq('period_start', periodKey)
-        .single();
+      const { error: usageError } = await supabase.rpc('increment_adaptation_count', {
+        p_user_id: user.id,
+        p_period_start: periodKey,
+      });
 
-      if (existingUsage) {
-        await supabase
-          .from('subscription_usage')
-          .update({ adaptations_count: existingUsage.adaptations_count + 1 })
-          .eq('user_id', user.id)
-          .eq('period_start', periodKey);
-      } else {
-        await supabase.from('subscription_usage').insert({
-          user_id: user.id,
-          period_start: periodKey,
-          adaptations_count: 1,
-        });
+      if (usageError) {
+        console.error('Error incrementing usage:', usageError);
       }
     }
 

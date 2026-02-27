@@ -15,7 +15,7 @@ import {
 import {
   findSubscriptionByMPId,
   updateSubscriptionByUserId,
-} from '@/lib/subscription-storage';
+} from '@/lib/storage/subscription';
 
 export async function POST(request: NextRequest) {
   try {
@@ -23,35 +23,36 @@ export async function POST(request: NextRequest) {
     const xSignature = request.headers.get('x-signature');
     const xRequestId = request.headers.get('x-request-id');
 
-    // Parse request body
-    const body = await request.json();
-
-    console.log('Webhook received:', JSON.stringify(body, null, 2));
+    // Parse request body — return 400 on malformed JSON
+    let body: { type?: string; action?: string; data?: { id?: string } };
+    try {
+      body = await request.json();
+    } catch {
+      return NextResponse.json({ error: 'Invalid JSON' }, { status: 400 });
+    }
 
     // MercadoPago sends different notification formats
     // For subscription_preapproval: { action, type, data: { id }, ... }
-    const { type, action, data } = body;
+    const { type, data } = body;
 
     // Only process subscription_preapproval events
     if (type !== 'subscription_preapproval') {
-      console.log(`Ignoring event type: ${type}`);
       return NextResponse.json({ received: true });
     }
 
     const subscriptionId = data?.id;
 
     if (!subscriptionId) {
-      console.warn('Webhook missing subscription ID');
+      console.warn('[Webhook] Missing subscription ID in payload');
       return NextResponse.json({ received: true });
     }
 
-    // Verify signature (optional but recommended)
+    // Enforce signature verification when secret is configured
     if (process.env.MP_WEBHOOK_SECRET) {
       const isValid = verifyWebhookSignature(subscriptionId, xRequestId, xSignature);
       if (!isValid) {
-        console.warn('Invalid webhook signature');
-        // Still process for now, but log the warning
-        // In production you might want to reject invalid signatures
+        console.warn('[Webhook] Invalid signature — rejecting request');
+        return NextResponse.json({ error: 'Invalid signature' }, { status: 401 });
       }
     }
 
@@ -59,31 +60,30 @@ export async function POST(request: NextRequest) {
     const mpSubscription = await getSubscription(subscriptionId);
 
     if (!mpSubscription) {
-      console.error('Could not fetch subscription from MercadoPago');
+      console.error('[Webhook] Could not fetch subscription from MercadoPago');
       return NextResponse.json({ received: true });
     }
-
-    console.log('MP Subscription status:', mpSubscription.status);
-    console.log('MP Subscription external_reference:', mpSubscription.external_reference);
 
     // Map MP status to our status
     const newStatus = mapMPStatus(mpSubscription.status || '');
     const userId = mpSubscription.external_reference;
 
     if (!userId) {
-      console.error('Subscription missing external_reference (user_id)');
+      console.error('[Webhook] Subscription missing external_reference (user_id)');
       return NextResponse.json({ received: true });
     }
 
-    // Calculate period dates
+    // Calculate period end — handle month-boundary edge cases correctly
+    // (e.g. Jan 31 + 1 month → Feb 28, not Mar 3)
     const now = new Date();
     let periodEnd: string | null = null;
 
-    // If authorized/active, calculate next period end
     if (newStatus === 'active') {
-      const nextMonth = new Date(now);
-      nextMonth.setMonth(nextMonth.getMonth() + 1);
-      periodEnd = nextMonth.toISOString();
+      const targetYear = now.getMonth() === 11 ? now.getFullYear() + 1 : now.getFullYear();
+      const targetMonth = (now.getMonth() + 1) % 12;
+      const lastDayOfTarget = new Date(targetYear, targetMonth + 1, 0).getDate();
+      const day = Math.min(now.getDate(), lastDayOfTarget);
+      periodEnd = new Date(targetYear, targetMonth, day).toISOString();
     }
 
     // Update subscription in Supabase
@@ -107,10 +107,8 @@ export async function POST(request: NextRequest) {
     const updated = await updateSubscriptionByUserId(userId, updateData);
 
     if (!updated) {
-      console.error('Failed to update subscription in database');
+      console.error('[Webhook] Failed to update subscription in database');
     }
-
-    console.log(`Subscription ${subscriptionId} updated: status=${newStatus}`);
 
     return NextResponse.json({ received: true });
   } catch (error) {

@@ -63,16 +63,11 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    console.log('Calculating ATS breakdown...');
-    const startTime = Date.now();
-
     // 1. Extract and match keywords (35% weight)
     const keywords = extractKeywords(job_analysis);
     const { matched: keywordsMatched, missing: missingKeywords } =
       matchKeywords(keywords, adapted_content);
     const keyword_score = (keywordsMatched / keywords.length) * 100;
-
-    console.log(`Keywords: ${keywordsMatched}/${keywords.length} matched`);
 
     // 2. Match skills (35% weight)
     const { matched: skillsMatched, missing: skillsMissing } = matchSkills(
@@ -85,15 +80,11 @@ export async function POST(request: NextRequest) {
         : (skillsMatched.length / job_analysis.analysis.required_skills.length) *
           100;
 
-    console.log(`Skills: ${skillsMatched.length} matched, ${skillsMissing.length} missing`);
-
     // 3. Score experience relevance via Claude API (20% weight)
     const experience_score = await scoreExperience(
       adapted_content,
       job_analysis
     );
-
-    console.log(`Experience score: ${experience_score}`);
 
     // 4. Format score (10% weight) - always 100 for our templates
     const format_score = 100;
@@ -126,9 +117,6 @@ export async function POST(request: NextRequest) {
       skills_missing: skillsMissing,
       suggestions,
     };
-
-    const duration = Date.now() - startTime;
-    console.log(`ATS breakdown calculated in ${duration}ms`);
 
     return NextResponse.json({ breakdown }, { status: 200 });
   } catch (error) {
@@ -299,12 +287,18 @@ Rate the experience relevance on a 0-100 scale:
 IMPORTANT: Return ONLY a single number between 0 and 100. No explanation, just the number.`;
 
   try {
-    const message = await anthropic.messages.create({
+    const claudeRequest = anthropic.messages.create({
       model: 'claude-sonnet-4-5-20250929',
       max_tokens: 50,
       temperature: 0,
       messages: [{ role: 'user', content: prompt }],
     });
+
+    const timeoutPromise = new Promise<never>((_, reject) =>
+      setTimeout(() => reject(new Error('Claude API timeout after 30s')), 30000)
+    );
+
+    const message = await Promise.race([claudeRequest, timeoutPromise]);
 
     const content_block = message.content[0];
     if (content_block.type !== 'text') {

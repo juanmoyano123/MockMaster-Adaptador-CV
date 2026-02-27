@@ -102,9 +102,6 @@ export default function BillingPage() {
   const isTrialing = data?.status === 'trialing';
   const isCancelled = data?.status === 'cancelled';
 
-  // Debug: remove after testing
-  console.log('Billing Debug:', { isPro, isCancelled, shouldShowUpgrade: !isPro || isCancelled });
-
   return (
     <div className="max-w-3xl mx-auto space-y-6">
       {/* Header */}

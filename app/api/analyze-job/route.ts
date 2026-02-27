@@ -80,8 +80,8 @@ Guidelines:
 - If info is not available, use "Not specified" or empty array
 - Return ONLY valid JSON, no additional text`;
 
-    // Call Claude API
-    const message = await anthropic.messages.create({
+    // Call Claude API with 30s timeout
+    const claudeRequest = anthropic.messages.create({
       model: 'claude-sonnet-4-5-20250929',
       max_tokens: 4000,
       temperature: 0, // Deterministic results
@@ -92,6 +92,12 @@ Guidelines:
         },
       ],
     });
+
+    const timeoutPromise = new Promise<never>((_, reject) =>
+      setTimeout(() => reject(new Error('Claude API timeout after 30s')), 30000)
+    );
+
+    const message = await Promise.race([claudeRequest, timeoutPromise]);
 
     // Extract text content from Claude's response
     const content = message.content[0];

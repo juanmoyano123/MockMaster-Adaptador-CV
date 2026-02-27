@@ -9,7 +9,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getAuthenticatedUser } from '@/lib/auth-helper';
 import { cancelSubscription } from '@/lib/mercadopago';
-import { updateUserSubscription } from '@/lib/subscription-storage';
+import { updateUserSubscription } from '@/lib/storage/subscription';
 
 export async function POST(request: NextRequest) {
   try {

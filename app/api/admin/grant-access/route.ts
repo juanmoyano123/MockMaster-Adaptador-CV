@@ -7,11 +7,21 @@ export async function POST(request: NextRequest) {
   if (!user) return NextResponse.json({ error: 'No autenticado' }, { status: 401 });
   if (!isAdmin(user.email)) return NextResponse.json({ error: 'No autorizado' }, { status: 403 });
 
-  const body = await request.json();
-  const { user_id, granted } = body as { user_id: string; granted: boolean };
+  let body: { user_id?: unknown; granted?: unknown };
+  try {
+    body = await request.json();
+  } catch {
+    return NextResponse.json({ error: 'Cuerpo inválido' }, { status: 400 });
+  }
 
-  if (!user_id || typeof granted !== 'boolean') {
-    return NextResponse.json({ error: 'user_id y granted son requeridos' }, { status: 400 });
+  const { user_id, granted } = body;
+
+  const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+  if (typeof user_id !== 'string' || !UUID_RE.test(user_id)) {
+    return NextResponse.json({ error: 'user_id debe ser un UUID válido' }, { status: 400 });
+  }
+  if (typeof granted !== 'boolean') {
+    return NextResponse.json({ error: 'granted debe ser boolean' }, { status: 400 });
   }
 
   const supabase = getAdminServiceClient();
