@@ -5,7 +5,7 @@
  * To run: npm test __tests__/file-validation.test.ts
  */
 
-import { validateFile, validateTextLength, isSupportedExtension, getFileTypeName } from '../utils/file-validation';
+import { validateFile, validateTextLength, isSupportedExtension, getFileTypeName } from '../lib/file-validation';
 
 describe('file-validation', () => {
   describe('validateFile', () => {

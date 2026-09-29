@@ -5,8 +5,8 @@
  * Tests for text hashing, storage, and API validation.
  */
 
-import { hashText } from '@/utils/text-hash';
-import { jobAnalysisStorage } from '@/lib/job-storage';
+import { hashText } from '@/lib/text-hash';
+import { jobAnalysisStorage } from '@/lib/storage/job';
 import { JobAnalysis } from '@/lib/types';
 
 // Mock localStorage

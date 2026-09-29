@@ -186,7 +186,7 @@ function ErrorView({ errorMessage, errorSource, onTransition, onLogin }: ViewPro
         <>
           <button
             className="btn-primary w-full"
-            onClick={() => chrome.tabs.create({ url: `${API_BASE_URL}/resumes` })}
+            onClick={() => chrome.tabs.create({ url: `${API_BASE_URL}/upload` })}
           >
             Subir CV en MockMaster
           </button>

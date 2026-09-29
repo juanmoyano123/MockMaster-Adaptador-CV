@@ -9,8 +9,8 @@
 
 import { useState, useEffect, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
-import { jobLibraryStorage } from '@/lib/job-library-storage';
-import { jobAnalysisStorage } from '@/lib/job-storage';
+import { jobLibraryStorage } from '@/lib/storage/job-library';
+import { jobAnalysisStorage } from '@/lib/storage/job';
 import { SavedJobDescription, JobAnalysis } from '@/lib/types';
 
 export default function JobLibraryPage() {

@@ -10,9 +10,9 @@
 'use client';
 
 import { useState } from 'react';
-import ResumeAdaptationFlow from '@/components/ResumeAdaptationFlow';
-import SubscriptionBanner from '@/components/SubscriptionBanner';
-import UpgradeModal from '@/components/UpgradeModal';
+import ResumeAdaptationFlow from '@/components/resume-flow/ResumeAdaptationFlow';
+import SubscriptionBanner from '@/components/ui/SubscriptionBanner';
+import UpgradeModal from '@/components/ui/UpgradeModal';
 
 export default function AdaptResumePage() {
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);

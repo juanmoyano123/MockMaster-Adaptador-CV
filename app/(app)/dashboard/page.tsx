@@ -7,12 +7,12 @@
 
 import Link from 'next/link';
 import { useAuth } from '@/contexts/AuthContext';
-import { resumeStorage } from '@/lib/storage';
-import { jobAnalysisStorage } from '@/lib/job-storage';
-import { adaptedResumeStorage } from '@/lib/adapted-resume-storage';
+import { resumeStorage } from '@/lib/storage/base';
+import { jobAnalysisStorage } from '@/lib/storage/job';
+import { adaptedResumeStorage } from '@/lib/storage/adapted-resume';
 import { useEffect, useState } from 'react';
-import SubscriptionBanner from '@/components/SubscriptionBanner';
-import UpgradeModal from '@/components/UpgradeModal';
+import SubscriptionBanner from '@/components/ui/SubscriptionBanner';
+import UpgradeModal from '@/components/ui/UpgradeModal';
 
 interface Stats {
   hasResume: boolean;

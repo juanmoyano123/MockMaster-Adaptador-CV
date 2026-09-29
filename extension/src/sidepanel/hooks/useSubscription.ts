@@ -121,7 +121,7 @@ export function useSubscription(options?: { enabled?: boolean }): SubscriptionSt
   const openUpgrade = useCallback((): void => {
     // API_BASE_URL is resolved at compile time by webpack DefinePlugin
     // (development -> localhost:3000, production -> mockmaster.vercel.app).
-    chrome.tabs.create({ url: `${API_BASE_URL}/pricing` });
+    chrome.tabs.create({ url: `${API_BASE_URL}/billing` });
   }, []);
 
   // -------------------------------------------------------------------------

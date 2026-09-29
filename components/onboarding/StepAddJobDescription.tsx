@@ -14,7 +14,7 @@
 'use client';
 
 import { useState } from 'react';
-import { jobAnalysisStorage } from '@/lib/job-storage';
+import { jobAnalysisStorage } from '@/lib/storage/job';
 import { JobAnalysis, UrlExtractionAPIError } from '@/lib/types';
 
 interface StepAddJobDescriptionProps {

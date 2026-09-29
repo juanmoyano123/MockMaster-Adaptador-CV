@@ -5,7 +5,7 @@
  * Tests localStorage operations for adapted resume data
  */
 
-import { adaptedResumeStorage } from '@/lib/adapted-resume-storage';
+import { adaptedResumeStorage } from '@/lib/storage/adapted-resume';
 import { AdaptedResume } from '@/lib/types';
 
 // Mock localStorage

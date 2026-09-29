@@ -5,7 +5,7 @@
  * Main page for analyzing job descriptions.
  */
 
-import JobAnalysisFlow from '@/components/JobAnalysisFlow';
+import JobAnalysisFlow from '@/components/job-analysis/JobAnalysisFlow';
 
 export const metadata = {
   title: 'Analyze Job Description | MockMaster',

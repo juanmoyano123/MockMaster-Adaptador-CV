@@ -10,7 +10,7 @@
 'use client';
 
 import { useState } from 'react';
-import { resumeStorage } from '@/lib/storage';
+import { resumeStorage } from '@/lib/storage/base';
 import { ResumeData, ParsedContent } from '@/lib/types';
 
 interface StepUploadResumeProps {

@@ -5,7 +5,7 @@
  * To run: npm test __tests__/storage.test.ts
  */
 
-import { resumeStorage } from '../lib/storage';
+import { resumeStorage } from '../lib/storage/base';
 import { ResumeData } from '../lib/types';
 
 // Mock localStorage

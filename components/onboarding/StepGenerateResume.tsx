@@ -11,9 +11,9 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { resumeStorage } from '@/lib/storage';
-import { jobAnalysisStorage } from '@/lib/job-storage';
-import { adaptedResumeStorage } from '@/lib/adapted-resume-storage';
+import { resumeStorage } from '@/lib/storage/base';
+import { jobAnalysisStorage } from '@/lib/storage/job';
+import { adaptedResumeStorage } from '@/lib/storage/adapted-resume';
 import { validateNoHallucination } from '@/lib/validation';
 import { ResumeData, JobAnalysis, AdaptedResume } from '@/lib/types';
 

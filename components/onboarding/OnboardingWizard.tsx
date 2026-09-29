@@ -20,8 +20,8 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { resumeStorage } from '@/lib/storage';
-import { jobAnalysisStorage } from '@/lib/job-storage';
+import { resumeStorage } from '@/lib/storage/base';
+import { jobAnalysisStorage } from '@/lib/storage/job';
 import { AdaptedResume } from '@/lib/types';
 import OnboardingProgress from './OnboardingProgress';
 import StepUploadResume from './StepUploadResume';

@@ -5,7 +5,7 @@
  * Tests for the edit-related storage methods
  */
 
-import { adaptedResumeStorage } from '@/lib/adapted-resume-storage';
+import { adaptedResumeStorage } from '@/lib/storage/adapted-resume';
 import { AdaptedResume, AdaptedContent } from '@/lib/types';
 
 describe('Editable Resume Storage (F-012)', () => {
